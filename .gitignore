@@ -1,0 +1,11 @@
+# gitignore
+
+src/Release/*
+*.vcproj
+src/.vs
+src/Debug
+*.opensdf
+*.sln
+*.filters
+*.htm
+*.sdf
