@@ -9,54 +9,35 @@ bool cScene::LoadLevel(int level) {
 	bool res;
 	FILE *fd;
 	char file[16];
-	int i,j,px,py;
-	char tile;
-	float coordx_tile, coordy_tile;
+	int i,j;
+	std::string tile;
+	char c;
 
 	res=true;
 
-	if (level<10) 	sprintf(file,"%s0%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);
-	else		 	sprintf(file,"%s%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);
+	/*if (level<10) 	sprintf(file,"%s0%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);
+	else		 	sprintf(file,"%s%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);*/
+
+	sprintf(file, "%s%s", (char *)FILENAME,(char *)FILENAME_EXT);
 
 	fd=fopen(file,"r");
 	if (fd==NULL) return false;
 
-	id_DL=glGenLists(1);
-	glNewList(id_DL,GL_COMPILE);
-		glBegin(GL_QUADS);
-	
-			for(j=SCENE_HEIGHT-1;j>=0;j--) {
-				px=SCENE_Xo;
-				py=SCENE_Yo+(j*TILE_SIZE);
-
-				for(i=0;i<SCENE_WIDTH;i++) {
-					fscanf(fd,"%c",&tile);
-					if(tile==' ') {
-						// Tiles must be != 0 !!!
-						map[(j*SCENE_WIDTH)+i]=0;
-					} else {
-						// Tiles = 1,2,3,...
-						map[(j*SCENE_WIDTH)+i] = tile-48;
-
-						if(map[(j*SCENE_WIDTH)+i]%2) coordx_tile = 0.0f;
-						else						 coordx_tile = 0.5f;
-						if(map[(j*SCENE_WIDTH)+i]<3) coordy_tile = 0.0f;
-						else						 coordy_tile = 0.5f;
-
-						// BLOCK_SIZE = 24, FILE_SIZE = 64
-						// 24 / 64 = 0.375
-						glTexCoord2f(coordx_tile       ,coordy_tile+0.375f);	glVertex2i(px           ,py           );
-						glTexCoord2f(coordx_tile+0.375f,coordy_tile+0.375f);	glVertex2i(px+BLOCK_SIZE,py           );
-						glTexCoord2f(coordx_tile+0.375f,coordy_tile       );	glVertex2i(px+BLOCK_SIZE,py+BLOCK_SIZE);
-						glTexCoord2f(coordx_tile       ,coordy_tile       );	glVertex2i(px           ,py+BLOCK_SIZE);
-					}
-					px+=TILE_SIZE;
-				}
-				fscanf(fd,"%c",&tile); //pass enter
+	for(j=MAP_HEIGHT-1;j>=0;j--) {
+		for(i=0;i<MAP_WIDTH;i++) {
+			tile = "";
+			fscanf(fd, "%c", &c);
+			while (c != ',') {
+				tile += c;
+				fscanf(fd, "%c", &c);
 			}
 
-		glEnd();
-	glEndList();
+			int itile = atoi(tile.c_str());
+			map[(j*MAP_WIDTH) + i] = itile;
+		}
+		fscanf(fd,"%c",&c); //pass enter
+	}
+
 
 	fclose(fd);
 
@@ -64,9 +45,53 @@ bool cScene::LoadLevel(int level) {
 }
 
 void cScene::Draw(int tex_id) {
+	int i, j;
+	float backgroundx, backgroundy;
+	float coordx_tile, coordy_tile;
+	float playerx = 120.0f;
+	float playery = 88.0f;
+	// Test player position in the scene
+	if (playerx < SCENE_WIDTH / 2) backgroundx = 0.0f;
+	else if (playerx > MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = MAP_WIDTH - SCENE_WIDTH;
+	else backgroundx = playerx - (SCENE_WIDTH / 2);
+	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT - 1;
+	else if (playery > MAP_HEIGHT - SCENE_HEIGHT) backgroundy = SCENE_HEIGHT;
+	else backgroundy = MAP_HEIGHT - playery;
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,tex_id);
-	glCallList(id_DL);
+	
+	glBegin(GL_QUADS);
+
+	for (j = backgroundy;j >= backgroundy - SCENE_HEIGHT;j--) {
+		for (i = backgroundx;i<backgroundx + SCENE_WIDTH;i++) {
+			int itile = map[(j*MAP_WIDTH) + i];
+
+			coordy_tile = itile / (TILE_MAP_WIDTH / TILE_SIZE);
+			coordx_tile = itile % (TILE_MAP_WIDTH / TILE_SIZE);
+
+			// BLOCK_SIZE = 16, FILE_WIDTH = 288, FILE_HEIGTH = 128
+			// 16 / 288 = 0.05
+			// 16 / 128 = 0.125
+			float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
+			float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;
+			float vx = 1280/16;
+			float vy = 720/11;
+			float ni = i - backgroundx;
+			float nj = j - backgroundy + SCENE_HEIGHT;
+			glTexCoord2f(coordx_tile*offset_x, offset_y*(coordy_tile + 1));	glVertex2i(ni*vx, nj*vy);
+			glTexCoord2f(offset_x*(coordx_tile + 1), offset_y*(coordy_tile + 1));	glVertex2i((ni + 1)*vx, nj*vy);
+			glTexCoord2f(offset_x*(coordx_tile + 1), coordy_tile*offset_y);	glVertex2i((ni + 1)*vx, (nj + 1)*vy);
+			glTexCoord2f(coordx_tile*offset_x, coordy_tile*offset_y);	glVertex2i(ni*vx, (nj + 1)*vy);
+			/*glTexCoord2f(coordx_tile*offset_x, offset_y*(coordy_tile + 1));	glVertex2i(ni, nj);
+			glTexCoord2f(offset_x*(coordx_tile + 1), offset_y*(coordy_tile + 1));	glVertex2i(ni + TILE_SIZE, nj);
+			glTexCoord2f(offset_x*(coordx_tile + 1), coordy_tile*offset_y);	glVertex2i(ni + TILE_SIZE, nj + TILE_SIZE);
+			glTexCoord2f(coordx_tile*offset_x, coordy_tile*offset_y);	glVertex2i(ni, nj + TILE_SIZE);*/
+		}
+	}
+
+	glEnd();
+
 	glDisable(GL_TEXTURE_2D);
 }
 

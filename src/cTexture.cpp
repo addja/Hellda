@@ -12,11 +12,12 @@ bool cTexture::Load(char *filename,int type,int wraps,int wrapt,int magf,int min
 	int components;
 
 	img = corona::OpenImage(filename);
+
 	if (type==GL_RGB) {
-		// img = corona::OpenImage(filename,corona::PF_R8G8B8);
+		// img = corona::openimage(filename,corona::pf_r8g8b8);
 		components = 3;
 	} else if (type==GL_RGBA) {
-		// img = corona::OpenImage(filename,corona::PF_R8G8B8A8);
+		// img = corona::openimage(filename,corona::pf_r8g8b8a8);
 		components = 4;
 	} else return false;
 

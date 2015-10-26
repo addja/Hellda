@@ -19,10 +19,10 @@ bool cGame::Init() {
 	glEnable(GL_ALPHA_TEST);
 
 	// Scene initialization
-	// res = Data.LoadImage(IMG_BLOCKS,"blocks.png",GL_RGBA);
-	// if(!res) return false;
-	// res = Scene.LoadLevel(1);
-	// if(!res) return false;
+	 res = Data.LoadImage(IMG_BLOCKS,"zelda-tiles-compressed.png",GL_RGB);
+	 if(!res) return false;
+	 res = Scene.LoadLevel(1);
+	 if(!res) return false;
 
 	//Player initialization
 	// res = Data.LoadImage(IMG_PLAYER,"bub.png",GL_RGBA);
@@ -77,7 +77,7 @@ void cGame::Render() {
 	
 	glLoadIdentity();
 
-	// Scene.Draw(Data.GetID(IMG_BLOCKS));
+	Scene.Draw(Data.GetID(IMG_BLOCKS));
 	// Player.Draw(Data.GetID(IMG_PLAYER));
 
 	glutSwapBuffers();

@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma comment(lib,"include/corona")
+#pragma comment(lib,"corona")
 
 #include "Globals.h"
 
