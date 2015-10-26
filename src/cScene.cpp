@@ -44,26 +44,26 @@ bool cScene::LoadLevel(int level) {
 	return res;
 }
 
-void cScene::Draw(int tex_id) {
+void cScene::Draw(int tex_id, float playerx, float playery) {
 	int i, j;
 	float backgroundx, backgroundy;
 	float coordx_tile, coordy_tile;
-	float playerx = 120.0f;
-	float playery = 88.0f;
+	/*float playerx = 120.0f;
+	float playery = 88.0f;*/
 	// Test player position in the scene
 	if (playerx < SCENE_WIDTH / 2) backgroundx = 0.0f;
 	else if (playerx > MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = MAP_WIDTH - SCENE_WIDTH;
 	else backgroundx = playerx - (SCENE_WIDTH / 2);
-	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT - 1;
-	else if (playery > MAP_HEIGHT - SCENE_HEIGHT) backgroundy = SCENE_HEIGHT;
-	else backgroundy = MAP_HEIGHT - playery;
+	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT;
+	else if (playery > MAP_HEIGHT - (SCENE_HEIGHT / 2)) backgroundy = SCENE_HEIGHT;
+	else backgroundy = MAP_HEIGHT - playery + (SCENE_HEIGHT / 2);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,tex_id);
 	
 	glBegin(GL_QUADS);
 
-	for (j = backgroundy;j >= backgroundy - SCENE_HEIGHT;j--) {
+	for (j = backgroundy;j >= backgroundy - SCENE_HEIGHT - 1;j--) {
 		for (i = backgroundx;i<backgroundx + SCENE_WIDTH;i++) {
 			int itile = map[(j*MAP_WIDTH) + i];
 
@@ -75,8 +75,8 @@ void cScene::Draw(int tex_id) {
 			// 16 / 128 = 0.125
 			float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
 			float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;
-			float vx = 1280/16;
-			float vy = 720/11;
+			float vx = GAME_WIDTH/SCENE_WIDTH;
+			float vy = GAME_HEIGHT/(SCENE_HEIGHT-1);
 			float ni = i - backgroundx;
 			float nj = j - backgroundy + SCENE_HEIGHT;
 			glTexCoord2f(coordx_tile*offset_x, offset_y*(coordy_tile + 1));	glVertex2i(ni*vx, nj*vy);

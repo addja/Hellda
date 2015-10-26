@@ -19,18 +19,17 @@ bool cGame::Init() {
 	glEnable(GL_ALPHA_TEST);
 
 	// Scene initialization
-	 res = Data.LoadImage(IMG_BLOCKS,"zelda-tiles-compressed.png",GL_RGB);
+	 res = Data.LoadImage(IMG_OVERLORD,"zelda-tiles-compressed.png",GL_RGB);
 	 if(!res) return false;
 	 res = Scene.LoadLevel(1);
 	 if(!res) return false;
 
 	//Player initialization
-	// res = Data.LoadImage(IMG_PLAYER,"bub.png",GL_RGBA);
-	// if(!res) return false;
-	// Player.SetWidthHeight(32,32);
-	// Player.SetTile(4,1);
-	// Player.SetWidthHeight(32,32);
-	// Player.SetState(STATE_LOOKRIGHT);
+	 res = Data.LoadImage(IMG_PLAYER,"bub.png",GL_RGBA);
+	 if(!res) return false;
+	 Player.SetWidthHeight(32,32);
+	 Player.SetPosition(119.0f,82.0f);
+	 Player.SetState(STATE_LOOKRIGHT);
 
 	return res;
 }
@@ -60,13 +59,14 @@ bool cGame::Process() {
 	// Process Input
 	if (keys[27]) res=false;
 	
-	if (keys[GLUT_KEY_UP])			Player.Jump(Scene.GetMap());
+	if (keys[GLUT_KEY_UP])			Player.MoveUp(Scene.GetMap());
+	else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Scene.GetMap());
 	if (keys[GLUT_KEY_LEFT])		Player.MoveLeft(Scene.GetMap());
 	else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Scene.GetMap());
 	else Player.Stop();
 	
 	// Game Logic
-	Player.Logic(Scene.GetMap());
+	//Player.Logic(Scene.GetMap());
 
 	return res;
 }
@@ -77,8 +77,11 @@ void cGame::Render() {
 	
 	glLoadIdentity();
 
-	Scene.Draw(Data.GetID(IMG_BLOCKS));
-	// Player.Draw(Data.GetID(IMG_PLAYER));
+	float x, y;
+	Player.GetPosition(&x, &y);
+
+	Scene.Draw(Data.GetID(IMG_OVERLORD), x, y);
+	Player.Draw(Data.GetID(IMG_PLAYER));
 
 	glutSwapBuffers();
 }

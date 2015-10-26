@@ -18,12 +18,12 @@ cPepe::cPepe(int posx,int posy,int width,int height) {
 	h = height;
 }
 
-void cPepe::SetPosition(int posx,int posy) {
+void cPepe::SetPosition(float posx, float posy) {
 	x = posx;
 	y = posy;
 }
 
-void cPepe::GetPosition(int *posx,int *posy) {
+void cPepe::GetPosition(float *posx, float *posy) {
 	*posx = x;
 	*posy = y;
 }
@@ -81,10 +81,10 @@ bool cPepe::CollidesMapFloor(int *map) {
 	tile_y = y / TILE_SIZE;
 
 	width_tiles = w / TILE_SIZE;
-	if ( (x % TILE_SIZE) != 0) width_tiles++;
+	//if ( (x % TILE_SIZE) != 0) width_tiles++;
 
 	on_base = false;
-	i=0;
+	/*i=0;
 	while ((i<width_tiles) && !on_base) {
 		if ( (y % TILE_SIZE) == 0 ) {
 			if (map[ (tile_x + i) + ((tile_y - 1) * SCENE_WIDTH) ] != 0)
@@ -96,7 +96,7 @@ bool cPepe::CollidesMapFloor(int *map) {
 			}
 		}
 		i++;
-	}
+	}*/
 	return on_base;
 }
 
@@ -108,10 +108,19 @@ void cPepe::GetArea(cRect *rc) {
 }
 
 void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
-	int screen_x,screen_y;
+	float screen_x,screen_y;
 
-	screen_x = x + SCENE_Xo;
-	screen_y = y + SCENE_Yo + (BLOCK_SIZE - TILE_SIZE);
+	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+	screen_y = GAME_HEIGHT / 2 + SCENE_Yo;
+
+	float vx = GAME_WIDTH / SCENE_WIDTH;
+	float vy = GAME_HEIGHT / SCENE_HEIGHT;
+
+	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
+	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
+	if (y < SCENE_HEIGHT / 2) screen_y = GAME_HEIGHT - y*vy;
+	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2)) screen_y =  (MAP_HEIGHT - y)*vy;
+
 
 	glEnable(GL_TEXTURE_2D);
 	
@@ -126,45 +135,95 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void cPepe::MoveLeft(int *map) {
-	int xaux;
-	
-	// Whats next tile?
-	if ( (x % TILE_SIZE) == 0) {
-		xaux = x;
-		x -= STEP_LENGTH;
+void cPepe::MoveUp(int *map) {
+	//int yaux;
 
-		if (CollidesMapWall(map,false)) {
-			x = xaux;
-			state = STATE_LOOKLEFT;
-		}
-	}
-	// Advance, no problem
-	else {
+	//// Whats next tile?
+	//if ((y % TILE_SIZE) == 0) {
+	//	yaux = y;
+	//	y -= STEP_LENGTH;
+
+	//	if (CollidesMapWall(map, true)) {
+	//		y = yaux;
+	//		state = STATE_LOOKRIGHT;
+	//	}
+	//}
+	//// Advance, no problem
+	//else {
+		y -= STEP_LENGTH;
+
+		//if (state != STATE_WALKRIGHT) {
+		//	state = STATE_WALKRIGHT;
+		//	seq = 0;
+		//	delay = 0;
+		//}
+	//}
+}
+
+void cPepe::MoveDown(int *map) {
+	//int yaux;
+
+	//// Whats next tile?
+	//if ((y % TILE_SIZE) == 0) {
+	//	yaux = y;
+	//	y += STEP_LENGTH;
+
+	//	if (CollidesMapWall(map, true)) {
+	//		y = yaux;
+	//		state = STATE_LOOKRIGHT;
+	//	}
+	//}
+	//// Advance, no problem
+	//else {
+		y += STEP_LENGTH;
+
+		//if (state != STATE_WALKRIGHT) {
+		//	state = STATE_WALKRIGHT;
+		//	seq = 0;
+		//	delay = 0;
+		//}
+	//}
+}
+
+void cPepe::MoveLeft(int *map) {
+	//int xaux;
+	
+	//// Whats next tile?
+	//if ( (x % TILE_SIZE) == 0) {
+	//	xaux = x;
+	//	x -= STEP_LENGTH;
+
+	//	if (CollidesMapWall(map,false)) {
+	//		x = xaux;
+	//		state = STATE_LOOKLEFT;
+	//	}
+	//}
+	//// Advance, no problem
+	/*else {*/
 		x -= STEP_LENGTH;
 		if (state != STATE_WALKLEFT) {
 			state = STATE_WALKLEFT;
 			seq = 0;
 			delay = 0;
 		}
-	}
+	//}
 }
 
 void cPepe::MoveRight(int *map) {
-	int xaux;
+	//int xaux;
 
-	// Whats next tile?
-	if ( (x % TILE_SIZE) == 0) {
-		xaux = x;
-		x += STEP_LENGTH;
+	//// Whats next tile?
+	//if ( (x % TILE_SIZE) == 0) {
+	//	xaux = x;
+	//	x += STEP_LENGTH;
 
-		if (CollidesMapWall(map,true)) {
-			x = xaux;
-			state = STATE_LOOKRIGHT;
-		}
-	}
-	// Advance, no problem
-	else {
+	//	if (CollidesMapWall(map,true)) {
+	//		x = xaux;
+	//		state = STATE_LOOKRIGHT;
+	//	}
+	//}
+	//// Advance, no problem
+	//else {
 		x += STEP_LENGTH;
 
 		if (state != STATE_WALKRIGHT) {
@@ -172,7 +231,7 @@ void cPepe::MoveRight(int *map) {
 			seq = 0;
 			delay = 0;
 		}
-	}
+	//}
 }
 
 void cPepe::Stop() {
