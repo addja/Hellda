@@ -127,9 +127,9 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
 	glBindTexture(GL_TEXTURE_2D,tex_id);
 	glBegin(GL_QUADS);	
 		glTexCoord2f(xo,yo);	glVertex2i(screen_x  ,screen_y);
-		glTexCoord2f(xf,yo);	glVertex2i(screen_x+w,screen_y);
-		glTexCoord2f(xf,yf);	glVertex2i(screen_x+w,screen_y+h);
-		glTexCoord2f(xo,yf);	glVertex2i(screen_x  ,screen_y+h);
+		glTexCoord2f(xf,yo);	glVertex2i(screen_x+(vx / TILE_SIZE)*w,screen_y);
+		glTexCoord2f(xf,yf);	glVertex2i(screen_x+ (vx / TILE_SIZE)*w,screen_y+(vy / TILE_SIZE)*h);
+		glTexCoord2f(xo,yf);	glVertex2i(screen_x  ,screen_y+ (vy / TILE_SIZE)*h);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -152,11 +152,11 @@ void cPepe::MoveUp(int *map) {
 	//else {
 		y -= STEP_LENGTH;
 
-		//if (state != STATE_WALKRIGHT) {
-		//	state = STATE_WALKRIGHT;
-		//	seq = 0;
-		//	delay = 0;
-		//}
+		if (state != STATE_WALKUP) {
+			state = STATE_WALKUP;
+			seq = 1;
+			delay = 0;
+		}
 	//}
 }
 
@@ -177,11 +177,11 @@ void cPepe::MoveDown(int *map) {
 	//else {
 		y += STEP_LENGTH;
 
-		//if (state != STATE_WALKRIGHT) {
-		//	state = STATE_WALKRIGHT;
-		//	seq = 0;
-		//	delay = 0;
-		//}
+		if (state != STATE_WALKDOWN) {
+			state = STATE_WALKDOWN;
+			seq = 1;
+			delay = 0;
+		}
 	//}
 }
 
@@ -203,7 +203,7 @@ void cPepe::MoveLeft(int *map) {
 		x -= STEP_LENGTH;
 		if (state != STATE_WALKLEFT) {
 			state = STATE_WALKLEFT;
-			seq = 0;
+			seq = 1;
 			delay = 0;
 		}
 	//}
@@ -228,7 +228,7 @@ void cPepe::MoveRight(int *map) {
 
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
-			seq = 0;
+			seq = 1;
 			delay = 0;
 		}
 	//}
@@ -238,6 +238,8 @@ void cPepe::Stop() {
 	switch (state) {
 		case STATE_WALKLEFT:	state = STATE_LOOKLEFT;		break;
 		case STATE_WALKRIGHT:	state = STATE_LOOKRIGHT;	break;
+		case STATE_WALKUP:		state = STATE_LOOKUP;		break;
+		case STATE_WALKDOWN:	state = STATE_LOOKDOWN;		break;
 	}
 }
 

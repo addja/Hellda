@@ -10,8 +10,12 @@
 
 #define STATE_LOOKLEFT		0
 #define STATE_LOOKRIGHT		1
-#define STATE_WALKLEFT		2
-#define STATE_WALKRIGHT		3
+#define STATE_LOOKUP		2
+#define STATE_LOOKDOWN		3
+#define STATE_WALKLEFT		4
+#define STATE_WALKRIGHT		5
+#define STATE_WALKUP		6
+#define STATE_WALKDOWN		7
 
 class cRect
 {

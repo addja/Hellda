@@ -25,9 +25,9 @@ bool cGame::Init() {
 	 if(!res) return false;
 
 	//Player initialization
-	 res = Data.LoadImage(IMG_PLAYER,"bub.png",GL_RGBA);
+	 res = Data.LoadImage(IMG_PLAYER,"link.png",GL_RGBA);
 	 if(!res) return false;
-	 Player.SetWidthHeight(32,32);
+	 Player.SetWidthHeight(16,16);
 	 Player.SetPosition(119.0f,82.0f);
 	 Player.SetState(STATE_LOOKRIGHT);
 
