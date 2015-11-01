@@ -1,6 +1,7 @@
 #include "include/cPepe.h"
 #include "include/cScene.h"
 #include "include/Globals.h"
+#include <iostream>
 
 cPepe::cPepe(void) {
 	seq=0;
@@ -107,7 +108,7 @@ void cPepe::GetArea(cRect *rc) {
 	rc->top    = y+h;
 }
 
-void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
+void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf, bool debug) {
 	float screen_x,screen_y;
 
 	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
@@ -120,6 +121,17 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
 	if (y < SCENE_HEIGHT / 2) screen_y = GAME_HEIGHT - y*vy;
 	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2)) screen_y =  (MAP_HEIGHT - y)*vy;
+
+	if (debug) {
+		glColor3f(1.0f, 0.0f, 1.0f);
+		glBegin(GL_QUADS);
+			glVertex2i(screen_x, screen_y);
+			glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y);
+			glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y + (vy / TILE_SIZE)*h);
+			glVertex2i(screen_x, screen_y + (vy / TILE_SIZE)*h);
+		glEnd();
+		glColor3f(1.0f, 1.0f, 1.0f);
+	}
 
 
 	glEnable(GL_TEXTURE_2D);
@@ -136,102 +148,50 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
 }
 
 void cPepe::MoveUp(int *map) {
-	//int yaux;
+	float yaux = y - STEP_LENGTH;
 
-	//// Whats next tile?
-	//if ((y % TILE_SIZE) == 0) {
-	//	yaux = y;
-	//	y -= STEP_LENGTH;
-
-	//	if (CollidesMapWall(map, true)) {
-	//		y = yaux;
-	//		state = STATE_LOOKRIGHT;
-	//	}
-	//}
-	//// Advance, no problem
-	//else {
-		y -= STEP_LENGTH;
+	if (checkCorrectMovement(x, yaux, map)) y = yaux;
 
 		if (state != STATE_WALKUP) {
 			state = STATE_WALKUP;
 			seq = 1;
 			delay = 0;
 		}
-	//}
 }
 
 void cPepe::MoveDown(int *map) {
-	//int yaux;
+	float yaux = y + STEP_LENGTH;
 
-	//// Whats next tile?
-	//if ((y % TILE_SIZE) == 0) {
-	//	yaux = y;
-	//	y += STEP_LENGTH;
-
-	//	if (CollidesMapWall(map, true)) {
-	//		y = yaux;
-	//		state = STATE_LOOKRIGHT;
-	//	}
-	//}
-	//// Advance, no problem
-	//else {
-		y += STEP_LENGTH;
+	if (checkCorrectMovement(x, yaux, map)) y = yaux;
 
 		if (state != STATE_WALKDOWN) {
 			state = STATE_WALKDOWN;
 			seq = 1;
 			delay = 0;
 		}
-	//}
 }
 
 void cPepe::MoveLeft(int *map) {
-	//int xaux;
-	
-	//// Whats next tile?
-	//if ( (x % TILE_SIZE) == 0) {
-	//	xaux = x;
-	//	x -= STEP_LENGTH;
+	float xaux = x - STEP_LENGTH;
 
-	//	if (CollidesMapWall(map,false)) {
-	//		x = xaux;
-	//		state = STATE_LOOKLEFT;
-	//	}
-	//}
-	//// Advance, no problem
-	/*else {*/
-		x -= STEP_LENGTH;
+	if (checkCorrectMovement(xaux, y, map)) x = xaux;
 		if (state != STATE_WALKLEFT) {
 			state = STATE_WALKLEFT;
 			seq = 1;
 			delay = 0;
 		}
-	//}
 }
 
 void cPepe::MoveRight(int *map) {
-	//int xaux;
+	float xaux = x + STEP_LENGTH;
 
-	//// Whats next tile?
-	//if ( (x % TILE_SIZE) == 0) {
-	//	xaux = x;
-	//	x += STEP_LENGTH;
-
-	//	if (CollidesMapWall(map,true)) {
-	//		x = xaux;
-	//		state = STATE_LOOKRIGHT;
-	//	}
-	//}
-	//// Advance, no problem
-	//else {
-		x += STEP_LENGTH;
+	if (checkCorrectMovement(xaux, y, map)) x = xaux;
 
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
 			seq = 1;
 			delay = 0;
 		}
-	//}
 }
 
 void cPepe::Stop() {
@@ -296,4 +256,43 @@ int cPepe::GetState() {
 
 void cPepe::SetState(int s) {
 	state = s;
+}
+
+bool cPepe::checkCorrectMovement(float x, float y, int *map) {
+
+	int tile, newx, newy;
+
+	// x, y point to the base left of the Pepe
+	cRect * r = new cRect();
+
+	// check collision upper left bbox
+	newx = floor(x);
+	newy = floor(y + h);
+	tile = map[newy*MAP_WIDTH + newx];
+	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+
+	// check collision upper right bbox
+	newx = floor(x + w);
+	newy = floor(y + h);
+	tile = map[newy*MAP_WIDTH + newx];
+	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+
+	// check collision bottom left bbox
+	newx = floor(x);
+	newy = floor(y);
+	tile = map[(MAP_HEIGHT-newy)*MAP_WIDTH + newx];
+
+	std::cout << w << "\n";
+	std::cout << "pos link " << x << " - " << y << " ------ ";
+	std::cout << "bounding tile " << newx << " - " << newy << "\n";
+
+	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+
+	// check collision bottom right bbox
+	newx = floor(x - w);
+	newy = floor(y);
+	tile = map[newy*MAP_WIDTH + newx];
+	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+
+	return true;
 }

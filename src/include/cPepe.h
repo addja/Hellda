@@ -36,12 +36,13 @@ public:
 	void GetTile(int *tx,int *ty);
 	void SetWidthHeight(int w,int h);
 	void GetWidthHeight(int *w,int *h);
+	bool checkCorrectMovement(float x, float y, int *map);
 
 	bool Collides(cRect *rc);
 	bool CollidesMapWall(int *map,bool right);
 	bool CollidesMapFloor(int *map);
 	void GetArea(cRect *rc);
-	void DrawRect(int tex_id,float xo,float yo,float xf,float yf);
+	void DrawRect(int tex_id, float xo, float yo, float xf, float yf, bool debug);
 
 	void MoveUp(int *map);
 	void MoveDown(int *map);
