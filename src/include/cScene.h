@@ -27,5 +27,4 @@ public:
 
 private:
 	int map[MAP_WIDTH * MAP_HEIGHT];		//scene
-	int id_DL;								//actual level display list
 };

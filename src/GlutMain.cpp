@@ -58,7 +58,7 @@ void main(int argc, char** argv) {
 	
 	glutInitWindowPosition(pos_x,pos_y);
 	glutInitWindowSize(GAME_WIDTH,GAME_HEIGHT);
-	glutCreateWindow("Hellza");
+	glutCreateWindow("Hellda");
 
 	/*glutGameModeString("800x600:32");
 	glutEnterGameMode();*/

@@ -16,8 +16,7 @@
 class cRect
 {
 public:
-	int left,top,
-		right,bottom;
+	int left,top,right,bottom;
 };
 
 class cPepe

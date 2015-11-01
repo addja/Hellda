@@ -15,7 +15,7 @@ public:
 
 	// Input
 	void ReadKeyboard(unsigned char key, int x, int y, bool press);
-	void ReadMouse(int button, int state, int x, int y);
+	void ReadMouse(int button, int state, int x, int y);			// TODO: we don't use the mouse
 	// Process
 	bool Process();
 	// Output
