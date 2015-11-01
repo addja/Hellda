@@ -28,8 +28,8 @@ bool cGame::Init() {
 	 res = Data.LoadImage(IMG_PLAYER,"link.png",GL_RGBA);
 	 if(!res) return false;
 	 Player.SetWidthHeight(16,16);
-	 Player.SetPosition(119.0f,82.0f);
-	 Player.SetState(STATE_LOOKRIGHT);
+	 Player.SetPosition(120.0f,82.0f);
+	 Player.SetState(STATE_LOOKDOWN);
 
 	return res;
 }
@@ -61,7 +61,7 @@ bool cGame::Process() {
 	
 	if (keys[GLUT_KEY_UP])			Player.MoveUp(Scene.GetMap());
 	else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Scene.GetMap());
-	if (keys[GLUT_KEY_LEFT])		Player.MoveLeft(Scene.GetMap());
+	else if (keys[GLUT_KEY_LEFT])		Player.MoveLeft(Scene.GetMap());
 	else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Scene.GetMap());
 	else Player.Stop();
 	
@@ -82,6 +82,16 @@ void cGame::Render() {
 
 	Scene.Draw(Data.GetID(IMG_OVERLORD), x, y);
 	Player.Draw(Data.GetID(IMG_PLAYER));
+
+	// Status bar black background
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glBegin(GL_POLYGON);
+		glVertex2i(0, GAME_HEIGHT);
+		glVertex2i(GAME_WIDTH, GAME_HEIGHT);
+		glVertex2i(GAME_WIDTH, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)));
+		glVertex2i(0, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)));
+	glEnd();
+	glColor4f(1, 1, 1, 1);
 
 	glutSwapBuffers();
 }

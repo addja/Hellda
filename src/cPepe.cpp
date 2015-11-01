@@ -109,18 +109,20 @@ void cPepe::GetArea(cRect *rc) {
 }
 
 void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf, bool debug) {
-	float screen_x,screen_y;
+	float screen_x, screen_y;
+
+	float hud_y = 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1));
 
 	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
-	screen_y = GAME_HEIGHT / 2 + SCENE_Yo;
+	screen_y = (GAME_HEIGHT / 2) - hud_y + SCENE_Yo;
 
 	float vx = GAME_WIDTH / SCENE_WIDTH;
-	float vy = GAME_HEIGHT / SCENE_HEIGHT;
+	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
 	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y < SCENE_HEIGHT / 2) screen_y = GAME_HEIGHT - y*vy;
-	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2)) screen_y =  (MAP_HEIGHT - y)*vy;
+	if (y < SCENE_HEIGHT / 2) screen_y += ((SCENE_HEIGHT / 2) - y)*vy;
+	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + 4) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + 4))*vy;
 
 	if (debug) {
 		glColor3f(1.0f, 0.0f, 1.0f);
@@ -135,13 +137,13 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf, bool debug)
 
 
 	glEnable(GL_TEXTURE_2D);
-	
-	glBindTexture(GL_TEXTURE_2D,tex_id);
-	glBegin(GL_QUADS);	
-		glTexCoord2f(xo,yo);	glVertex2i(screen_x  ,screen_y);
-		glTexCoord2f(xf,yo);	glVertex2i(screen_x+(vx / TILE_SIZE)*w,screen_y);
-		glTexCoord2f(xf,yf);	glVertex2i(screen_x+ (vx / TILE_SIZE)*w,screen_y+(vy / TILE_SIZE)*h);
-		glTexCoord2f(xo,yf);	glVertex2i(screen_x  ,screen_y+ (vy / TILE_SIZE)*h);
+
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+	glBegin(GL_QUADS);
+		glTexCoord2f(xo, yo);	glVertex2i(screen_x, screen_y);
+		glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y);
+		glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y + (vy / TILE_SIZE)*h);
+		glTexCoord2f(xo, yf);	glVertex2i(screen_x, screen_y + (vy / TILE_SIZE)*h);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);

@@ -54,9 +54,15 @@ void cScene::Draw(int tex_id, float playerx, float playery) {
 	if (playerx < SCENE_WIDTH / 2) backgroundx = 0.0f;
 	else if (playerx > MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = MAP_WIDTH - SCENE_WIDTH;
 	else backgroundx = playerx - (SCENE_WIDTH / 2);
-	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT;
-	else if (playery > MAP_HEIGHT - (SCENE_HEIGHT / 2)) backgroundy = SCENE_HEIGHT;
-	else backgroundy = MAP_HEIGHT - playery + (SCENE_HEIGHT / 2);
+	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT + 4;
+	else if (playery > MAP_HEIGHT - (SCENE_HEIGHT / 2) + 4) backgroundy = SCENE_HEIGHT;
+	else backgroundy = MAP_HEIGHT - playery + (SCENE_HEIGHT / 2) + 4;
+
+	float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
+	float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;
+	//float statusbar_y = 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1 + 4));
+	float vx = GAME_WIDTH / SCENE_WIDTH;
+	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,tex_id);
@@ -73,10 +79,6 @@ void cScene::Draw(int tex_id, float playerx, float playery) {
 			// BLOCK_SIZE = 16, FILE_WIDTH = 288, FILE_HEIGTH = 128
 			// 16 / 288 = 0.05
 			// 16 / 128 = 0.125
-			float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
-			float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;
-			float vx = GAME_WIDTH/SCENE_WIDTH;
-			float vy = GAME_HEIGHT/(SCENE_HEIGHT-1);
 			float ni = i - backgroundx;
 			float nj = j - backgroundy + SCENE_HEIGHT;
 			glTexCoord2f(coordx_tile*offset_x, offset_y*(coordy_tile + 1));	glVertex2i(ni*vx, nj*vy);
