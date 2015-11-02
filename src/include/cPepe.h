@@ -35,7 +35,7 @@ public:
 	void SetWidthHeight(int w,int h);
 	void GetWidthHeight(int *w,int *h);
 
-	bool checkCorrectMovement(float x, float y, int *map, int movement);
+	bool checkCorrectMovement(float & x, float & y, int *map, int movement);
 	bool walkable(int tile);
 
 	void DrawRect(int tex_id, float xo, float yo, float xf, float yf);

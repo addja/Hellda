@@ -93,7 +93,6 @@ void cPepe::MoveUp(int *map) {
 	float yaux = y - STEP_LENGTH;
 
 	if (checkCorrectMovement(x, yaux, map, STATE_WALKUP)) y = yaux;
-
 		if (state != STATE_WALKUP) {
 			state = STATE_WALKUP;
 			seq = 1;
@@ -172,7 +171,7 @@ void cPepe::SetState(int s) {
 	state = s;
 }
 
-bool cPepe::checkCorrectMovement(float x, float y, int *map, int movement) {
+bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 
 	int tile, newx, newy;
 
@@ -222,14 +221,34 @@ bool cPepe::checkCorrectMovement(float x, float y, int *map, int movement) {
 			newy = round(y - 0.5f);
 			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 			if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy <<std::endl;
-			if (!walkable(tile)) return false;
+			if (!walkable(tile)) {
+				if (x - newx > 0.9) {
+					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx+1];
+					if (walkable(tile)) {
+						x = newx + 1;
+						return true;
+					}
+				}
+				return false;
+			}
 			
 			// uper right corner / 2
 			newx = floor(x + 1);
 			newy = round(y - 0.5f);
 			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 			if (DEBUG_MODE) std::cout << "U 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
+			if (!walkable(tile)) {
+				if (x - newx < 0.1) {
+					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx -1];
+					if (walkable(tile)) {
+						x = newx - 1;
+						return true;
+					}
+				}
+				return false;
+			}
 			
 			break;
 
@@ -239,46 +258,37 @@ bool cPepe::checkCorrectMovement(float x, float y, int *map, int movement) {
 			newy = round(y);
 			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 			if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
+			if (!walkable(tile)) {
+				if (x - newx > 0.9) {
+					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx + 1];
+					if (walkable(tile)) {
+						x = newx + 1;
+						return true;
+					}
+				}
+				return false;
+			}
 			
 			// lower right corner
 			newx = floor(x + 1);
 			newy = round(y);
 			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 			if (DEBUG_MODE) std::cout << "D 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
+			if (!walkable(tile)) {
+				if (x - newx < 0.1) {
+					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx - 1];
+					if (walkable(tile)) {
+						x = newx - 1;
+						return true;
+					}
+				}
+				return false;
+			}
 			
 			break;
 	}
-
-	//// check collision upper left bbox
-	//newx = floor(x);
-	//newy = floor(y + h);
-	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
-	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
-
-	//// check collision upper right bbox
-	//newx = floor(x + w);
-	//newy = floor(y + h);
-	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
-	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
-
-	//// check collision bottom left bbox
-	//newx = floor(x);
-	//newy = floor(y);
-	//tile = map[(MAP_HEIGHT-newy)*MAP_WIDTH + newx];
-
-	//std::cout << tile << "\n";
-	//std::cout << "pos link " << x << " - " << y << " ------ ";
-	//std::cout << "bounding tile " << newx << " - " << newy << "\n";
-
-	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
-
-	//// check collision bottom right bbox
-	//newx = floor(x - w);
-	//newy = floor(y);
-	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
-	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
 
 	return true;
 }
