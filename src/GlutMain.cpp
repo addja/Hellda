@@ -1,8 +1,10 @@
 #include "include/Globals.h"
 #include "include/cGame.h"
 
-//Delete console
-//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+//Delete console if not in debug mode
+#if (!DEBUG_MODE)
+	#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+#endif
 
 cGame Game;
 

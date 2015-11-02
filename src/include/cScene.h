@@ -26,5 +26,5 @@ public:
 	int *GetMap();
 
 private:
-	int map[MAP_WIDTH * MAP_HEIGHT];		//scene
+	int map[MAP_WIDTH * MAP_HEIGHT];		// scene
 };
