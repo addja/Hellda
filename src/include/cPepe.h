@@ -36,7 +36,7 @@ public:
 	void GetTile(int *tx,int *ty);
 	void SetWidthHeight(int w,int h);
 	void GetWidthHeight(int *w,int *h);
-	bool checkCorrectMovement(float x, float y, int *map);
+	bool checkCorrectMovement(float x, float y, int *map, int movement);
 
 	bool Collides(cRect *rc);
 	bool CollidesMapWall(int *map,bool right);

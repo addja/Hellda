@@ -122,7 +122,7 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf, bool debug)
 	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
 	if (y < SCENE_HEIGHT / 2) screen_y += ((SCENE_HEIGHT / 2) - y)*vy;
-	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + 4) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + 4))*vy;
+	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES))*vy;
 
 	if (debug) {
 		glColor3f(1.0f, 0.0f, 1.0f);
@@ -152,7 +152,7 @@ void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf, bool debug)
 void cPepe::MoveUp(int *map) {
 	float yaux = y - STEP_LENGTH;
 
-	if (checkCorrectMovement(x, yaux, map)) y = yaux;
+	if (checkCorrectMovement(x, yaux, map, STATE_WALKUP)) y = yaux;
 
 		if (state != STATE_WALKUP) {
 			state = STATE_WALKUP;
@@ -164,7 +164,7 @@ void cPepe::MoveUp(int *map) {
 void cPepe::MoveDown(int *map) {
 	float yaux = y + STEP_LENGTH;
 
-	if (checkCorrectMovement(x, yaux, map)) y = yaux;
+	if (checkCorrectMovement(x, yaux, map, STATE_WALKDOWN)) y = yaux;
 
 		if (state != STATE_WALKDOWN) {
 			state = STATE_WALKDOWN;
@@ -176,7 +176,7 @@ void cPepe::MoveDown(int *map) {
 void cPepe::MoveLeft(int *map) {
 	float xaux = x - STEP_LENGTH;
 
-	if (checkCorrectMovement(xaux, y, map)) x = xaux;
+	if (checkCorrectMovement(xaux, y, map, STATE_WALKLEFT)) x = xaux;
 		if (state != STATE_WALKLEFT) {
 			state = STATE_WALKLEFT;
 			seq = 1;
@@ -187,7 +187,7 @@ void cPepe::MoveLeft(int *map) {
 void cPepe::MoveRight(int *map) {
 	float xaux = x + STEP_LENGTH;
 
-	if (checkCorrectMovement(xaux, y, map)) x = xaux;
+	if (checkCorrectMovement(xaux, y, map, STATE_WALKRIGHT)) x = xaux;
 
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
@@ -260,40 +260,93 @@ void cPepe::SetState(int s) {
 	state = s;
 }
 
-bool cPepe::checkCorrectMovement(float x, float y, int *map) {
+bool cPepe::checkCorrectMovement(float x, float y, int *map, int movement) {
 
 	int tile, newx, newy;
 
 	// x, y point to the base left of the Pepe
 	cRect * r = new cRect();
 
-	// check collision upper left bbox
-	newx = floor(x);
-	newy = floor(y + h);
-	tile = map[newy*MAP_WIDTH + newx];
+	std::cout << "I'm at x: " << x << " y: " << y << std::endl;
+
+	switch (movement) {
+		case STATE_WALKLEFT:
+			newx = floor(x);
+			newy = round(y);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			newx = floor(x);
+			newy = round(y - 0.5f);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			break;
+		case STATE_WALKRIGHT:
+			newx = floor(x + 1);
+			newy = round(y);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			newx = floor(x + 1);
+			newy = round(y - 0.5f);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			break;
+		case STATE_WALKUP:
+			newx = floor(x);
+			newy = round(y - 0.5f);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy <<std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			newx = floor(x + 1);
+			newy = round(y - 0.5f);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "U 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			break;
+		case STATE_WALKDOWN:
+			newx = floor(x);
+			newy = round(y);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			newx = floor(x + 1);
+			newy = round(y);
+			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+			std::cout << "D 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+			if (!(tile == 2 || tile == 8 || tile == 14)) return false;
+			break;
+	}
+
+	//// check collision upper left bbox
+	//newx = floor(x);
+	//newy = floor(y + h);
+	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
 	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
 
-	// check collision upper right bbox
-	newx = floor(x + w);
-	newy = floor(y + h);
-	tile = map[newy*MAP_WIDTH + newx];
+	//// check collision upper right bbox
+	//newx = floor(x + w);
+	//newy = floor(y + h);
+	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
 	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
 
-	// check collision bottom left bbox
-	newx = floor(x);
-	newy = floor(y);
-	tile = map[(MAP_HEIGHT-newy)*MAP_WIDTH + newx];
+	//// check collision bottom left bbox
+	//newx = floor(x);
+	//newy = floor(y);
+	//tile = map[(MAP_HEIGHT-newy)*MAP_WIDTH + newx];
 
-	std::cout << w << "\n";
-	std::cout << "pos link " << x << " - " << y << " ------ ";
-	std::cout << "bounding tile " << newx << " - " << newy << "\n";
+	//std::cout << tile << "\n";
+	//std::cout << "pos link " << x << " - " << y << " ------ ";
+	//std::cout << "bounding tile " << newx << " - " << newy << "\n";
 
 	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
 
-	// check collision bottom right bbox
-	newx = floor(x - w);
-	newy = floor(y);
-	tile = map[newy*MAP_WIDTH + newx];
+	//// check collision bottom right bbox
+	//newx = floor(x - w);
+	//newy = floor(y);
+	//tile = map[(MAP_HEIGHT - newy)*MAP_WIDTH + newx];
 	//if (!(tile == 2 || tile == 8 || tile == 14)) return false;
 
 	return true;

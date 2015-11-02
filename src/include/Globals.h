@@ -11,3 +11,5 @@
 
 #define MAP_WIDTH		4096/16
 #define MAP_HEIGHT		1408/16
+
+#define HUD_TILES 4

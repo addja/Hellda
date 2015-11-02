@@ -37,6 +37,6 @@ void cPlayer::Draw(int tex_id) {
 	xf = xo + 0.25f;
 	yf = yo - 0.25f;
 
-	bool debug = 1; // put to 1 to debug
+	bool debug = 0; // put to 1 to debug
 	DrawRect(tex_id,xo,yo,xf,yf, debug);
 }
