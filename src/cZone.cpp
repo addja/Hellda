@@ -14,14 +14,14 @@ void cZone::Reset()
 	}
 }
 
-void Draw(float playerx, float playery) 
+void cZone::Draw(float playerx, float playery) 
 {
 	for (int i = 0; i < current; ++i) {
 		enemies[i].Draw(playerx, playery);
 	}
 }
 
-void addEnemy(float x, float y, int type, bool thrower)
+void cZone::addEnemy(float x, float y, int type, bool thrower)
 {
 	enemies[current] = cEnemy(x,y,type,thrower);
 	++current;
@@ -29,6 +29,6 @@ void addEnemy(float x, float y, int type, bool thrower)
 
 //void addObject();
 
-cEnemy *GetEnemies() {
+cEnemy* cZone::GetEnemies() {
 	return enemies;
 }

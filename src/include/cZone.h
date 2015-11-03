@@ -2,12 +2,12 @@
 
 #include "cTexture.h"
 #include "Globals.h"
+#include "cEnemy.h"
 
 #define MAX_ENEMIES_PER_ZONE	10
 #define MAX_OBJECTS_PER_ZONE	10
 
-class cZone
-{
+class cZone {
 public:
 	cZone(void);
 	~cZone(void);
