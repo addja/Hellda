@@ -24,6 +24,7 @@ void cZone::Draw(float playerx, float playery)
 void cZone::addEnemy(float x, float y, int type, bool thrower)
 {
 	enemies[current] = cEnemy(x,y,type,thrower);
+	enemies[current].SetWidthHeight(TILE_SIZE, TILE_SIZE);
 	++current;
 }
 

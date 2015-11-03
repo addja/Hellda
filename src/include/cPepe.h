@@ -47,8 +47,7 @@ public:
 	bool diagonallyWalkableDownLeft(int tile);
 	bool dungeonTransitions(int tile);
 
-	void DrawRect(int tex_id, float xo, float yo, float xf, float yf);
-	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
+	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
 
 	void MoveUp(int *map);
 	void MoveDown(int *map);

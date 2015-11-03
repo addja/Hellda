@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cPepe.h"
+#include "cScene.h"
+#include "cData.h"
 
 #define OCTOROC		0
 
@@ -17,8 +19,6 @@ public:
 private:
 	float original_x;
 	float original_y;
-	float actual_x;
-	float actual_y;
 	int type;
 	bool thrower;
 	int throw_count;

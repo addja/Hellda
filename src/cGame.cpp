@@ -27,9 +27,16 @@ bool cGame::Init() {
 	//Player initialization
 	 res = Data.LoadImage(IMG_PLAYER,"link.png",GL_RGBA);
 	 if(!res) return false;
-	 Player.SetWidthHeight(16,16);
-	 Player.SetPosition(120.0f,82.0f);
+	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
+	 Player.SetPosition(120.0f,82.0f);  // TODO poner bien
 	 Player.SetState(STATE_LOOKUP);
+
+	 // Zones initialization
+	 // Enemies
+	 Zones[0] = cZone();
+	 Zones[0].addEnemy(118.0f, 81.0f, OCTOROC, true);
+
+	 // Objects
 
 	return res;
 }
@@ -83,6 +90,9 @@ void cGame::Render() {
 
 	Scene.Draw(Data.GetID(IMG_OVERLORD), x, y);
 	Player.Draw(Data.GetID(IMG_PLAYER));
+
+	// feo feillo pero para testear
+	Zones[0].Draw(x,y);
 
 	// Status bar black background
 	glColor3f(0.0f, 0.0f, 0.0f);

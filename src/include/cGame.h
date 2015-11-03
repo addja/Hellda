@@ -31,5 +31,5 @@ private:
 	cScene Scene;
 	cPlayer Player;
 	cData Data;
-	cZone enemiesZones[ENEMIES_MAP_HEIGHT * ENEMIES_MAP_WIDTH];
+	cZone Zones[ENEMIES_MAP_HEIGHT * ENEMIES_MAP_WIDTH];
 };
