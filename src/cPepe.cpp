@@ -51,18 +51,18 @@ void cPepe::GetWidthHeight(int *width,int *height) {
 void cPepe::DrawRect(int tex_id,float xo,float yo,float xf,float yf) {
 	float screen_x, screen_y;
 
-	float hud_y = 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1));
-
-	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
-	screen_y = (GAME_HEIGHT / 2) - hud_y + SCENE_Yo;
-
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
+	float hud_y = HUD_TILES * vx;
+
+	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+	screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
+
 	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y < SCENE_HEIGHT / 2) screen_y += ((SCENE_HEIGHT / 2) - y)*vy;
-	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES))*vy;
+	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
+	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
 
 	if (DEBUG_MODE) {
 		glColor3f(1.0f, 0.0f, 1.0f);
@@ -173,7 +173,7 @@ void cPepe::SetState(int s) {
 
 bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 
-	int tile, newx, newy;
+	int tile, tile2, newx, newy, newx2, newy2;
 
 	// x, y point to the base left of the Pepe
 	cRect * r = new cRect();
@@ -181,120 +181,218 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 	if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
 
 	switch (movement) {
-		case STATE_WALKLEFT:
-			// lower left corner
-			newx = floor(x);
-			newy = round(y);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
-			
-			// upper left corner / 2
-			newx = floor(x);
-			newy = round(y - 0.5f);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
-			
-			break;
-		
-		case STATE_WALKRIGHT:
-			// lower right corner
-			newx = floor(x + 1);
-			newy = round(y);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
-			
-			// upper right corner / 2
-			newx = floor(x + 1);
-			newy = round(y - 0.5f);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) return false;
-			
-			break;
+	case STATE_WALKLEFT:
+		// lower left corner
+		newx = floor(x + 0.05f);
+		newy = ceil(y - 0.05f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if (diagonallyWalkableDownLeft(tile) || diagonallyWalkableDownRight(tile)) {
+				y -= STEP_LENGTH;
+				return true;
+			}
+			else if ((newy - y <= 0.55f && diagonallyWalkableUpLeft(tile)) || diagonallyWalkableUpRight(tile)) {
+				y += STEP_LENGTH;
+				return true;
+			}
+			return false;
+		}
 
-		case STATE_WALKUP:
-			// upper left corner / 2
-			newx = floor(x);
-			newy = round(y - 0.5f);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy <<std::endl;
-			if (!walkable(tile)) {
-				if (x - newx > 0.9) {
-					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
-					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx+1];
-					if (walkable(tile)) {
-						x = newx + 1;
-						return true;
-					}
-				}
-				return false;
+		// upper left corner / 2
+		newx = floor(x + 0.05f);
+		newy = ceil(y - 0.5f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if (diagonallyWalkableDownLeft(tile) || diagonallyWalkableDownRight(tile)) {
+				y -= STEP_LENGTH;
+				return true;
 			}
-			
-			// uper right corner / 2
-			newx = floor(x + 1);
-			newy = round(y - 0.5f);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "U 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) {
-				if (x - newx < 0.1) {
-					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
-					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx -1];
-					if (walkable(tile)) {
-						x = newx - 1;
-						return true;
-					}
-				}
-				return false;
+			else if ((newy - y <= 0.55f && diagonallyWalkableUpLeft(tile)) || diagonallyWalkableUpRight(tile)) {
+				y += STEP_LENGTH;
+				return true;
 			}
-			
-			break;
+			return false;
+		}
 
-		case STATE_WALKDOWN:
-			// lower left corner
-			newx = floor(x);
-			newy = round(y);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) {
-				if (x - newx > 0.9) {
-					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
-					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx + 1];
-					if (walkable(tile)) {
-						x = newx + 1;
-						return true;
-					}
-				}
-				return false;
+		break;
+
+	case STATE_WALKRIGHT:
+		// lower right corner
+		newx = floor(x + 0.95f);
+		newy = ceil(y - 0.05f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if ((diagonallyWalkableDownRight(tile)) || diagonallyWalkableDownLeft(tile)) {
+				y -= STEP_LENGTH;
+				return true;
 			}
-			
-			// lower right corner
-			newx = floor(x + 1);
-			newy = round(y);
-			tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-			if (DEBUG_MODE) std::cout << "D 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-			if (!walkable(tile)) {
-				if (x - newx < 0.1) {
-					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
-					tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx - 1];
-					if (walkable(tile)) {
-						x = newx - 1;
-						return true;
-					}
-				}
-				return false;
+			else if ((newy - y <= 0.55f && diagonallyWalkableUpRight(tile)) || diagonallyWalkableUpLeft(tile)) {
+				y += STEP_LENGTH;
+				return true;
 			}
-			
-			break;
+			return false;
+		}
+
+		// upper right corner / 2
+		newx = floor(x + 0.95f);
+		newy = ceil(y - 0.5f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if ((diagonallyWalkableDownRight(tile)) || diagonallyWalkableDownLeft(tile)) {
+				y -= STEP_LENGTH;
+				return true;
+			}
+			else if ((newy - y <= 0.55f && diagonallyWalkableUpRight(tile)) || diagonallyWalkableUpLeft(tile)) {
+				y += STEP_LENGTH;
+				return true;
+			}
+			return false;
+		}
+
+		break;
+
+	case STATE_WALKUP:
+		// uper right corner / 2
+		newx2 = floor(x + 1);
+		newy2 = ceil(y - 0.5f);
+		tile2 = map[(MAP_HEIGHT - newy2 - 1)*MAP_WIDTH + newx2];
+
+		// upper left corner / 2
+		newx = floor(x);
+		newy = ceil(y - 0.5f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if (diagonallyWalkableUpLeft(tile) && !diagonallyWalkableUpRight(tile2)) {
+				x += STEP_LENGTH;
+				return true;
+			}
+			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x > x - newx && y > newy) {
+				x += STEP_LENGTH;
+				return true;
+			}
+			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x < x - newx && y > newy) {
+				x -= STEP_LENGTH;
+				return true;
+			}
+			else if (x - floor(x) >= 0.75) {
+				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+				tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx + 1];
+				if (walkable(tile)) {
+					x = newx + 1;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
+		if (!walkable(tile2)) {
+			if (diagonallyWalkableUpRight(tile2)) {
+				x -= STEP_LENGTH;
+				return true;
+			}
+			else if (x - (float)floor(x) <= 0.25f) {
+				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+				tile2 = map[(MAP_HEIGHT - newy2 - 1)*MAP_WIDTH + newx2 - 1];
+				if (walkable(tile2)) {
+					x = newx2 - 1;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		break;
+
+	case STATE_WALKDOWN:
+		// lower right corner
+		newx2 = floor(x + 1);
+		newy2 = ceil(y - 0.05f);
+		tile2 = map[(MAP_HEIGHT - newy2 - 1)*MAP_WIDTH + newx2];
+
+		// lower left corner
+		newx = floor(x);
+		newy = ceil(y - 0.05f);
+		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
+		if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		if (!walkable(tile)) {
+			if (diagonallyWalkableDownLeft(tile) && !diagonallyWalkableDownRight(tile2)) {
+				x += STEP_LENGTH;
+				return true;
+			}
+			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x > x - newx && y < newy - 0.5f) {
+				x += STEP_LENGTH;
+				return true;
+			}
+			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x < x - newx && y < newy - 0.5f) {
+				x -= STEP_LENGTH;
+				return true;
+			}
+			else if (x - (float)floor(x) >= 0.75f) {
+				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+				tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx + 1];
+				if (walkable(tile)) {
+					x = newx + 1;
+					return true;
+				}
+			}
+			return false;
+		}
+
+
+		if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
+		if (!walkable(tile2)) {
+			if (diagonallyWalkableDownRight(tile2)) {
+				x -= STEP_LENGTH;
+				return true;
+			}
+			else if (x - (float)floor(x) <= 0.25f) {
+				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+				tile2 = map[(MAP_HEIGHT - newy2 - 1)*MAP_WIDTH + newx2 - 1];
+				if (walkable(tile2)) {
+					x = newx2 - 1;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		break;
 	}
 
 	return true;
 }
 
 bool cPepe::walkable(int tile) {
-	return (tile == 2 || tile == 8 || tile == 14);
+	return (tile == 2 || tile == 8 || tile == 14 || tile == 18 || tile == 24 || tile == 30 || tile == 58 ||
+		tile == 64 || tile == 70 || tile == 75 || tile == 76 || tile == 77 || tile == 81 || tile == 82 ||
+		tile == 83 || tile == 87 || tile == 88 || tile == 89 || tile == 93 || tile == 94 || tile == 95 ||
+		tile == 99 || tile == 100 || tile == 101 || tile == 105 || tile == 106 || tile == 107 || tile == 111 ||
+		tile == 112 || tile == 113 || tile == 117 || tile == 118 || tile == 119 || tile == 123 || tile == 124 ||
+		tile == 125 || tile == 126 || tile == 127 || tile == 131 || tile == 132 ||
+		tile == 133 || tile == 137 || tile == 138 || tile == 139 || tile == 140 ||
+		tile == 141 || tile == 143);
+}
+
+bool cPepe::diagonallyWalkableUpRight(int tile) {
+	return (tile == 54 || tile == 60 || tile == 66 || tile == 127 || tile == 133 || tile == 139);
+}
+
+bool cPepe::diagonallyWalkableUpLeft(int tile) {
+	return (tile == 56 || tile == 62 || tile == 68 || tile == 126 || tile == 132 || tile == 138);
+}
+
+bool cPepe::diagonallyWalkableDownRight(int tile) {
+	return (tile == 36 || tile == 42 || tile == 48 || tile == 129 || tile == 135 || tile == 141);
+}
+
+bool cPepe::diagonallyWalkableDownLeft(int tile) {
+	return (tile == 38 || tile == 44 || tile == 50 || tile == 128 || tile == 134 || tile == 140);
 }
 
 void cPepe::SetSeqNDelay(int s, int d) {
@@ -306,18 +404,18 @@ void cPepe::SetSeqNDelay(int s, int d) {
 void cPepe::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
 	float screen_x, screen_y;
 
-	float hud_y = 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1));
-
-	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
-	screen_y = (GAME_HEIGHT / 2) - hud_y + SCENE_Yo;
-
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
+	float hud_y = HUD_TILES * vx;
+
+	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+	screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
+
 	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y < SCENE_HEIGHT / 2) screen_y += ((SCENE_HEIGHT / 2) - y)*vy;
-	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES))*vy;
+	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
+	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
 
 	glEnable(GL_TEXTURE_2D);
 

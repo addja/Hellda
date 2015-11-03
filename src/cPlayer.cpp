@@ -39,22 +39,22 @@ void cPlayer::Draw(int tex_id) {
 		case ATTACK_UP:			xo = 0.5f; yo = 0.75f;
 								SetState(STATE_LOOKUP);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, 1.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, 0.8f);
 								break;
 		case ATTACK_LEFT:		xo = 0.25f; yo = 0.75f;
 								SetState(STATE_LOOKLEFT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, -1.0f, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, -0.8f, 0.0f);
 								break;
 		case ATTACK_RIGHT:		xo = 0.75f; yo = 0.75f;
 								SetState(STATE_LOOKRIGHT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 1.0f, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.8f, 0.0f);
 								break;
 		case ATTACK_DOWN:		xo = 0.0f; yo = 0.75f;
 								SetState(STATE_LOOKDOWN);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo+0.25f, xo+0.25f, yo,0.0f,-1.0f);
+								DrawWeapon(tex_id, xo, yo+0.25f, xo+0.25f, yo,0.0f,-0.8f);
 								break;
 	}
 	xf = xo + 0.25f;

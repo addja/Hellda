@@ -53,9 +53,9 @@ void cScene::Draw(int tex_id, float playerx, float playery) {
 	if (playerx < SCENE_WIDTH / 2) backgroundx = 0.0f;
 	else if (playerx > MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = MAP_WIDTH - SCENE_WIDTH;
 	else backgroundx = playerx - (SCENE_WIDTH / 2);
-	if (playery < SCENE_HEIGHT / 2) backgroundy = MAP_HEIGHT + HUD_TILES;
-	else if (playery > MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES) backgroundy = SCENE_HEIGHT;
-	else backgroundy = MAP_HEIGHT - playery + (SCENE_HEIGHT / 2) + HUD_TILES;
+	if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = MAP_HEIGHT + HUD_TILES;
+	else if (playery >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = SCENE_HEIGHT;
+	else backgroundy = MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2 - playery + SCENE_HEIGHT;
 
 	float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
 	float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;

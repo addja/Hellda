@@ -41,6 +41,10 @@ public:
 
 	bool checkCorrectMovement(float & x, float & y, int *map, int movement);
 	bool walkable(int tile);
+	bool diagonallyWalkableUpRight(int tile);
+	bool diagonallyWalkableUpLeft(int tile);
+	bool diagonallyWalkableDownRight(int tile);
+	bool diagonallyWalkableDownLeft(int tile);
 
 	void DrawRect(int tex_id, float xo, float yo, float xf, float yf);
 	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
