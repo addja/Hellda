@@ -267,15 +267,15 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 		if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
-			if (diagonallyWalkableUpLeft(tile) && !diagonallyWalkableUpRight(tile2)) {
+			if (diagonallyWalkableUpLeft(tile) && !diagonallyWalkableUpRight(tile2) && walkable(tile2)) {
 				x += STEP_LENGTH;
 				return true;
 			}
-			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x > x - newx && y > newy) {
+			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x > x - newx && y >= newy) {
 				x += STEP_LENGTH;
 				return true;
 			}
-			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x < x - newx && y > newy) {
+			else if (diagonallyWalkableUpLeft(tile) && diagonallyWalkableUpRight(tile2) && newx2 - x < x - newx && y >= newy) {
 				x -= STEP_LENGTH;
 				return true;
 			}
@@ -321,15 +321,15 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
 		if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
-			if (diagonallyWalkableDownLeft(tile) && !diagonallyWalkableDownRight(tile2)) {
+			if (diagonallyWalkableDownLeft(tile) && !diagonallyWalkableDownRight(tile2) && walkable(tile2)) {
 				x += STEP_LENGTH;
 				return true;
 			}
-			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x > x - newx && y < newy - 0.5f) {
+			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x > x - newx && y <= newy - 0.45f) {
 				x += STEP_LENGTH;
 				return true;
 			}
-			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x < x - newx && y < newy - 0.5f) {
+			else if (diagonallyWalkableDownLeft(tile) && diagonallyWalkableDownRight(tile2) && newx2 - x < x - newx && y <= newy - 0.45f) {
 				x -= STEP_LENGTH;
 				return true;
 			}

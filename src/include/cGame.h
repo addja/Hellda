@@ -5,6 +5,9 @@
 #include "cPlayer.h"
 #include "cData.h"
 
+#define ENEMIES_MAP_WIDTH	MAP_WIDTH/SCENE_WIDTH
+#define ENEMIES_MAP_HEIGHT	MAP_HEIGHT/SCENE_HEIGHT
+
 class cGame {
 public:
 	cGame(void);
@@ -27,4 +30,5 @@ private:
 	cScene Scene;
 	cPlayer Player;
 	cData Data;
+	cZone enemiesZones[ENEMIES_MAP_HEIGHT * ENEMIES_MAP_WIDTH];
 };
