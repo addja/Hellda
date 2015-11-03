@@ -4,6 +4,7 @@
 #include "cScene.h"
 #include "cPlayer.h"
 #include "cData.h"
+#include "cZone.h"
 
 #define ENEMIES_MAP_WIDTH	MAP_WIDTH/SCENE_WIDTH
 #define ENEMIES_MAP_HEIGHT	MAP_HEIGHT/SCENE_HEIGHT
