@@ -29,7 +29,7 @@ bool cGame::Init() {
 	 if(!res) return false;
 	 Player.SetWidthHeight(16,16);
 	 Player.SetPosition(120.0f,82.0f);
-	 Player.SetState(STATE_LOOKDOWN);
+	 Player.SetState(STATE_LOOKUP);
 
 	return res;
 }

@@ -379,20 +379,30 @@ bool cPepe::walkable(int tile) {
 		tile == 141 || tile == 143);
 }
 
+// TODO: Tiles del arbol
+
 bool cPepe::diagonallyWalkableUpRight(int tile) {
-	return (tile == 54 || tile == 60 || tile == 66 || tile == 127 || tile == 133 || tile == 139);
+	return (tile == 54 || tile == 60 || tile == 66 || tile == 127 || tile == 133 || tile == 139 || tile == 108 ||
+			tile == 114 || tile == 120);
 }
 
 bool cPepe::diagonallyWalkableUpLeft(int tile) {
-	return (tile == 56 || tile == 62 || tile == 68 || tile == 126 || tile == 132 || tile == 138);
+	return (tile == 56 || tile == 62 || tile == 68 || tile == 126 || tile == 132 || tile == 138 || tile == 110 ||
+			tile == 116 || tile == 122);
 }
 
 bool cPepe::diagonallyWalkableDownRight(int tile) {
-	return (tile == 36 || tile == 42 || tile == 48 || tile == 129 || tile == 135 || tile == 141);
+	return (tile == 36 || tile == 42 || tile == 48 || tile == 129 || tile == 135 || tile == 141 || tile == 72 ||
+		tile == 78 || tile == 84 || tile == 39 || tile == 45 || tile == 51);
 }
 
 bool cPepe::diagonallyWalkableDownLeft(int tile) {
-	return (tile == 38 || tile == 44 || tile == 50 || tile == 128 || tile == 134 || tile == 140);
+	return (tile == 38 || tile == 44 || tile == 50 || tile == 128 || tile == 134 || tile == 140 || tile == 74 ||
+		tile == 80 || tile == 86 || tile == 41 || tile == 47 || tile == 53);
+}
+
+bool cPepe::dungeonTransitions(int tile) {
+	return (tile == 0 || tile == 6 || tile == 12 || tile == 22 || tile == 28 || tile == 34);
 }
 
 void cPepe::SetSeqNDelay(int s, int d) {
