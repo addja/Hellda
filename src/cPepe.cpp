@@ -296,3 +296,41 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 bool cPepe::walkable(int tile) {
 	return (tile == 2 || tile == 8 || tile == 14);
 }
+
+void cPepe::SetSeqNDelay(int s, int d) {
+	seq = s;
+	delay = d;
+}
+
+// draws a weapon or object having as a constraint that it occupies one tile given an offset from the Pepe
+void cPepe::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
+	float screen_x, screen_y;
+
+	float hud_y = 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1));
+
+	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+	screen_y = (GAME_HEIGHT / 2) - hud_y + SCENE_Yo;
+
+	float vx = GAME_WIDTH / SCENE_WIDTH;
+	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
+
+	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
+	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
+	if (y < SCENE_HEIGHT / 2) screen_y += ((SCENE_HEIGHT / 2) - y)*vy;
+	else if (y > MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT / 2) + HUD_TILES))*vy;
+
+	glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+	glBegin(GL_QUADS);
+	glTexCoord2f(xo, yo);	glVertex2i(screen_x + vx*offsetx, screen_y + vy*offsety);
+	glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx,
+										screen_y + vy*offsety);
+	glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx,
+										screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+	glTexCoord2f(xo, yf);	glVertex2i(screen_x + vx*offsetx,
+										screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}

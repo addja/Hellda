@@ -14,6 +14,10 @@
 #define STATE_WALKRIGHT		5
 #define STATE_WALKUP		6
 #define STATE_WALKDOWN		7
+#define ATTACK_UP			8
+#define ATTACK_DOWN			9
+#define ATTACK_LEFT			10
+#define ATTACK_RIGHT		11
 
 class cRect
 {
@@ -39,6 +43,7 @@ public:
 	bool walkable(int tile);
 
 	void DrawRect(int tex_id, float xo, float yo, float xf, float yf);
+	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
 
 	void MoveUp(int *map);
 	void MoveDown(int *map);
@@ -49,6 +54,7 @@ public:
 
 	int  GetState();
 	void SetState(int s);
+	void SetSeqNDelay(int s, int d);
 
 	void NextFrame(int max);
 	int  GetFrame();

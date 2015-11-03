@@ -10,5 +10,6 @@ public:
 	cPlayer();
 	~cPlayer();
 
+	void Attack();
 	void Draw(int tex_id);
 };

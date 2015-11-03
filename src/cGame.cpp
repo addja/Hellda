@@ -61,8 +61,9 @@ bool cGame::Process() {
 	
 	if (keys[GLUT_KEY_UP])			Player.MoveUp(Scene.GetMap());
 	else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Scene.GetMap());
-	else if (keys[GLUT_KEY_LEFT])		Player.MoveLeft(Scene.GetMap());
+	else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Scene.GetMap());
 	else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Scene.GetMap());
+	else if (keys[' '])				Player.Attack();
 	else Player.Stop();
 	
 	// Game Logic
