@@ -36,7 +36,7 @@ void cEnemy::Draw(float playerx, float playery) {
 		case OCTOROC:
 			switch (GetState()) {
 				default:
-					DrawEntity(IMG_PLAYER, 0.0f, 0.25f, 0.25f, 0.5f, x - playerx, y - playery);
+					DrawEntity(IMG_PLAYER, 0.0f, 0.25f, 0.25f, 0.5f, x - playerx, playery - y);
 					break;
 			}
 			break;

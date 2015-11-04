@@ -35,6 +35,7 @@ bool cGame::Init() {
 	 // Enemies
 	 Zones[0] = cZone();
 	 Zones[0].addEnemy(118.0f, 81.0f, OCTOROC, true);
+	 Zones[0].addEnemy(118.0f, 70.0f, OCTOROC, true);
 
 	 // Objects
 
@@ -92,7 +93,8 @@ void cGame::Render() {
 	Player.Draw(Data.GetID(IMG_PLAYER));
 
 	// feo feillo pero para testear
-	Zones[0].Draw(x,y);
+	Zones[0].Draw(x, y);
+	Zones[1].Draw(x,y);
 
 	// Status bar black background
 	glColor3f(0.0f, 0.0f, 0.0f);

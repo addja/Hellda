@@ -383,8 +383,8 @@ void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float
 
 	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
 	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
-	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
+	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
 
 	glEnable(GL_TEXTURE_2D);
 

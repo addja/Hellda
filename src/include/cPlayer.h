@@ -11,4 +11,5 @@ public:
 	void Attack();
 	void Draw(int tex_id);
 	void DrawRect(int tex_id, float xo, float yo, float xf, float yf);
+	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
 };
