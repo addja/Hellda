@@ -3,6 +3,7 @@
 #include "cPepe.h"
 #include "cScene.h"
 #include "cData.h"
+#include <vector>
 
 #define OCTOROC		0
 
@@ -15,6 +16,7 @@ public:
 	void Reset();
 	void Draw(float playerx, float playery);
 	void Attack();
+	void Logic(int *map);
 
 private:
 	float original_x;

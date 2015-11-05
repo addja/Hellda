@@ -33,3 +33,7 @@ void cZone::addEnemy(float x, float y, int type, bool thrower)
 cEnemy* cZone::GetEnemies() {
 	return enemies;
 }
+
+void cZone::Logic(int *map) {
+	for (int i = 0; i < current; i++) enemies[i].Logic(map);
+}

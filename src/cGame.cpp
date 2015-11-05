@@ -76,6 +76,11 @@ bool cGame::Process() {
 	
 	// Game Logic
 	//Player.Logic(Scene.GetMap());
+	
+	// feo feillo pero para testear
+	Zones[0].Logic(Scene.GetMap());
+	Zones[1].Logic(Scene.GetMap());
+
 
 	return res;
 }
@@ -89,14 +94,17 @@ void cGame::Render() {
 	float x, y;
 	Player.GetPosition(&x, &y);
 
+	// draw scene
 	Scene.Draw(Data.GetID(IMG_OVERLORD), x, y);
-	Player.Draw(Data.GetID(IMG_PLAYER));
-
+	
 	// feo feillo pero para testear
 	Zones[0].Draw(x, y);
 	Zones[1].Draw(x,y);
 
-	// Status bar black background
+	// draw plawer
+	Player.Draw(Data.GetID(IMG_PLAYER));
+
+	// HUD black background
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glBegin(GL_POLYGON);
 		glVertex2i(0, GAME_HEIGHT);

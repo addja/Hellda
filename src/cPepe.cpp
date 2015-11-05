@@ -104,9 +104,7 @@ void cPepe::Stop() {
 }
 
 void cPepe::Logic(int *map) {
-
 	// Invent a fucking logic man
-	
 }
 
 void cPepe::NextFrame(int max) {
@@ -137,7 +135,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 	// x, y point to the base left of the Pepe
 	cRect * r = new cRect();
 
-	if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
+	// if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
 
 	switch (movement) {
 	case STATE_WALKLEFT:
@@ -145,7 +143,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x + 0.05f);
 		newy = ceil(y - 0.05f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if (diagonallyWalkableDownLeft(tile) || diagonallyWalkableDownRight(tile)) {
 				y -= STEP_LENGTH;
@@ -162,7 +160,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x + 0.05f);
 		newy = ceil(y - 0.5f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if (diagonallyWalkableDownLeft(tile) || diagonallyWalkableDownRight(tile)) {
 				y -= STEP_LENGTH;
@@ -182,7 +180,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x + 0.95f);
 		newy = ceil(y - 0.05f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if ((diagonallyWalkableDownRight(tile)) || diagonallyWalkableDownLeft(tile)) {
 				y -= STEP_LENGTH;
@@ -199,7 +197,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x + 0.95f);
 		newy = ceil(y - 0.5f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if ((diagonallyWalkableDownRight(tile)) || diagonallyWalkableDownLeft(tile)) {
 				y -= STEP_LENGTH;
@@ -224,7 +222,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x);
 		newy = ceil(y - 0.5f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if (diagonallyWalkableUpLeft(tile) && !diagonallyWalkableUpRight(tile2) && walkable(tile2)) {
 				x += STEP_LENGTH;
@@ -249,7 +247,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 			return false;
 		}
 
-		if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
+		// if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkable(tile2)) {
 			if (diagonallyWalkableUpRight(tile2)) {
 				x -= STEP_LENGTH;
@@ -278,7 +276,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		newx = floor(x);
 		newy = ceil(y - 0.05f);
 		tile = map[(MAP_HEIGHT - newy - 1)*MAP_WIDTH + newx];
-		if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
+		// if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkable(tile)) {
 			if (diagonallyWalkableDownLeft(tile) && !diagonallyWalkableDownRight(tile2) && walkable(tile2)) {
 				x += STEP_LENGTH;
@@ -304,7 +302,7 @@ bool cPepe::checkCorrectMovement(float & x, float & y, int *map, int movement) {
 		}
 
 
-		if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
+		// if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkable(tile2)) {
 			if (diagonallyWalkableDownRight(tile2)) {
 				x -= STEP_LENGTH;
@@ -373,6 +371,7 @@ void cPepe::SetSeqNDelay(int s, int d) {
 void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
 	float screen_x, screen_y;
 
+	// if (DEBUG_MODE) std::cout << offsetx << " - " << offsety << std::endl;
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 

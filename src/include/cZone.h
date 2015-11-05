@@ -15,6 +15,7 @@ public:
 	void Reset();
 
 	void Draw(float playerx, float playery);
+	void Logic(int *map);
 
 	void addEnemy(float x, float y, int type, bool thrower);
 	//void addObject();
