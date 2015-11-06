@@ -89,23 +89,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cData.cpp" />
+    <ClCompile Include="cDungeon.cpp" />
     <ClCompile Include="cEnemy.cpp" />
     <ClCompile Include="cGame.cpp" />
     <ClCompile Include="cPepe.cpp" />
     <ClCompile Include="cPlayer.cpp" />
-    <ClCompile Include="cScene.cpp" />
+    <ClCompile Include="cOverworld.cpp" />
     <ClCompile Include="cTexture.cpp" />
     <ClCompile Include="cZone.cpp" />
     <ClCompile Include="GLUTMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cData.h" />
+    <ClInclude Include="include\cDungeon.h" />
     <ClInclude Include="include\cEnemy.h" />
     <ClInclude Include="include\cGame.h" />
     <ClInclude Include="include\corona.h" />
     <ClInclude Include="include\cPepe.h" />
     <ClInclude Include="include\cPlayer.h" />
-    <ClInclude Include="include\cScene.h" />
+    <ClInclude Include="include\cOverworld.h" />
     <ClInclude Include="include\cTexture.h" />
     <ClInclude Include="include\cZone.h" />
     <ClInclude Include="include\Globals.h" />

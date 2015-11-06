@@ -1,11 +1,11 @@
-#include "include/cScene.h"
+#include "include/cOverworld.h"
 #include "include/Globals.h"
 
-cScene::cScene(void) {}
+cOverworld::cOverworld(void) {}
 
-cScene::~cScene(void) {}
+cOverworld::~cOverworld(void) {}
 
-bool cScene::LoadLevel(int level) {
+bool cOverworld::Load() {
 	bool res;
 	FILE *fd;
 	char file[16];
@@ -15,16 +15,13 @@ bool cScene::LoadLevel(int level) {
 
 	res=true;
 
-	/*if (level<10) 	sprintf(file,"%s0%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);
-	else		 	sprintf(file,"%s%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);*/
-
-	sprintf(file, "%s%s", (char *)FILENAME,(char *)FILENAME_EXT);
+	sprintf(file, "%s%s", (char *)OVERWORLD_FILENAME,(char *)OVERWORLD_FILENAME_EXT);
 
 	fd=fopen(file,"r");
 	if (fd==NULL) return false;
 
-	for(j=MAP_HEIGHT-1;j>=0;j--) {
-		for(i=0;i<MAP_WIDTH;i++) {
+	for(j= OVERWORLD_MAP_HEIGHT-1;j>=0;j--) {
+		for(i=0;i<OVERWORLD_MAP_WIDTH;i++) {
 			tile = "";
 			fscanf(fd, "%c", &c);
 			while (c != ',') {
@@ -33,7 +30,7 @@ bool cScene::LoadLevel(int level) {
 			}
 
 			int itile = atoi(tile.c_str());
-			map[(j*MAP_WIDTH) + i] = itile;
+			map[(j*OVERWORLD_MAP_WIDTH) + i] = itile;
 		}
 		fscanf(fd,"%c",&c); //pass enter
 	}
@@ -44,21 +41,21 @@ bool cScene::LoadLevel(int level) {
 	return res;
 }
 
-void cScene::Draw(int tex_id, float playerx, float playery) {
+void cOverworld::Draw(int tex_id, float playerx, float playery) {
 	int i, j;
 	float backgroundx, backgroundy;
 	float coordx_tile, coordy_tile;
 
 	// Test player position in the scene
 	if (playerx < SCENE_WIDTH / 2) backgroundx = 0.0f;
-	else if (playerx > MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = MAP_WIDTH - SCENE_WIDTH;
+	else if (playerx > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) backgroundx = OVERWORLD_MAP_WIDTH - SCENE_WIDTH;
 	else backgroundx = playerx - (SCENE_WIDTH / 2);
-	if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = MAP_HEIGHT + HUD_TILES;
-	else if (playery >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = SCENE_HEIGHT;
-	else backgroundy = MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2 - playery + SCENE_HEIGHT;
+	if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = OVERWORLD_MAP_HEIGHT + HUD_TILES;
+	else if (playery >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) backgroundy = SCENE_HEIGHT;
+	else backgroundy = OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2 - playery + SCENE_HEIGHT;
 
-	float offset_x = (float)16 / (float)TILE_MAP_WIDTH;
-	float offset_y = (float)16 / (float)TILE_MAP_HEIGHT;
+	float offset_x = (float)16 / (float)OVERWORLD_TILE_MAP_WIDTH;
+	float offset_y = (float)16 / (float)OVERWORLD_TILE_MAP_HEIGHT;
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
@@ -69,10 +66,10 @@ void cScene::Draw(int tex_id, float playerx, float playery) {
 
 	for (j = backgroundy;j >= backgroundy - SCENE_HEIGHT - 1;j--) {
 		for (i = backgroundx;i<backgroundx + SCENE_WIDTH;i++) {
-			int itile = map[(j*MAP_WIDTH) + i];
+			int itile = map[(j*OVERWORLD_MAP_WIDTH) + i];
 
-			coordy_tile = itile / (TILE_MAP_WIDTH / TILE_SIZE);
-			coordx_tile = itile % (TILE_MAP_WIDTH / TILE_SIZE);
+			coordy_tile = itile / (OVERWORLD_TILE_MAP_WIDTH / TILE_SIZE);
+			coordx_tile = itile % (OVERWORLD_TILE_MAP_WIDTH / TILE_SIZE);
 
 			float ni = i - backgroundx;
 			float nj = j - backgroundy + SCENE_HEIGHT;
@@ -88,6 +85,6 @@ void cScene::Draw(int tex_id, float playerx, float playery) {
 	glDisable(GL_TEXTURE_2D);
 }
 
-int* cScene::GetMap() {
+int* cOverworld::GetMap() {
 	return map;
 }

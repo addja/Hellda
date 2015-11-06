@@ -17,14 +17,19 @@ public:
 	void Draw(float playerx, float playery);
 	void Logic(int *map);
 
-	void addEnemy(float x, float y, int type, bool thrower);
+	void addEnemy(float x, float y, int type, bool thrower, int zone);
 	//void addObject();
 
 	cEnemy *GetEnemies();
 	//cObject *GetObjects();
 
+	void SetData(cData *data);
+	void SetOverworld(bool over);
+
 private:
 	int current;
+	bool overworld;
+	cData *Data;
 	cEnemy enemies[MAX_ENEMIES_PER_ZONE];
 	//cObject objects[MAX_OBJECTS_PER_ZONE];
 };

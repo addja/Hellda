@@ -3,8 +3,8 @@
 #include "cTexture.h"
 #include "Globals.h"
 
-#define FRAME_DELAY		8
-#define STEP_LENGTH		0.1
+#define FRAME_DELAY			8
+#define STEP_LENGTH_LINK	0.1
 
 #define STATE_LOOKLEFT		0
 #define STATE_LOOKRIGHT		1
@@ -38,14 +38,26 @@ public:
 	void GetTile(int *tx,int *ty);
 	void SetWidthHeight(int w,int h);
 	void GetWidthHeight(int *w,int *h);
+	void SetStepLength(float step);
+	void GetStepLength(float *step);
+	void SetOverworld(bool over);
+	void GetOverworld(bool *over);
+	void SetZone(int zone);
+	void GetZone(int *zone);
 
-	bool checkCorrectMovement(float & x, float & y, int *map, int movement);
+	bool checkCorrectMovementOverworld(float & x, float & y, int *map, int movement);
+	bool checkCorrectMovementDungeon(float & x, float & y, int *map, int movement);
 	bool walkable(int tile);
+	bool walkableDungeon(int tile);
 	bool diagonallyWalkableUpRight(int tile);
 	bool diagonallyWalkableUpLeft(int tile);
 	bool diagonallyWalkableDownRight(int tile);
 	bool diagonallyWalkableDownLeft(int tile);
-	bool dungeonTransitions(int tile);
+	bool overworldTransitions(int tile);
+	bool dungeonUpTransitions(int tile);
+	bool dungeonDownTransitions(int tile);
+	bool dungeonRightTransitions(int tile);
+	bool dungeonLeftTransitions(int tile);
 
 	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
 
@@ -62,11 +74,17 @@ public:
 
 	void NextFrame(int max);
 	int  GetFrame();
+
+	// To remove later
+	bool testingDungeon(int tile);
 	
 private:
 	float x,y;
 	int w,h;
 	int state;
+	float step_length;
+	bool overworld;
+	int zone;
 
 	int seq,delay;
 };

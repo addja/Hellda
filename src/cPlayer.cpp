@@ -4,6 +4,78 @@ cPlayer::cPlayer(){}
 
 cPlayer::~cPlayer(){}
 
+void cPlayer::Logic(int *map) {
+	int tile, newx, newy;
+
+	bool overworld;
+	GetOverworld(&overworld);
+
+	float posx, posy;
+	GetPosition(&posx, &posy);
+
+	newx = floor(posx);
+	newy = ceil(posy);
+
+	if (overworld) {
+		tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
+		if (overworldTransitions(tile)) {
+			SetOverworld(false);
+			SetPosition(SCENE_WIDTH / 2 - 0.5f, SCENE_HEIGHT - 2.0f);
+			SetZone(32);
+		}
+	} else {
+		int zone;
+		GetZone(&zone);
+
+		// v
+		int zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+		int zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2 - 1;
+		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+		if (dungeonDownTransitions(tile)) {
+			std::cout << "DOWN TRANS " << tile << std::endl;
+			if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
+				SetOverworld(true);
+				SetPosition(116.0f, 79.0f);
+				return;
+			} else {
+				SetZone(zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+				SetPosition(SCENE_WIDTH / 2 - 0.5f, HUD_TILES + 3.5f);
+				return;
+			}
+		}
+
+		// ^
+		zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+		if (dungeonUpTransitions(tile)) {
+			std::cout << "UP TRANS " << tile << std::endl;
+			SetZone(zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+			SetPosition(SCENE_WIDTH / 2 - 0.5f, SCENE_HEIGHT - 1.5f);
+			return;
+		}
+
+		// <
+		zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH + 1;
+		zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+		if (dungeonLeftTransitions(tile)) {
+			std::cout << "LEFT TRANS " << tile << std::endl;
+			SetZone(zone - 1);
+			SetPosition(SCENE_WIDTH - 2.0f, SCENE_HEIGHT - 5.0f);
+			return;
+		}
+		
+		// >
+		zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+		if (dungeonRightTransitions(tile)) {
+			std::cout << "RIGHT TRANS " << tile << std::endl;
+			SetZone(zone + 1);
+			SetPosition(1.5f, SCENE_HEIGHT - 5.0f);
+		}
+	}
+}
+
 void cPlayer::Draw(int tex_id) {	
 	float xo,yo,xf,yf;
 
@@ -60,7 +132,7 @@ void cPlayer::Draw(int tex_id) {
 	xf = xo + 0.25f;
 	yf = yo - 0.25f;
 	
-	DrawRect(tex_id, xo, yo, xf, yf);
+	DrawPlayer(tex_id, xo, yo, xf, yf);
 }
 
 void cPlayer::Attack() {
@@ -83,26 +155,33 @@ void cPlayer::Attack() {
 	}
 }
 
-void cPlayer::DrawRect(int tex_id, float xo, float yo, float xf, float yf) {
+void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 	float screen_x, screen_y;
 
 	float x, y;
 	int w, h;
+	bool overworld;
+	GetOverworld(&overworld);
 	GetPosition(&x, &y);
 	GetWidthHeight(&w, &h);
 
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
-	float hud_y = HUD_TILES * vx;
+	if (overworld) {
 
-	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
-	screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
+		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
 
-	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
-	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
-	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+		if (x < SCENE_WIDTH / 2) screen_x = x*vx;
+		else if (x > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (OVERWORLD_MAP_WIDTH - x)*vx;
+		if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
+		else if (y >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+	} else {
+		// Draw player in Dungeon
+		screen_x = x*vx;
+		screen_y = (SCENE_HEIGHT - y)*vy;
+	}
 
 	if (DEBUG_MODE) {
 		glColor3f(1.0f, 0.0f, 1.0f);
@@ -131,6 +210,9 @@ void cPlayer::DrawRect(int tex_id, float xo, float yo, float xf, float yf) {
 
 // Draws an object that follows the associated Pepe with a given offset
 void cPlayer::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
+	bool overworld;
+	GetOverworld(&overworld);
+	
 	float screen_x, screen_y;
 	float x, y;
 	int w, h;
@@ -140,27 +222,28 @@ void cPlayer::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, flo
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
-	float hud_y = HUD_TILES * vx;
+	if (overworld) {
+		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
 
-	screen_x = GAME_WIDTH / 2 + SCENE_Xo;
-	screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
-
-	if (x < SCENE_WIDTH / 2) screen_x = x*vx;
-	else if (x > MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (MAP_WIDTH - x)*vx;
-	if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
-	else if (y >= MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+		if (x < SCENE_WIDTH / 2) screen_x = x*vx;
+		else if (x > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (OVERWORLD_MAP_WIDTH - x)*vx;
+		if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
+		else if (y >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (y - (OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+	} else {
+		// Draw weapon in Dungeon
+		screen_x = x*vx;
+		screen_y = (SCENE_HEIGHT - y)*vy;
+	}
 
 	glEnable(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, tex_id);
 	glBegin(GL_QUADS);
 	glTexCoord2f(xo, yo);	glVertex2i(screen_x + vx*offsetx, screen_y + vy*offsety);
-	glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx,
-		screen_y + vy*offsety);
-	glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx,
-		screen_y + (vy / TILE_SIZE)*h + vy*offsety);
-	glTexCoord2f(xo, yf);	glVertex2i(screen_x + vx*offsetx,
-		screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+	glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx, screen_y + vy*offsety);
+	glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx, screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+	glTexCoord2f(xo, yf);	glVertex2i(screen_x + vx*offsetx, screen_y + (vy / TILE_SIZE)*h + vy*offsety);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);

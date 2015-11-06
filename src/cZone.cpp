@@ -17,14 +17,28 @@ void cZone::Reset()
 void cZone::Draw(float playerx, float playery) 
 {
 	for (int i = 0; i < current; ++i) {
-		enemies[i].Draw(playerx, playery);
+		enemies[i].Draw((*Data).GetID(IMG_ENEMIES), playerx, playery);
 	}
 }
 
-void cZone::addEnemy(float x, float y, int type, bool thrower)
+void cZone::Logic(int *map) {
+	for (int i = 0; i < current; i++) enemies[i].Logic(map);
+}
+
+void cZone::addEnemy(float x, float y, int type, bool thrower, int z)
 {
-	enemies[current] = cEnemy(x,y,type,thrower);
+	enemies[current] = cEnemy(x,y,type,thrower, z);
+	enemies[current].SetOverworld(overworld);
 	enemies[current].SetWidthHeight(TILE_SIZE, TILE_SIZE);
+	
+	int i = rand() % 4;
+	switch (i) {
+		case 0: enemies[current].SetState(STATE_LOOKDOWN); break;
+		case 1: enemies[current].SetState(STATE_LOOKUP); break;
+		case 2: enemies[current].SetState(STATE_LOOKLEFT); break;
+		case 3: enemies[current].SetState(STATE_LOOKRIGHT); break;
+	}
+
 	++current;
 }
 
@@ -34,6 +48,10 @@ cEnemy* cZone::GetEnemies() {
 	return enemies;
 }
 
-void cZone::Logic(int *map) {
-	for (int i = 0; i < current; i++) enemies[i].Logic(map);
+void cZone::SetData(cData *data) {
+	Data = data;
+}
+
+void cZone::SetOverworld(bool over) {
+	overworld = over;
 }

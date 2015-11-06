@@ -1,13 +1,16 @@
 
 #pragma once
 
-#include "cScene.h"
+#include "cOverworld.h"
+#include "cDungeon.h"
 #include "cPlayer.h"
 #include "cData.h"
 #include "cZone.h"
 
-#define ENEMIES_MAP_WIDTH	MAP_WIDTH/SCENE_WIDTH
-#define ENEMIES_MAP_HEIGHT	MAP_HEIGHT/SCENE_HEIGHT
+#define OVERWORLD_ENEMIES_MAP_WIDTH		OVERWORLD_MAP_WIDTH/SCENE_WIDTH
+#define OVERWORLD_ENEMIES_MAP_HEIGHT	OVERWORLD_MAP_HEIGHT/SCENE_HEIGHT
+#define DUNGEON_ENEMIES_MAP_WIDTH		DUNGEON_MAP_WIDTH/SCENE_WIDTH
+#define DUNGEON_ENEMIES_MAP_HEIGHT		DUNGEON_MAP_HEIGHT/SCENE_HEIGHT
 
 class cGame {
 public:
@@ -28,8 +31,10 @@ public:
 
 private:
 	unsigned char keys[256];
-	cScene Scene;
+	cOverworld Overworld;
+	cDungeon Dungeon;
 	cPlayer Player;
 	cData Data;
-	cZone Zones[ENEMIES_MAP_HEIGHT * ENEMIES_MAP_WIDTH];
+	cZone ZonesOverworld[OVERWORLD_ENEMIES_MAP_WIDTH * OVERWORLD_ENEMIES_MAP_HEIGHT];
+	cZone ZonesDungeon[DUNGEON_ENEMIES_MAP_WIDTH * DUNGEON_ENEMIES_MAP_HEIGHT];
 };
