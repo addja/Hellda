@@ -150,15 +150,15 @@ void cGame::initializeEnemiesOverworld() {
 	ZonesOverworld[0] = cZone();
 	ZonesOverworld[0].SetOverworld(true);
 	ZonesOverworld[0].SetData(&Data);
-	ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROC, true, 119, &overworld);
-	ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROC, true, 103, &overworld);
+	ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
+	ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROCT, true, 103, &overworld);
 }
 
 void cGame::initializeEnemiesDungeons() {
 	ZonesDungeon[0] = cZone();
 	ZonesDungeon[0].SetOverworld(false);
 	ZonesDungeon[0].SetData(&Data);
-	ZonesDungeon[0].addEnemy(8.5f, 9.5f, OCTOROC, true, 32, &overworld);
+	ZonesDungeon[0].addEnemy(8.5f, 9.5f, OCTOROCT, true, 32, &overworld);
 }
 
 void cGame::initializeObjectsOverworld() {

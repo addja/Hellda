@@ -6,14 +6,15 @@
 #include "cData.h"
 #include <vector>
 
-#define OCTOROC				0
-#define STEP_LENGTH_MONSTER	0.05f
-#define MAX_STATE_DELAY		4.0f
+#define MAX_STATE_DELAY	4.0f
+
+#define OCTOROCT		0
+#define STEP_OCTOROCT	0.05f
 
 class cEnemy : public cPepe {
 public:
 	cEnemy();
-	cEnemy(float x, float y, int type, bool thrower, int zone, bool * overworld);
+	cEnemy(float x, float y, float step, bool thrower, int zone, bool * overworld);
 	~cEnemy();
 
 	void Reset();
@@ -22,11 +23,11 @@ public:
 	void Logic(int *map);
 	bool inZone(float x, float y);
 	void StopState();
+	bool notInScreen(float playerx, float playery);
 
 private:
 	float original_x;
 	float original_y;
-	int type;
 	bool thrower;
 	int throw_count;
 	float state_delay;

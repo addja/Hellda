@@ -185,9 +185,6 @@ bool cPepe::checkCorrectMovementOverworld(float & x, float & y, int *map, int mo
 
 	int tile, tile2, newx, newy, newx2, newy2;
 
-	// x, y point to the base left of the Pepe
-	cRect * r = new cRect();
-
 	// if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
 
 	switch (movement) {
@@ -380,9 +377,6 @@ bool cPepe::checkCorrectMovementOverworld(float & x, float & y, int *map, int mo
 
 bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int movement) {
 	int tile, tile2, newx, newy, newx2, newy2;
-
-	// x, y point to the base left of the Pepe
-	cRect * r = new cRect();
 
 	// if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
 

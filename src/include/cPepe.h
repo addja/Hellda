@@ -19,12 +19,6 @@
 #define ATTACK_LEFT			10
 #define ATTACK_RIGHT		11
 
-class cRect
-{
-public:
-	int left,top,right,bottom;
-};
-
 class cPepe
 {
 public:

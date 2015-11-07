@@ -3,6 +3,7 @@
 #include "cTexture.h"
 #include "Globals.h"
 #include "cEnemy.h"
+#include "cOctoroct.h"
 
 #define MAX_ENEMIES_PER_ZONE	10
 #define MAX_OBJECTS_PER_ZONE	10
@@ -30,6 +31,6 @@ private:
 	int current;
 	bool overworld;
 	cData *Data;
-	cEnemy enemies[MAX_ENEMIES_PER_ZONE];
+	cEnemy * enemies[MAX_ENEMIES_PER_ZONE];
 	//cObject objects[MAX_OBJECTS_PER_ZONE];
 };

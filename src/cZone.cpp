@@ -8,30 +8,32 @@ cZone::~cZone(void) {}
 
 void cZone::Reset() {
 	for (int i = 0; i < current; ++i) {
-		enemies[i].Reset();
+		(*(enemies[i])).Reset();
 	}
 }
 
 void cZone::Draw(float playerx, float playery)  {
 	for (int i = 0; i < current; ++i) {
-		enemies[i].Draw((*Data).GetID(IMG_ENEMIES), playerx, playery);
+		(*(enemies[i])).Draw((*Data).GetID(IMG_ENEMIES), playerx, playery);
 	}
 }
 
 void cZone::Logic(int *map) {
-	for (int i = 0; i < current; i++) enemies[i].Logic(map);
+	for (int i = 0; i < current; i++) (*(enemies[i])).Logic(map);
 }
 
 void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * overworld) {
-	enemies[current] = cEnemy(x,y,type,thrower, z, overworld);
-	enemies[current].SetWidthHeight(TILE_SIZE, TILE_SIZE);
+	switch (type) {
+		case OCTOROCT: enemies[current] = new cOctoroct(x, y, STEP_OCTOROCT, thrower, z, overworld); break;
+	}
+	(*(enemies[current])).SetWidthHeight(TILE_SIZE, TILE_SIZE);
 	
 	int i = rand() % 4;
 	switch (i) {
-		case 0: enemies[current].SetState(STATE_LOOKDOWN); break;
-		case 1: enemies[current].SetState(STATE_LOOKUP); break;
-		case 2: enemies[current].SetState(STATE_LOOKLEFT); break;
-		case 3: enemies[current].SetState(STATE_LOOKRIGHT); break;
+		case 0: (*(enemies[current])).SetState(STATE_LOOKDOWN); break;
+		case 1: (*(enemies[current])).SetState(STATE_LOOKUP); break;
+		case 2: (*(enemies[current])).SetState(STATE_LOOKLEFT); break;
+		case 3: (*(enemies[current])).SetState(STATE_LOOKRIGHT); break;
 	}
 
 	++current;
@@ -40,7 +42,7 @@ void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * ove
 //void addObject();
 
 cEnemy* cZone::GetEnemies() {
-	return enemies;
+	return *enemies;			// todo whatch this out
 }
 
 void cZone::SetData(cData *data) {
