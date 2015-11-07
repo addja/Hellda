@@ -41,7 +41,7 @@ void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * ove
 
 //void addObject();
 
-cEnemy* cZone::GetEnemies() {
+cOctoroct* cZone::GetEnemies() {
 	return *enemies;			// todo whatch this out
 }
 

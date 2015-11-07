@@ -92,6 +92,7 @@
     <ClCompile Include="cDungeon.cpp" />
     <ClCompile Include="cEnemy.cpp" />
     <ClCompile Include="cGame.cpp" />
+    <ClCompile Include="cOctoroct.cpp" />
     <ClCompile Include="cPepe.cpp" />
     <ClCompile Include="cPlayer.cpp" />
     <ClCompile Include="cOverworld.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="include\cDungeon.h" />
     <ClInclude Include="include\cEnemy.h" />
     <ClInclude Include="include\cGame.h" />
+    <ClInclude Include="include\cOctoroct.h" />
     <ClInclude Include="include\corona.h" />
     <ClInclude Include="include\cPepe.h" />
     <ClInclude Include="include\cPlayer.h" />

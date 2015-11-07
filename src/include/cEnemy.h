@@ -25,6 +25,9 @@ public:
 	void StopState();
 	bool notInScreen(float playerx, float playery);
 
+	void SetOriginalPosition(float x, float y);
+	void SetThrower(bool thrower);
+
 private:
 	float original_x;
 	float original_y;

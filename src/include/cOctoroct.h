@@ -5,6 +5,7 @@
 class cOctoroct : public cEnemy {
 public:
 	cOctoroct();
+	cOctoroct(float x, float y, float step, bool thrower, int zone, bool * overworld);
 	~cOctoroct();
 
 	void Draw(int tex_id, float playerx, float playery);

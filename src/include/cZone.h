@@ -21,7 +21,7 @@ public:
 	void addEnemy(float x, float y, int type, bool thrower, int zone, bool* overworld);
 	//void addObject();
 
-	cEnemy *GetEnemies();
+	cOctoroct *GetEnemies();
 	//cObject *GetObjects();
 
 	void SetData(cData *data);
@@ -31,6 +31,6 @@ private:
 	int current;
 	bool overworld;
 	cData *Data;
-	cEnemy * enemies[MAX_ENEMIES_PER_ZONE];
+	cOctoroct * enemies[MAX_ENEMIES_PER_ZONE];
 	//cObject objects[MAX_OBJECTS_PER_ZONE];
 };

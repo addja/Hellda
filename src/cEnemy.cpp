@@ -174,3 +174,11 @@ void cEnemy::StopState() {
 	state_delay = 0.0f;
 	Stop();
 }
+
+void cEnemy::SetOriginalPosition(float x, float y) {
+	original_x = x;
+	original_y = y;
+}
+void cEnemy::SetThrower(bool th) {
+	thrower = th;
+}

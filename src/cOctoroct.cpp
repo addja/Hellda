@@ -2,10 +2,23 @@
 
 cOctoroct::cOctoroct() {}
 
+cOctoroct::cOctoroct(float posx, float posy, float step, bool th, int z, bool * overworld) {
+	SetOriginalPosition(posx, posy);
+	SetPosition(posx, posy);
+	SetThrower(th);
+	SetZone(z);
+	SetStepLength(step);
+	setOverworld(overworld);
+}
+
+
 cOctoroct::~cOctoroct() {}
 
 void cOctoroct::Draw(int tex_id, float playerx, float playery) {
-	if (notInScreen(float playerx, float playery)) return;
+	if (notInScreen(playerx, playery)) return;
+
+	float x, y, xo, yo, xf, yf;
+	GetPosition(&x, &y);
 	
 	// transform player post if it is on the limits of the map
 	if (playerx < SCENE_WIDTH / 2) playerx = SCENE_WIDTH / 2;
