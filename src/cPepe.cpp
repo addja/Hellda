@@ -436,7 +436,7 @@ bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int move
 
 	case STATE_WALKUP:
 		// uper right corner / 2
-		newx2 = floor(x + 1);
+		newx2 = floor(x + 0.9f);
 		newy2 = ceil(y - 0.5f);
 		tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2];
 
@@ -446,7 +446,7 @@ bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int move
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) {
-			if (x - floor(x) >= 0.75) {
+			if (x - floor(x) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx + 1];
 				if (walkableDungeon(tile)) {
@@ -462,6 +462,7 @@ bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int move
 			if (x - (float)floor(x) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
+				std::cout << tile2 << std::endl;
 				if (walkableDungeon(tile2)) {
 					x = newx2 - 1;
 					return true;
@@ -474,7 +475,7 @@ bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int move
 
 	case STATE_WALKDOWN:
 		// lower right corner
-		newx2 = floor(x + 1);
+		newx2 = floor(x + 0.9f);
 		newy2 = ceil(y - 0.05f);
 		tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2];
 

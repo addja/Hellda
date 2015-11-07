@@ -24,21 +24,22 @@ void cPlayer::Logic(int *map) {
 			SetZone(32);
 		}
 	} else {
-		int zone;
+		int zone, state;
 		GetZone(&zone);
+		state = GetState();
 
 		// v
 		int zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
 		int zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2 - 1;
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-		if (dungeonDownTransitions(tile)) {
+		if ( (state == STATE_LOOKDOWN || state == STATE_WALKDOWN) && dungeonDownTransitions(tile) ) {
 			std::cout << "DOWN TRANS " << tile << std::endl;
 			if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
 				SetOverworld(true);
 				SetPosition(116.0f, 79.0f);
 				return;
 			} else {
-				SetZone(zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+				TransitionDown(zone);
 				SetPosition(SCENE_WIDTH / 2 - 0.5f, HUD_TILES + 3.5f);
 				return;
 			}
@@ -47,20 +48,21 @@ void cPlayer::Logic(int *map) {
 		// ^
 		zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-		if (dungeonUpTransitions(tile)) {
+		if ( (state == STATE_LOOKUP || state == STATE_WALKUP) && dungeonUpTransitions(tile) ) {
 			std::cout << "UP TRANS " << tile << std::endl;
-			SetZone(zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+			TransitionUp(zone);
 			SetPosition(SCENE_WIDTH / 2 - 0.5f, SCENE_HEIGHT - 1.5f);
 			return;
 		}
 
 		// <
-		zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH + 1;
+		zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
 		zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-		if (dungeonLeftTransitions(tile)) {
-			std::cout << "LEFT TRANS " << tile << std::endl;
-			SetZone(zone - 1);
+		//std::cout << tile << " " << newx << " " << newy << std::endl;
+		if ( (state == STATE_LOOKLEFT || state == STATE_WALKLEFT) && dungeonLeftTransitions(tile)) {
+			std::cout << "LEFT TRANS " << tile << " " << newx << " " << newy << std::endl;
+			TransitionLeft(zone);
 			SetPosition(SCENE_WIDTH - 2.0f, SCENE_HEIGHT - 5.0f);
 			return;
 		}
@@ -68,9 +70,9 @@ void cPlayer::Logic(int *map) {
 		// >
 		zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-		if (dungeonRightTransitions(tile)) {
+		if ( (state == STATE_LOOKRIGHT || state == STATE_WALKRIGHT) && dungeonRightTransitions(tile)) {
 			std::cout << "RIGHT TRANS " << tile << std::endl;
-			SetZone(zone + 1);
+			TransitionRight(zone);
 			SetPosition(1.5f, SCENE_HEIGHT - 5.0f);
 		}
 	}
@@ -247,4 +249,28 @@ void cPlayer::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, flo
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
+}
+
+void cPlayer::TransitionLeft(int zone) {
+	int newzone = zone - 1;
+	SetZone(newzone);
+	if (DEBUG_MODE) std::cout << "transition left" << std::endl;
+}
+
+void cPlayer::TransitionRight(int zone) {
+	int newzone = zone + 1;
+	SetZone(newzone);
+	if (DEBUG_MODE) std::cout << "transition left" << std::endl;
+}
+
+void cPlayer::TransitionDown(int zone) {
+	int newzone = zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH);
+	SetZone(newzone);
+	if (DEBUG_MODE) std::cout << "transition left" << std::endl;
+}
+
+void cPlayer::TransitionUp(int zone) {
+	int newzone = zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH);
+	SetZone(newzone);
+	if (DEBUG_MODE) std::cout << "transition left" << std::endl;
 }

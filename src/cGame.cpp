@@ -109,7 +109,7 @@ bool cGame::Process() {
 		Player.Logic(Dungeon.GetMap());
 
 		// feo feillo pero para testear
-		ZonesDungeon[0].Logic(Dungeon.GetMap());
+		//ZonesDungeon[0].Logic(Dungeon.GetMap());
 	}
 
 	return res;
