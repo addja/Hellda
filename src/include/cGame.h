@@ -24,10 +24,18 @@ public:
 	// Input
 	void ReadKeyboard(unsigned char key, int x, int y, bool press);
 	void ReadMouse(int button, int state, int x, int y);			// TODO: we don't use the mouse
+	
 	// Process
 	bool Process();
+
 	// Output
 	void Render();
+
+	void initializeEnemiesOverworld();
+	void initializeEnemiesDungeons();
+
+	void initializeObjectsOverworld();
+	void initializeObjectsDungeons();
 
 private:
 	unsigned char keys[256];
@@ -37,4 +45,5 @@ private:
 	cData Data;
 	cZone ZonesOverworld[OVERWORLD_ENEMIES_MAP_WIDTH * OVERWORLD_ENEMIES_MAP_HEIGHT];
 	cZone ZonesDungeon[DUNGEON_ENEMIES_MAP_WIDTH * DUNGEON_ENEMIES_MAP_HEIGHT];
+	bool overworld;
 };

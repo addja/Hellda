@@ -13,7 +13,7 @@
 class cEnemy : public cPepe {
 public:
 	cEnemy();
-	cEnemy(float x, float y, int type, bool thrower, int zone);
+	cEnemy(float x, float y, int type, bool thrower, int zone, bool * overworld);
 	~cEnemy();
 
 	void Reset();

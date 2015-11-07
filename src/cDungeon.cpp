@@ -15,9 +15,6 @@ bool cDungeon::LoadLevel(int level) {
 
 	res=true;
 
-	/*if (level<10) 	sprintf(file,"%s0%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);
-	else		 	sprintf(file,"%s%d%s",(char *)FILENAME,level,(char *)FILENAME_EXT);*/
-
 	sprintf(file, "%s%d%s", (char *)DUNGEON_FILENAME, level,(char *)DUNGEON_FILENAME_EXT);
 
 	fd=fopen(file,"r");

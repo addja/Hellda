@@ -17,7 +17,7 @@ public:
 	void Draw(float playerx, float playery);
 	void Logic(int *map);
 
-	void addEnemy(float x, float y, int type, bool thrower, int zone);
+	void addEnemy(float x, float y, int type, bool thrower, int zone, bool* overworld);
 	//void addObject();
 
 	cEnemy *GetEnemies();

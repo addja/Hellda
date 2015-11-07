@@ -7,6 +7,7 @@
 class cPlayer: public cPepe {
 public:
 	cPlayer();
+	cPlayer(bool * overworld);
 	~cPlayer();
 
 	void Attack();

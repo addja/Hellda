@@ -2,7 +2,7 @@
 
 cEnemy::cEnemy() {}
 
-cEnemy::cEnemy(float posx, float posy, int ty, bool th, int z) {
+cEnemy::cEnemy(float posx, float posy, int ty, bool th, int z, bool * overworld) {
 	original_x = posx;
 	original_y = posy;
 	SetPosition(posx, posy);
@@ -10,6 +10,7 @@ cEnemy::cEnemy(float posx, float posy, int ty, bool th, int z) {
 	thrower = th;
 	SetZone(z);
 	SetStepLength(STEP_LENGTH_MONSTER);
+	setOverworld(overworld);
 } 
 
 cEnemy::~cEnemy() {}
@@ -21,9 +22,7 @@ void cEnemy::Reset() {
 void cEnemy::Draw(int tex_id, float playerx, float playery) {
 	float x, y, xo, yo, xf, yf;;
 	GetPosition(&x, &y);
-	bool overworld;
-	GetOverworld(&overworld);
-	if (overworld) {
+	if (inOverworld()) {
 		// check if on the right of the left screen limit
 		if (x < playerx - SCENE_WIDTH / 2 - 1) return;		// -1 beacuse we need a little offset if to show the half of Pepe
 
@@ -91,16 +90,13 @@ void cEnemy::Logic(int *map) {
 	float x, y, nextx, nexty;
 	GetPosition(&x, &y);
 
-	bool overworld;
-	GetOverworld(&overworld);
-
 	if (state_delay > MAX_STATE_DELAY) StopState();
 	else {
 		switch (GetState()) {
 			case STATE_WALKUP:		nexty = y - STEP_LENGTH_MONSTER;
 									nextx = x;
 									state_delay += STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP) && inZone(nextx, nexty)) MoveUp(map);
 										else StopState();
 									} else {
@@ -111,7 +107,7 @@ void cEnemy::Logic(int *map) {
 			case STATE_WALKDOWN:	nexty = y + STEP_LENGTH_MONSTER;
 									nextx = x;
 									state_delay += STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN) && inZone(nextx, nexty)) MoveDown(map);
 										else StopState();
 									} else {
@@ -122,7 +118,7 @@ void cEnemy::Logic(int *map) {
 			case STATE_WALKLEFT:	nexty = y;
 									nextx = x - STEP_LENGTH_MONSTER;
 									state_delay += STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT) && inZone(nextx, nexty)) MoveLeft(map);
 										else StopState();
 									} else {
@@ -133,7 +129,7 @@ void cEnemy::Logic(int *map) {
 			case STATE_WALKRIGHT:	nexty = y;
 									nextx = x + STEP_LENGTH_MONSTER;
 									state_delay += STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT) && inZone(nextx, nexty)) MoveRight(map);
 										else StopState();
 									} else {
@@ -150,7 +146,7 @@ void cEnemy::Logic(int *map) {
 									// one step ^
 									nexty = y - STEP_LENGTH_MONSTER;
 									nextx = x;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP) && inZone(nextx, nexty)) tiles.push_back(1);
 									} else {
 										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKUP)) tiles.push_back(1);
@@ -159,7 +155,7 @@ void cEnemy::Logic(int *map) {
 									// one step v
 									nexty = y + STEP_LENGTH_MONSTER;
 									nextx = x;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN) && inZone(nextx, nexty)) tiles.push_back(2);
 									} else {
 										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKDOWN)) tiles.push_back(2);
@@ -168,7 +164,7 @@ void cEnemy::Logic(int *map) {
 									// one step <
 									nexty = y;
 									nextx = x - STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT) && inZone(nextx, nexty)) tiles.push_back(3);
 									} else {
 										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKLEFT)) tiles.push_back(3);
@@ -177,7 +173,7 @@ void cEnemy::Logic(int *map) {
 									// one step >
 									nexty = y;
 									nextx = x + STEP_LENGTH_MONSTER;
-									if (overworld) {
+									if (inOverworld()) {
 										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT) && inZone(nextx, nexty)) tiles.push_back(4);
 									} else {
 										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKRIGHT)) tiles.push_back(4);

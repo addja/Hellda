@@ -28,8 +28,8 @@ public:
 class cPepe
 {
 public:
-	cPepe(void);
-	cPepe(int x,int y,int w,int h);
+	cPepe();
+	cPepe(int x,int y,int w,int h, bool * overworld);
 	~cPepe(void);
 
 	void SetPosition(float x, float y);
@@ -40,8 +40,6 @@ public:
 	void GetWidthHeight(int *w,int *h);
 	void SetStepLength(float step);
 	void GetStepLength(float *step);
-	void SetOverworld(bool over);
-	void GetOverworld(bool *over);
 	void SetZone(int zone);
 	void GetZone(int *zone);
 
@@ -75,6 +73,10 @@ public:
 	void NextFrame(int max);
 	int  GetFrame();
 
+	bool inOverworld();
+	void setOverworld(bool *overworld);
+	void changeOverworld();
+
 	// To remove later
 	bool testingDungeon(int tile);
 	
@@ -83,7 +85,7 @@ private:
 	int w,h;
 	int state;
 	float step_length;
-	bool overworld;
+	bool * overworld;
 	int zone;
 
 	int seq,delay;

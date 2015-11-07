@@ -19,39 +19,33 @@ bool cGame::Init() {
 	glEnable(GL_ALPHA_TEST);
 
 	// Scene initialization
-	 res = Data.LoadImage(IMG_OVERLORD,"zelda-tiles-compressed.png",GL_RGB);
+	 res = Data.LoadImage(IMG_OVERWORLD,"zelda-tiles-compressed.png",GL_RGB);
 	 if(!res) return false;
 	 res = Overworld.Load();
 	 if(!res) return false;
 	 res = Data.LoadImage(IMG_DUNGEON, "dungeon1-tiles.png", GL_RGB);
 	 if (!res) return false;
+	 // load dungeon 1
 	 res = Dungeon.LoadLevel(1);
 	 if (!res) return false;
 
-	//Player initialization
+	// Player initialization
 	 res = Data.LoadImage(IMG_PLAYER,"link.png",GL_RGBA);
 	 if(!res) return false;
+	 overworld = true;
+	 Player = cPlayer(&overworld);
 	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
-	 Player.SetPosition(120.0f,82.0f);  // TODO poner bien
+	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);  // TODO poner bien
 	 Player.SetState(STATE_LOOKUP);
-	 Player.SetOverworld(true);
 
 	 // Zones initialization
 	 res = Data.LoadImage(IMG_ENEMIES, "octoroc.png", GL_RGBA);
 	 if (!res) return false;
-	 // Enemies
-	 ZonesOverworld[0] = cZone();
-	 ZonesOverworld[0].SetOverworld(true);
-	 ZonesOverworld[0].SetData(&Data);
-	 ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROC, true, 119);
-	 ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROC, true, 103);
-
-	 ZonesDungeon[0] = cZone();
-	 ZonesDungeon[0].SetOverworld(false);
-	 ZonesDungeon[0].SetData(&Data);
-	 ZonesDungeon[0].addEnemy(8.5f, 9.5f, OCTOROC, true, 32);
-
-	 // Objects
+	 
+	 initializeEnemiesOverworld();
+	 initializeEnemiesDungeons();
+	 initializeObjectsOverworld();
+	 initializeObjectsDungeons();
 
 	return res;
 }
@@ -80,9 +74,6 @@ bool cGame::Process() {
 	
 	// Process Input
 	if (keys[27]) res=false;
-	
-	bool overworld;
-	Player.GetOverworld(&overworld);
 
 	if (overworld) {
 		if (keys[GLUT_KEY_UP])			Player.MoveUp(Overworld.GetMap());
@@ -109,7 +100,7 @@ bool cGame::Process() {
 		Player.Logic(Dungeon.GetMap());
 
 		// feo feillo pero para testear
-		//ZonesDungeon[0].Logic(Dungeon.GetMap());
+		ZonesDungeon[0].Logic(Dungeon.GetMap());
 	}
 
 	return res;
@@ -124,12 +115,9 @@ void cGame::Render() {
 	float x, y;
 	Player.GetPosition(&x, &y);
 
-	bool overworld;
-	Player.GetOverworld(&overworld);
-
 	if (overworld) {
 		// draw scene
-		Overworld.Draw(Data.GetID(IMG_OVERLORD), x, y);
+		Overworld.Draw(Data.GetID(IMG_OVERWORLD), x, y);
 
 		// feo feillo pero para testear
 		ZonesOverworld[0].Draw(x, y);
@@ -156,4 +144,27 @@ void cGame::Render() {
 	glColor4f(1, 1, 1, 1);
 
 	glutSwapBuffers();
+}
+
+void cGame::initializeEnemiesOverworld() {
+	ZonesOverworld[0] = cZone();
+	ZonesOverworld[0].SetOverworld(true);
+	ZonesOverworld[0].SetData(&Data);
+	ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROC, true, 119, &overworld);
+	ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROC, true, 103, &overworld);
+}
+
+void cGame::initializeEnemiesDungeons() {
+	ZonesDungeon[0] = cZone();
+	ZonesDungeon[0].SetOverworld(false);
+	ZonesDungeon[0].SetData(&Data);
+	ZonesDungeon[0].addEnemy(8.5f, 9.5f, OCTOROC, true, 32, &overworld);
+}
+
+void cGame::initializeObjectsOverworld() {
+	
+}
+
+void cGame::initializeObjectsDungeons() {
+
 }

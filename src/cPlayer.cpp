@@ -1,14 +1,15 @@
 #include "include/cPlayer.h"
 
-cPlayer::cPlayer(){}
+cPlayer::cPlayer() {}
+
+cPlayer::cPlayer(bool * overworld) {
+	setOverworld(overworld);
+}
 
 cPlayer::~cPlayer(){}
 
 void cPlayer::Logic(int *map) {
 	int tile, newx, newy;
-
-	bool overworld;
-	GetOverworld(&overworld);
 
 	float posx, posy;
 	GetPosition(&posx, &posy);
@@ -16,10 +17,10 @@ void cPlayer::Logic(int *map) {
 	newx = floor(posx);
 	newy = ceil(posy);
 
-	if (overworld) {
+	if (inOverworld()) {
 		tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
 		if (overworldTransitions(tile)) {
-			SetOverworld(false);
+			changeOverworld();
 			SetPosition(SCENE_WIDTH / 2 - 0.5f, SCENE_HEIGHT - 2.0f);
 			SetZone(32);
 		}
@@ -35,7 +36,7 @@ void cPlayer::Logic(int *map) {
 		if ( (state == STATE_LOOKDOWN || state == STATE_WALKDOWN) && dungeonDownTransitions(tile) ) {
 			std::cout << "DOWN TRANS " << tile << std::endl;
 			if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
-				SetOverworld(true);
+				changeOverworld();
 				SetPosition(116.0f, 79.0f);
 				return;
 			} else {
@@ -162,15 +163,13 @@ void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 
 	float x, y;
 	int w, h;
-	bool overworld;
-	GetOverworld(&overworld);
 	GetPosition(&x, &y);
 	GetWidthHeight(&w, &h);
 
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
-	if (overworld) {
+	if (inOverworld()) {
 
 		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
 		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
@@ -212,8 +211,6 @@ void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 
 // Draws an object that follows the associated Pepe with a given offset
 void cPlayer::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
-	bool overworld;
-	GetOverworld(&overworld);
 	
 	float screen_x, screen_y;
 	float x, y;
@@ -224,7 +221,7 @@ void cPlayer::DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, flo
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
-	if (overworld) {
+	if (inOverworld()) {
 		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
 		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
 

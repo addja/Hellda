@@ -1,21 +1,18 @@
 #include "include/cZone.h"
 
-cZone::cZone(void) 
-{
+cZone::cZone(void) {
 	current = 0;
 }
 
 cZone::~cZone(void) {}
 
-void cZone::Reset() 
-{
+void cZone::Reset() {
 	for (int i = 0; i < current; ++i) {
 		enemies[i].Reset();
 	}
 }
 
-void cZone::Draw(float playerx, float playery) 
-{
+void cZone::Draw(float playerx, float playery)  {
 	for (int i = 0; i < current; ++i) {
 		enemies[i].Draw((*Data).GetID(IMG_ENEMIES), playerx, playery);
 	}
@@ -25,10 +22,8 @@ void cZone::Logic(int *map) {
 	for (int i = 0; i < current; i++) enemies[i].Logic(map);
 }
 
-void cZone::addEnemy(float x, float y, int type, bool thrower, int z)
-{
-	enemies[current] = cEnemy(x,y,type,thrower, z);
-	enemies[current].SetOverworld(overworld);
+void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * overworld) {
+	enemies[current] = cEnemy(x,y,type,thrower, z, overworld);
 	enemies[current].SetWidthHeight(TILE_SIZE, TILE_SIZE);
 	
 	int i = rand() % 4;

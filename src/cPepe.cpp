@@ -9,16 +9,16 @@ cPepe::cPepe(void) {
 	seq=0;
 	delay=0;
 	step_length = STEP_LENGTH_LINK;
-	overworld = true;
 }
 
 cPepe::~cPepe(void){}
 
-cPepe::cPepe(int posx,int posy,int width,int height) {
+cPepe::cPepe(int posx,int posy,int width,int height, bool * world) {
 	x = posx;
 	y = posy;
 	w = width;
 	h = height;
+	overworld = world;
 }
 
 void cPepe::SetPosition(float posx, float posy) {
@@ -59,14 +59,6 @@ void cPepe::GetStepLength(float *step) {
 	*step = step_length;
 }
 
-void cPepe::SetOverworld(bool over) {
-	overworld = over;
-}
-
-void cPepe::GetOverworld(bool *over) {
-	*over = overworld;
-}
-
 void cPepe::SetZone(int z) {
 	zone = z;
 }
@@ -78,7 +70,7 @@ void cPepe::GetZone(int *z) {
 void cPepe::MoveUp(int *map) {
 	float yaux = y - step_length;
 
-	if (overworld) {
+	if (inOverworld()) {
 		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKUP)) y = yaux;
 			if (state != STATE_WALKUP) {
 				state = STATE_WALKUP;
@@ -99,7 +91,7 @@ void cPepe::MoveUp(int *map) {
 void cPepe::MoveDown(int *map) {
 	float yaux = y + step_length;
 
-	if (overworld) {
+	if (inOverworld()) {
 		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKDOWN)) y = yaux;
 			if (state != STATE_WALKDOWN) {
 				state = STATE_WALKDOWN;
@@ -119,7 +111,7 @@ void cPepe::MoveDown(int *map) {
 void cPepe::MoveLeft(int *map) {
 	float xaux = x - step_length;
 
-	if (overworld) {
+	if (inOverworld()) {
 		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKLEFT)) x = xaux;
 			if (state != STATE_WALKLEFT) {
 				state = STATE_WALKLEFT;
@@ -139,7 +131,7 @@ void cPepe::MoveLeft(int *map) {
 void cPepe::MoveRight(int *map) {
 	float xaux = x + step_length;
 
-	if (overworld) {
+	if (inOverworld()) {
 		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKRIGHT)) x = xaux;
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
@@ -593,7 +585,7 @@ void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float
 	float vx = GAME_WIDTH / SCENE_WIDTH;
 	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
 
-	if (overworld) {
+	if (inOverworld()) {
 		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
 		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
 
@@ -632,4 +624,17 @@ void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float
 	}
 
 	
+}
+
+bool cPepe::inOverworld() {
+	return *overworld;
+}
+
+void cPepe::setOverworld(bool * world) {
+	overworld = world;
+}
+
+void cPepe::changeOverworld() {
+	std::cout << *overworld << std::endl;
+	*overworld = ! *overworld;
 }
