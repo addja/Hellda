@@ -54,7 +54,7 @@ public:
 	bool dungeonRightTransitions(int tile);
 	bool dungeonLeftTransitions(int tile);
 
-	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
+	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery);
 
 	void MoveUp(int *map);
 	void MoveDown(int *map);

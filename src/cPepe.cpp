@@ -573,7 +573,7 @@ void cPepe::SetSeqNDelay(int s, int d) {
 }
 
 // draws an entity having as a constraint that it occupies one tile given an offset from the Pepe
-void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float offsetx, float offsety) {
+void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery) {
 	float screen_x, screen_y;
 
 	float vx = GAME_WIDTH / SCENE_WIDTH;
@@ -583,10 +583,13 @@ void cPepe::DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float
 		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
 		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
 
-		if (x < SCENE_WIDTH / 2) screen_x = x*vx;
-		else if (x > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (OVERWORLD_MAP_WIDTH - x)*vx;
-		if (y <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= ((SCENE_HEIGHT - HUD_TILES) / 2 - y)*vy;
-		else if (y >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += (y - (OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+		if (playerx < SCENE_WIDTH / 2) screen_x = playerx*vx;
+		else if (playerx > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (OVERWORLD_MAP_WIDTH - playerx)*vx;
+		if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - playery)*vy;
+		else if (playery >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (playery - (OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+
+		float offsetx = x - playerx;
+		float offsety = playery - y;
 
 		glEnable(GL_TEXTURE_2D);
 

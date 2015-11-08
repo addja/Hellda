@@ -18,14 +18,7 @@ cOctoroct::~cOctoroct() {}
 void cOctoroct::Draw(int tex_id, float playerx, float playery) {
 	if (notInScreen(playerx, playery)) return;
 
-	float x, y, xo, yo, xf, yf;
-	GetPosition(&x, &y);
-	
-	// transform player post if it is on the limits of the map
-	if (playerx < SCENE_WIDTH / 2) playerx = SCENE_WIDTH / 2;
-	else if (playerx > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) playerx = OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2);
-	if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) playery = (SCENE_HEIGHT - HUD_TILES) / 2;
-	else if (playery >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) playery = OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2;
+	float xo, yo, xf, yf;
 
 	switch (GetState()) {
 	case STATE_LOOKLEFT:	xo = 1.0f / 9.0f;	yo = 0.5f;
@@ -57,7 +50,7 @@ void cOctoroct::Draw(int tex_id, float playerx, float playery) {
 	xf = xo + 1.0f / 9.0f;
 	yf = yo - 0.5f;
 
-	DrawEntity(tex_id, xo, yo, xf, yf, x - playerx, playery - y);
+	DrawEntity(tex_id, xo, yo, xf, yf, playerx, playery);
 }
 
 void cOctoroct::Attack() {
