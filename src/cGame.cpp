@@ -91,14 +91,31 @@ bool cGame::Process() {
 
 		Player.GetPosition(&x, &y);
 
-		// feo feillo pero para testear
-		ZonesOverworld[0].Logic(Overworld.GetMap(), x, y, Player.GetState());
+		// to know the zone
+		int zone = calcZone(x, y);
+		std::cout << zone << std::endl;
+
+		// get border zones
+		float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
+		float offsety = OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT / 2;
+		zones.clear();
+		zones.insert(calcZone(x + offsetx, y + offsety));
+		zones.insert(calcZone(x + offsetx, y - offsety));
+		zones.insert(calcZone(x - offsetx, y + offsety));
+		zones.insert(calcZone(x - offsetx, y - offsety));
+		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+			ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState());
+		}
 
 		// check intersections enemies player
-		// TODO: do it for the 4 zones colliding
-		hit = Player.checkIntersections(ZonesOverworld[0]);
-		// game over
-		// if (!hit && Player.health == 0) gameover();
+		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+			hit = Player.checkIntersections(ZonesOverworld[*it]);
+			if (!hit) {
+				//if (Player.health == 0) gameOver();
+				break;
+			}
+		}
+
 	} else {
 		if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());
 		else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
@@ -137,8 +154,9 @@ void cGame::Render() {
 		// draw scene
 		Overworld.Draw(Data.GetID(IMG_OVERWORLD), x, y);
 
-		// feo feillo pero para testear
-		ZonesOverworld[0].Draw(x, y);
+		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+			ZonesOverworld[*it].Draw(x,y);
+		}
 	} else {
 		int zone;
 		Player.GetZone(&zone);
@@ -166,10 +184,10 @@ void cGame::Render() {
 }
 
 void cGame::initializeEnemiesOverworld() {
-	ZonesOverworld[0] = cZone();
-	ZonesOverworld[0].SetOverworld(true);
-	ZonesOverworld[0].SetData(&Data);
-	ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
+	ZonesOverworld[87] = cZone();
+	ZonesOverworld[87].SetOverworld(true);
+	ZonesOverworld[87].SetData(&Data);
+	ZonesOverworld[87].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
 	//ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROCT, true, 103, &overworld);
 }
 
@@ -186,4 +204,10 @@ void cGame::initializeObjectsOverworld() {
 
 void cGame::initializeObjectsDungeons() {
 
+}
+
+int cGame::calcZone(float x, float y) {
+	int zonex = floor(x / (OVERWORLD_MAP_WIDTH / ZONE_WIDTH));
+	int zoney = floor(y / (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT));
+	return zonex + (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT) * zoney;
 }

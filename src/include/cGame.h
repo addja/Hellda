@@ -6,6 +6,7 @@
 #include "cPlayer.h"
 #include "cData.h"
 #include "cZone.h"
+#include <set>
 
 #define OVERWORLD_ENEMIES_MAP_WIDTH		OVERWORLD_MAP_WIDTH/SCENE_WIDTH
 #define OVERWORLD_ENEMIES_MAP_HEIGHT	OVERWORLD_MAP_HEIGHT/SCENE_HEIGHT
@@ -37,6 +38,7 @@ public:
 
 	void initializeObjectsOverworld();
 	void initializeObjectsDungeons();
+	int calcZone(float x, float y);
 
 private:
 	unsigned char keys[256];
@@ -47,4 +49,5 @@ private:
 	cZone ZonesOverworld[OVERWORLD_ENEMIES_MAP_WIDTH * OVERWORLD_ENEMIES_MAP_HEIGHT];
 	cZone ZonesDungeon[DUNGEON_ENEMIES_MAP_WIDTH * DUNGEON_ENEMIES_MAP_HEIGHT];
 	bool overworld;
+	std::set<int> zones;
 };
