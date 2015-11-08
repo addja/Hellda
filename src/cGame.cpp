@@ -70,7 +70,8 @@ void cGame::ReadMouse(int button, int state, int x, int y) {}
 
 // Process
 bool cGame::Process() {
-	bool res=true;
+	bool res = true;
+	bool hit;
 	float x, y;
 	int state;
 
@@ -90,10 +91,14 @@ bool cGame::Process() {
 
 		Player.GetPosition(&x, &y);
 
-		state = Player.GetState();
-
 		// feo feillo pero para testear
-		ZonesOverworld[0].Logic(Overworld.GetMap(), x, y, state);
+		ZonesOverworld[0].Logic(Overworld.GetMap(), x, y, Player.GetState());
+
+		// check intersections enemies player
+		// TODO: do it for the 4 zones colliding
+		hit = Player.checkIntersections(ZonesOverworld[0]);
+		// game over
+		// if (!hit && Player.health == 0) gameover();
 	} else {
 		if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());
 		else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
@@ -107,10 +112,13 @@ bool cGame::Process() {
 
 		Player.GetPosition(&x, &y);
 
-		state = Player.GetState();
-
 		// feo feillo pero para testear
-		ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, state);
+		ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+		// check intersections enemies player
+		// TODO: do it for the 4 zones colliding
+		hit = Player.checkIntersections(ZonesDungeon[0]);
+		// game over
+		// if (!hit && Player.health == 0) gameover();
 	}
 
 	return res;
@@ -144,6 +152,7 @@ void cGame::Render() {
 	Player.Draw(Data.GetID(IMG_PLAYER));
 
 	// HUD black background
+	if (DEBUG_MODE) std::cout << Player.health() << std::endl;
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glBegin(GL_POLYGON);
 		glVertex2i(0, GAME_HEIGHT);

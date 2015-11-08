@@ -42,7 +42,11 @@ void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * ove
 //void addObject();
 
 cOctoroct* cZone::GetEnemies() {
-	return *enemies;			// todo whatch this out
+	return *enemies;		// todo whatch this out
+}
+
+int cZone::numEnemies() {
+	return current;
 }
 
 void cZone::SetData(cData *data) {

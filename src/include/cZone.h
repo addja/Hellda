@@ -21,11 +21,12 @@ public:
 	void addEnemy(float x, float y, int type, bool thrower, int zone, bool* overworld);
 	//void addObject();
 
-	cOctoroct *GetEnemies();
+	cOctoroct* GetEnemies();
 	//cObject *GetObjects();
 
 	void SetData(cData *data);
 	void SetOverworld(bool over);
+	int numEnemies();
 
 private:
 	int current;

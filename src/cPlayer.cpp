@@ -4,6 +4,7 @@ cPlayer::cPlayer() {}
 
 cPlayer::cPlayer(bool * overworld) {
 	setOverworld(overworld);
+	lives = LINK_LIVES;
 }
 
 cPlayer::~cPlayer(){}
@@ -280,4 +281,29 @@ void cPlayer::TransitionUp(int zone) {
 	int newzone = zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH);
 	SetZone(newzone);
 	if (DEBUG_MODE) std::cout << "transition left" << std::endl;
+}
+
+bool cPlayer::checkIntersections(cZone zone) {
+	cOctoroct * enemies= zone.GetEnemies();
+	float posx, posy, x, y;
+	GetPosition(&x, &y);
+	cRec player = cRec(x, y);
+	cRec enemy;
+	for (int i = 0; i < zone.numEnemies(); ++i) {
+		(enemies[i]).GetPosition(&posx, &posy);
+		if (player.intersects(cRec(posx, posy))) {
+			if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+			lives -= 0.5f;
+			return false;
+		}
+	}
+	return true;
+}
+
+bool cPlayer::isDead() {
+	return lives == 0;
+}
+
+float cPlayer::health() {
+	return lives;
 }
