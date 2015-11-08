@@ -18,8 +18,8 @@ void cZone::Draw(float playerx, float playery)  {
 	}
 }
 
-void cZone::Logic(int *map) {
-	for (int i = 0; i < current; i++) (*(enemies[i])).Logic(map);
+void cZone::Logic(int *map, float x, float y, int state) {
+	for (int i = 0; i < current; i++) (*(enemies[i])).Logic(map, x, y, state);
 }
 
 void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * overworld) {

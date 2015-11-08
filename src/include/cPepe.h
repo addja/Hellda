@@ -2,6 +2,7 @@
 
 #include "cTexture.h"
 #include "Globals.h"
+#include "cRec.h"
 
 #define FRAME_DELAY			8
 #define STEP_LENGTH_LINK	0.1
@@ -18,6 +19,8 @@
 #define ATTACK_DOWN			9
 #define ATTACK_LEFT			10
 #define ATTACK_RIGHT		11
+
+#define OFFSET_WEAPON		0.8f
 
 class cPepe
 {

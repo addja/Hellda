@@ -9,6 +9,7 @@ cOctoroct::cOctoroct(float posx, float posy, float step, bool th, int z, bool * 
 	SetZone(z);
 	SetStepLength(step);
 	setOverworld(overworld);
+	rebirth();
 }
 
 

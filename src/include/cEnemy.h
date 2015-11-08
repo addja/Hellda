@@ -20,7 +20,7 @@ public:
 	void Reset();
 	void Draw(int tex_id, float playerx, float playery);
 	void Attack();
-	void Logic(int *map);
+	void Logic(int *map, float x, float y, int state);
 	bool inZone(float x, float y);
 	void StopState();
 	bool notInScreen(float playerx, float playery);
@@ -28,10 +28,15 @@ public:
 	void SetOriginalPosition(float x, float y);
 	void SetThrower(bool thrower);
 
+	bool hitWithWeapon(float playerx, float playery, int state, float x, float y);
+	void die();
+	void rebirth();
+
 private:
 	float original_x;
 	float original_y;
 	bool thrower;
 	int throw_count;
 	float state_delay;
+	bool dead;
 };

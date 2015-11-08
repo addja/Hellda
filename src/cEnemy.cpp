@@ -10,6 +10,7 @@ cEnemy::cEnemy(float posx, float posy, float step, bool th, int z, bool * overwo
 	SetZone(z);
 	SetStepLength(step);
 	setOverworld(overworld);
+	dead = false;
 } 
 
 cEnemy::~cEnemy() {}
@@ -23,8 +24,12 @@ void cEnemy::Draw(int tex_id, float playerx, float playery) {
 }
 
 bool cEnemy::notInScreen(float playerx, float playery) {
+	
+	if (dead) return true;
+	
 	float x, y;
 	GetPosition(&x, &y);
+
 	if (inOverworld()) {
 		// check if on the right of the left screen limit
 		if (x < playerx - SCENE_WIDTH / 2 - 1) return true;		// -1 beacuse we need a little offset if to show the half of Pepe
@@ -37,21 +42,27 @@ bool cEnemy::notInScreen(float playerx, float playery) {
 
 		// check if on the upside of the bottom screen limit 
 		if (y < playery - SCENE_HEIGHT / 2) return true;
-
-		return false;
 	}
 
-
+	return false;
 }
 
 void cEnemy::Attack() {
 
 }
 
-void cEnemy::Logic(int *map) {
+void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 	
+	if (dead) return;
+
 	float x, y, nextx, nexty;
 	GetPosition(&x, &y);
+
+	if (hitWithWeapon(playerx, playery, state, x, y)) {
+		dead = true;
+		std::cout << "pene\n";
+		return;
+	}
 
 	if (state_delay > MAX_STATE_DELAY) StopState();
 	else {
@@ -179,6 +190,37 @@ void cEnemy::SetOriginalPosition(float x, float y) {
 	original_x = x;
 	original_y = y;
 }
+
 void cEnemy::SetThrower(bool th) {
 	thrower = th;
+}
+
+bool cEnemy::hitWithWeapon(float playerx, float playery, int state, float x, float y) {
+
+	cRec enemy = cRec(x, y);
+
+	switch (state) {
+		case ATTACK_DOWN:
+			if (enemy.intersects(cRec(playerx, playery - OFFSET_WEAPON))) return true;
+			break;
+		case ATTACK_UP:
+			if (enemy.intersects(cRec(playerx, playery + OFFSET_WEAPON))) return true;
+			break;
+		case ATTACK_LEFT:
+			if (enemy.intersects(cRec(playerx - OFFSET_WEAPON, playery))) return true;
+			break;
+		case ATTACK_RIGHT:
+			if (enemy.intersects(cRec(playerx + OFFSET_WEAPON, playery))) return true;
+			break;
+	}
+
+	return false;
+}
+
+void cEnemy::die() {
+	dead = true;
+}
+
+void cEnemy::rebirth() {
+	dead = false;
 }

@@ -16,7 +16,7 @@ public:
 	void Reset();
 
 	void Draw(float playerx, float playery);
-	void Logic(int *map);
+	void Logic(int *map, float x, float y, int state);
 
 	void addEnemy(float x, float y, int type, bool thrower, int zone, bool* overworld);
 	//void addObject();

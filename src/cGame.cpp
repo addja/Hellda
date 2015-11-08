@@ -71,7 +71,9 @@ void cGame::ReadMouse(int button, int state, int x, int y) {}
 // Process
 bool cGame::Process() {
 	bool res=true;
-	
+	float x, y;
+	int state;
+
 	// Process Input
 	if (keys[27]) res=false;
 
@@ -86,8 +88,12 @@ bool cGame::Process() {
 		// Game Logic
 		Player.Logic(Overworld.GetMap());
 
+		Player.GetPosition(&x, &y);
+
+		state = Player.GetState();
+
 		// feo feillo pero para testear
-		ZonesOverworld[0].Logic(Overworld.GetMap());
+		ZonesOverworld[0].Logic(Overworld.GetMap(), x, y, state);
 	} else {
 		if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());
 		else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
@@ -99,8 +105,12 @@ bool cGame::Process() {
 		// Game Logic
 		Player.Logic(Dungeon.GetMap());
 
+		Player.GetPosition(&x, &y);
+
+		state = Player.GetState();
+
 		// feo feillo pero para testear
-		ZonesDungeon[0].Logic(Dungeon.GetMap());
+		ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, state);
 	}
 
 	return res;
@@ -151,7 +161,7 @@ void cGame::initializeEnemiesOverworld() {
 	ZonesOverworld[0].SetOverworld(true);
 	ZonesOverworld[0].SetData(&Data);
 	ZonesOverworld[0].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
-	ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROCT, true, 103, &overworld);
+	//ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROCT, true, 103, &overworld);
 }
 
 void cGame::initializeEnemiesDungeons() {

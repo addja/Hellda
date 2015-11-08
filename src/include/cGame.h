@@ -14,6 +14,7 @@
 
 class cGame {
 public:
+
 	cGame(void);
 	virtual ~cGame(void);
 

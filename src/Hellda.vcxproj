@@ -96,6 +96,7 @@
     <ClCompile Include="cPepe.cpp" />
     <ClCompile Include="cPlayer.cpp" />
     <ClCompile Include="cOverworld.cpp" />
+    <ClCompile Include="cRec.cpp" />
     <ClCompile Include="cTexture.cpp" />
     <ClCompile Include="cZone.cpp" />
     <ClCompile Include="GLUTMain.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="include\cPepe.h" />
     <ClInclude Include="include\cPlayer.h" />
     <ClInclude Include="include\cOverworld.h" />
+    <ClInclude Include="include\cRec.h" />
     <ClInclude Include="include\cTexture.h" />
     <ClInclude Include="include\cZone.h" />
     <ClInclude Include="include\Globals.h" />
