@@ -10,6 +10,7 @@ class cRec {
 	
 		cRec(float x, float y);
 		bool intersects(cRec r);
+		bool contained(float x, float y);
 
 		float bot;
 		float top;

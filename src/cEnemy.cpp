@@ -60,7 +60,6 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 
 	if (hitWithWeapon(playerx, playery, state, x, y)) {
 		dead = true;
-		std::cout << "pene\n";
 		return;
 	}
 
@@ -201,10 +200,10 @@ bool cEnemy::hitWithWeapon(float playerx, float playery, int state, float x, flo
 
 	switch (state) {
 		case ATTACK_DOWN:
-			if (enemy.intersects(cRec(playerx, playery - OFFSET_WEAPON))) return true;
+			if (enemy.intersects(cRec(playerx, playery + OFFSET_WEAPON))) return true;
 			break;
 		case ATTACK_UP:
-			if (enemy.intersects(cRec(playerx, playery + OFFSET_WEAPON))) return true;
+			if (enemy.intersects(cRec(playerx, playery - OFFSET_WEAPON))) return true;
 			break;
 		case ATTACK_LEFT:
 			if (enemy.intersects(cRec(playerx - OFFSET_WEAPON, playery))) return true;
