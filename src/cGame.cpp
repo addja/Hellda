@@ -255,6 +255,18 @@ void cGame::Render() {
 	glEnd();
 	glColor4f(1, 1, 1, 1);
 
+	// HUD hearts
+	glColor3f(1.0f, 0.0f, 1.0f);
+	for (int i = 0; i < 6; i++) {
+		glBegin(GL_QUADS);
+			glVertex2i(GAME_WIDTH* 0.75f, GAME_HEIGHT*0.9f);
+			glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.9f);
+			glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.01f*i));
+			glVertex2i(GAME_WIDTH* 0.75f, GAME_HEIGHT*(0.9f + 0.01f*i));
+		glEnd();
+	}
+	glColor3f(1.0f, 1.0f, 1.0f);
+
 	glutSwapBuffers();
 }
 
