@@ -34,4 +34,5 @@ private:
 	bool * transition;
 	float offset;
 	float state_delay;
+	float dir_delayx, dir_delayy;
 };

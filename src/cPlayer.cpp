@@ -7,6 +7,7 @@ cPlayer::cPlayer(bool * overworld, bool * tr) {
 	transition = tr;
 	lives = LINK_LIVES;
 	SetKnocked(false);
+	state_delay = dir_delayx = -1;
 }
 
 cPlayer::~cPlayer(){}
@@ -70,28 +71,43 @@ void cPlayer::Logic(int *map) {
 		if (state_delay >= MAX_STATE_DELAY_LINK) StopState();
 		else {
 			std::vector<int> tiles;
-
-			float newx = posx - 0.2f;
+			state = GetState();
+			float newx = posx + 0.2f;
 			if ((state != STATE_LOOKLEFT || state != STATE_WALKLEFT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKLEFT)) tiles.push_back(0);
-			newx = posx + 0.2f;
+			newx = posx - 0.2f;
 			if ((state != STATE_LOOKRIGHT || state != STATE_WALKRIGHT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKRIGHT)) tiles.push_back(1);
-			newx = posx + 0.2f;
 			float newy = posy - 0.2f;
-			if ((state != STATE_LOOKUP || state != STATE_WALKUP) && checkCorrectMovementOverworld(newx, newy, map, STATE_WALKUP)) tiles.push_back(2);
+			if ((state != STATE_LOOKUP || state != STATE_WALKUP) && checkCorrectMovementOverworld(posx, newy, map, STATE_WALKUP)) tiles.push_back(2);
 			newy = posy + 0.2f;
-			if ((state != STATE_LOOKDOWN || state != STATE_WALKDOWN) && checkCorrectMovementOverworld(newx, newy, map, STATE_WALKDOWN)) tiles.push_back(3);
+			if ((state != STATE_LOOKDOWN || state != STATE_WALKDOWN) && checkCorrectMovementOverworld(posx, newy, map, STATE_WALKDOWN)) tiles.push_back(3);
 
-			int i = rand() % tiles.size();
-
-			// Discomment this shit to make them dance!
-			switch (tiles[i]) {
-				case 0: SetPosition(posx - 0.2f, posy); break;
-				case 1: SetPosition(posx + 0.2f, posy); break;
-				case 2: SetPosition(posx + 0.1f, posy - 0.2f); break;
-				case 3: SetPosition(posx + 0.1f, posy + 0.2f); break;
+			newx = posx + dir_delayx;
+			newy = posy + dir_delayy;
+			// Peta porque checkea la pos antes de moverse y eso esta mal
+			if (dir_delayx == -1 || !checkCorrectMovementOverworld(newx, newy, map, state)) {
+				int i = rand() % tiles.size();
+				switch (tiles[i]) {
+				case 0:
+					dir_delayx = 0.2f;
+					dir_delayy = 0.0f;
+					break;
+				case 1:
+					dir_delayx = -0.2f;
+					dir_delayy = 0.0f;
+					break;
+				case 2:
+					dir_delayx = 0.0f;
+					dir_delayy = 0.2f;
+					break;
+				case 3:
+					dir_delayx = 0.0f;
+					dir_delayy = -0.2f;
+					break;
+				}
 			}
 
-			state_delay += 0.1f;
+			SetPosition(posx + dir_delayx, posy + dir_delayx);
+			state_delay += 0.5f;
 		}
 	}
 
@@ -387,6 +403,7 @@ float cPlayer::health() {
 
 void cPlayer::StopState() {
 	state_delay = 0.0f;
+	dir_delayx = dir_delayy = -1;
 	SetKnocked(false);
 	Stop();
 }
