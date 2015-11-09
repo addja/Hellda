@@ -6,6 +6,7 @@
 #include "cZone.h"
 
 #define LINK_LIVES	3
+#define MAX_STATE_DELAY_LINK 4
 
 class cPlayer: public cPepe {
 public:
@@ -26,9 +27,11 @@ public:
 
 	float health();
 	bool isDead();
+	void StopState();
 
 private: 
 	float lives;
 	bool * transition;
 	float offset;
+	float state_delay;
 };

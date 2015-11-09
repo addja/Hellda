@@ -77,50 +77,54 @@ bool cGame::Process() {
 	bool res = true;
 	bool hit;
 	float x, y;
-	int state;
+	bool knocked;
+	Player.GetKnocked(&knocked);
 
 	// Process Input
 	if (keys[27]) res=false;
 
 	if (overworld) {
-		if (keys[GLUT_KEY_UP])			Player.MoveUp(Overworld.GetMap());
-		else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Overworld.GetMap());
-		else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Overworld.GetMap());
-		else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Overworld.GetMap());
-		else if (keys[' '])				Player.Attack();
-		else Player.Stop();
+		if (knocked) {
+			Player.Logic(Overworld.GetMap());
+		} else {
+			if (keys[GLUT_KEY_UP])			Player.MoveUp(Overworld.GetMap());
+			else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Overworld.GetMap());
+			else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Overworld.GetMap());
+			else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Overworld.GetMap());
+			else if (keys[' '])				Player.Attack();
+			else Player.Stop();
 
-		// Game Logic
-		Player.Logic(Overworld.GetMap());
+			// Game Logic
+			Player.Logic(Overworld.GetMap());
 
-		Player.GetPosition(&x, &y);
+			Player.GetPosition(&x, &y);
 
-		// to know the zone
-		int zone = calcZone(x, y);
+			// to know the zone
+			int zone = calcZone(x, y);
 
-		// get border zones
-		float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
-		float offsety = OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT / 2;
-		zones.clear();
-		zones.insert(calcZone(x + offsetx, y + offsety));
-		zones.insert(calcZone(x + offsetx, y - offsety));
-		zones.insert(calcZone(x - offsetx, y + offsety));
-		zones.insert(calcZone(x - offsetx, y - offsety));
-		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
-			ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState());
-		}
+			// get border zones
+			float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
+			float offsety = OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT / 2;
+			zones.clear();
+			zones.insert(calcZone(x + offsetx, y + offsety));
+			zones.insert(calcZone(x + offsetx, y - offsety));
+			zones.insert(calcZone(x - offsetx, y + offsety));
+			zones.insert(calcZone(x - offsetx, y - offsety));
+			for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+				ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState());
+			}
 
-		// check intersections enemies player
-		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
-			hit = Player.checkIntersections(ZonesOverworld[*it]);
-			if (!hit) {
-				//if (Player.health == 0) gameOver();
-				break;
+			// check intersections enemies player
+			for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+				hit = Player.checkIntersections(ZonesOverworld[*it]);
+				if (!hit) {
+					//if (Player.health == 0) gameOver();
+					break;
+				}
 			}
 		}
-
 	} else {
-		if (transition) {
+		if (transition || knocked) {
 			Player.Logic(Dungeon.GetMap());
 		} else {
 			if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());

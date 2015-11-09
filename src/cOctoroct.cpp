@@ -34,17 +34,17 @@ void cOctoroct::Draw(int tex_id, float playerx, float playery) {
 		break;
 
 	case STATE_WALKLEFT:	xo = 1.0f / 9.0f;	yo = 0.5f + (GetFrame()*0.5f);
-		NextFrame(2);
-		break;
+							NextFrame(2);
+							break;
 	case STATE_WALKRIGHT:	xo = 3.0f / 9.0f; yo = 0.5f + (GetFrame()*0.5f);
-		NextFrame(2);
-		break;
+							NextFrame(2);
+							break;
 	case STATE_WALKUP:		xo = 2.0f / 9.0f;	yo = 0.5f + (GetFrame()*0.5f);
-		NextFrame(2);
-		break;
+							NextFrame(2);
+							break;
 	case STATE_WALKDOWN:	xo = 0.0f / 9.0f; yo = 0.5f + (GetFrame()*0.5f);
-		NextFrame(2);
-		break;
+							NextFrame(2);
+							break;
 	}
 
 	xf = xo + 1.0f / 9.0f;

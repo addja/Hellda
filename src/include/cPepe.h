@@ -74,6 +74,9 @@ public:
 	void setOverworld(bool *overworld);
 	void changeOverworld();
 
+	void SetKnocked(bool knocked);
+	void GetKnocked(bool * knocked);
+
 	// To remove later
 	bool testingDungeon(int tile);
 	
@@ -83,6 +86,7 @@ private:
 	int state;
 	float step_length;
 	bool * overworld;
+	bool knocked;
 	int zone;
 
 	int seq,delay;

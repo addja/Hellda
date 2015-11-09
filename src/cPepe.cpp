@@ -633,3 +633,11 @@ void cPepe::setOverworld(bool * world) {
 void cPepe::changeOverworld() {
 	*overworld = ! *overworld;
 }
+
+void cPepe::SetKnocked(bool kno) {
+	knocked = kno;
+}
+
+void cPepe::GetKnocked(bool * kno) {
+	*kno = knocked;
+}

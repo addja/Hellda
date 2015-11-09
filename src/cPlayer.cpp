@@ -6,6 +6,7 @@ cPlayer::cPlayer(bool * overworld, bool * tr) {
 	setOverworld(overworld);
 	transition = tr;
 	lives = LINK_LIVES;
+	SetKnocked(false);
 }
 
 cPlayer::~cPlayer(){}
@@ -18,6 +19,9 @@ void cPlayer::Logic(int *map) {
 	GetPosition(&posx, &posy);
 	newx = floor(posx);
 	newy = ceil(posy);
+
+	bool knocked;
+	GetKnocked(&knocked);
 
 	if (*transition) {
 		state = GetState();
@@ -59,6 +63,35 @@ void cPlayer::Logic(int *map) {
 				else if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) SetPosition(posx, posy - 0.05f);
 				else offset += (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / 175;
 				break;
+		}
+
+		return;
+	} else if (knocked) {
+		if (state_delay >= MAX_STATE_DELAY_LINK) StopState();
+		else {
+			std::vector<int> tiles;
+
+			float newx = posx - 0.2f;
+			if ((state != STATE_LOOKLEFT || state != STATE_WALKLEFT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKLEFT)) tiles.push_back(0);
+			newx = posx + 0.2f;
+			if ((state != STATE_LOOKRIGHT || state != STATE_WALKRIGHT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKRIGHT)) tiles.push_back(1);
+			newx = posx + 0.2f;
+			float newy = posy - 0.2f;
+			if ((state != STATE_LOOKUP || state != STATE_WALKUP) && checkCorrectMovementOverworld(newx, newy, map, STATE_WALKUP)) tiles.push_back(2);
+			newy = posy + 0.2f;
+			if ((state != STATE_LOOKDOWN || state != STATE_WALKDOWN) && checkCorrectMovementOverworld(newx, newy, map, STATE_WALKDOWN)) tiles.push_back(3);
+
+			int i = rand() % tiles.size();
+
+			// Discomment this shit to make them dance!
+			switch (tiles[i]) {
+				case 0: SetPosition(posx - 0.2f, posy); break;
+				case 1: SetPosition(posx + 0.2f, posy); break;
+				case 2: SetPosition(posx + 0.1f, posy - 0.2f); break;
+				case 3: SetPosition(posx + 0.1f, posy + 0.2f); break;
+			}
+
+			state_delay += 0.1f;
 		}
 	}
 
@@ -336,6 +369,7 @@ bool cPlayer::checkIntersections(cZone zone) {
 		(enemies[i]).GetPosition(&posx, &posy);
 		if (player.intersects(cRec(posx, posy))) {
 			if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+			SetKnocked(true);
 			lives -= 0.5f;
 			return false;
 		}
@@ -349,4 +383,10 @@ bool cPlayer::isDead() {
 
 float cPlayer::health() {
 	return lives;
+}
+
+void cPlayer::StopState() {
+	state_delay = 0.0f;
+	SetKnocked(false);
+	Stop();
 }
