@@ -21,6 +21,10 @@ bool cGame::Init() {
 	// Scene initialization
 	 res = Data.LoadImage(IMG_OVERWORLD,"zelda-tiles-compressed.png",GL_RGB);
 	 if(!res) return false;
+	 res = Data.LoadImage(IMG_TEXT, "text-tiles.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_ITEMS, "items-tiles.png", GL_RGBA);
+	 if (!res) return false;
 	 res = Overworld.Load();
 	 if(!res) return false;
 	 res = Data.LoadImage(IMG_DUNGEON, "dungeon1-tiles.png", GL_RGB);
@@ -255,17 +259,69 @@ void cGame::Render() {
 	glEnd();
 	glColor4f(1, 1, 1, 1);
 
-	// HUD hearts
-	glColor3f(1.0f, 0.0f, 1.0f);
+	// HUD life text
+	glEnable(GL_TEXTURE_2D);
+	
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+	float xo[6] = { 0.6875f, 0.3125, 0.125f, 0.9375f, 0.875f, 0.6875f };
+	float yo[6] = { 1.0f, 0.83333f, 0.83333f, 0.66666f, 0.66666f, 1.0f};
 	for (int i = 0; i < 6; i++) {
 		glBegin(GL_QUADS);
-			glVertex2i(GAME_WIDTH* 0.75f, GAME_HEIGHT*0.9f);
-			glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.9f);
-			glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.01f*i));
-			glVertex2i(GAME_WIDTH* 0.75f, GAME_HEIGHT*(0.9f + 0.01f*i));
+			glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*0.9f);
+			glTexCoord2f(xo[i] + 0.0625f, yo[i]);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.9f);
+			glTexCoord2f(xo[i] + 0.0625f, yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.0375f));
+			glTexCoord2f(xo[i], yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.0375f));
 		glEnd();
 	}
-	glColor3f(1.0f, 1.0f, 1.0f);
+
+	// HUD hearts
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	float lives = Player.health();
+	if (lives >= 3) {
+		xo[2] = 0.0f;
+		yo[2] = 0.5f;
+	}
+	else if (lives >= 2.5f) {
+		xo[2] = 0.25f;
+		yo[2] = 0.5f;
+	}
+	else {
+		xo[2] = 0.25f;
+		yo[2] = 1.0f;
+	}
+	if (lives > 1.5f) {
+		xo[1] = 0.0f;
+		yo[1] = 0.5f;
+	}
+	else if (lives > 1) {
+		xo[1] = 0.25f;
+		yo[1] = 0.5f;
+	}
+	else {
+		xo[1] = 0.25f;
+		yo[1] = 1.0f;
+	}
+	if (lives > 0.5f) {
+		xo[0] = 0.0f;
+		yo[0] = 0.5f;
+	}
+	else if (lives > 0) {
+		xo[0] = 0.25f;
+		yo[0] = 0.5f;
+	}
+	else {
+		xo[0] = 0.25f;
+		yo[0] = 1;
+	}
+	for (int i = 0; i < LINK_LIVES; i++) {
+		glBegin(GL_QUADS);
+		glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*0.825f);
+		glTexCoord2f(xo[i] + 0.25f, yo[i]);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.825f);
+		glTexCoord2f(xo[i] + 0.25f, yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.825f + 0.0375f));
+		glTexCoord2f(xo[i], yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*(0.825f + 0.0375f));
+		glEnd();
+	}
+	glDisable(GL_TEXTURE_2D);
 
 	glutSwapBuffers();
 }

@@ -4,13 +4,15 @@
 #include "Globals.h"
 
 //Image array size
-#define NUM_IMG		4
+#define NUM_IMG		6
 
 //Image identifiers
 #define IMG_OVERWORLD	0
 #define IMG_PLAYER		1
 #define IMG_ENEMIES		2
 #define IMG_DUNGEON		3
+#define IMG_TEXT		4
+#define IMG_ITEMS		5
 
 class cData {
 public:
