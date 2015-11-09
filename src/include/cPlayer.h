@@ -10,7 +10,7 @@
 class cPlayer: public cPepe {
 public:
 	cPlayer();
-	cPlayer(bool * overworld);
+	cPlayer(bool * overworld, bool * transition);
 	~cPlayer();
 
 	void Attack();
@@ -20,14 +20,15 @@ public:
 	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
 	bool checkIntersections(cZone zone);
 
-	void TransitionLeft(int zone);
-	void TransitionRight(int zone);
-	void TransitionDown(int zone);
-	void TransitionUp(int zone);
+	void Transition();
+
+	void GetOffset(float * offset);
 
 	float health();
 	bool isDead();
 
 private: 
 	float lives;
+	bool * transition;
+	float offset;
 };

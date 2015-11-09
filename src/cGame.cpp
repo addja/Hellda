@@ -33,7 +33,7 @@ bool cGame::Init() {
 	 res = Data.LoadImage(IMG_PLAYER,"link.png",GL_RGBA);
 	 if(!res) return false;
 	 overworld = true;
-	 Player = cPlayer(&overworld);
+	 Player = cPlayer(&overworld,&transition);
 	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
 	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);  // TODO poner bien
 	 Player.SetState(STATE_LOOKUP);
@@ -117,25 +117,29 @@ bool cGame::Process() {
 		}
 
 	} else {
-		if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());
-		else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
-		else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Dungeon.GetMap());
-		else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Dungeon.GetMap());
-		else if (keys[' '])				Player.Attack();
-		else Player.Stop();
+		if (transition) {
+			Player.Logic(Dungeon.GetMap());
+		} else {
+			if (keys[GLUT_KEY_UP])			Player.MoveUp(Dungeon.GetMap());
+			else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
+			else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Dungeon.GetMap());
+			else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Dungeon.GetMap());
+			else if (keys[' '])				Player.Attack();
+			else Player.Stop();
 
-		// Game Logic
-		Player.Logic(Dungeon.GetMap());
+			// Game Logic
+			Player.Logic(Dungeon.GetMap());
 
-		Player.GetPosition(&x, &y);
+			Player.GetPosition(&x, &y);
 
-		// feo feillo pero para testear
-		ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
-		// check intersections enemies player
-		// TODO: do it for the 4 zones colliding
-		hit = Player.checkIntersections(ZonesDungeon[0]);
-		// game over
-		// if (!hit && Player.health == 0) gameover();
+			// feo feillo pero para testear
+			ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+			// check intersections enemies player
+			// TODO: do it for the 4 zones colliding
+			hit = Player.checkIntersections(ZonesDungeon[0]);
+			// game over
+			// if (!hit && Player.health == 0) gameover();
+		}
 	}
 
 	return res;
@@ -157,17 +161,88 @@ void cGame::Render() {
 		for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
 			ZonesOverworld[*it].Draw(x,y);
 		}
+		// draw plawer
+		Player.Draw(Data.GetID(IMG_PLAYER));
 	} else {
 		int zone;
 		Player.GetZone(&zone);
-		Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+		float offset;
+		Player.GetOffset(&offset);
+		int state = Player.GetState();
 
-		ZonesDungeon[0].Draw(x, y);
+		if (transition) {
+			switch (state) {
+			case STATE_WALKLEFT:
+				glPushMatrix();
+				glTranslatef(-GAME_WIDTH + offset, 0.0f, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone - 1);
+				ZonesDungeon[0].Draw(x, y);
+				glPopMatrix();
+				glPushMatrix();
+				glTranslatef(offset, 0.0f, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+				ZonesDungeon[0].Draw(x, y);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), LEFT_BORDER);
+				glPopMatrix();
+				break;
+			case STATE_WALKRIGHT:
+				glPushMatrix();
+				glTranslatef(GAME_WIDTH + offset, 0.0f, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone + 1);
+				ZonesDungeon[0].Draw(x, y);
+				glPopMatrix();
+				glPushMatrix();
+				glTranslatef(offset, 0.0f, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+				ZonesDungeon[0].Draw(x, y);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), RIGHT_BORDER);
+				glPopMatrix();
+				break;
+			case STATE_WALKUP:
+				glClearColor(0.094f, 0.235f, 0.361f, 1); // Border blue
+				glPushMatrix();
+				glTranslatef(0.0f, GAME_HEIGHT - (HUD_TILES *GAME_HEIGHT / (SCENE_HEIGHT - 1)) - offset, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+				ZonesDungeon[0].Draw(x, y);
+				glPopMatrix();
+				glPushMatrix();
+				glTranslatef(0.0, -offset, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+				ZonesDungeon[0].Draw(x, y);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), TOP_BORDER);
+				glPopMatrix();
+				break;
+			case STATE_WALKDOWN:
+				glPushMatrix();
+				glTranslatef(0.0f, -GAME_HEIGHT + (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) + offset, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
+				ZonesDungeon[0].Draw(x, y);
+				glPopMatrix();
+				glPushMatrix();
+				glTranslatef(0.0, offset, 0.0f);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+				ZonesDungeon[0].Draw(x, y);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), BOTTOM_BORDER);
+				glColor3f(0.094f, 0.235f, 0.361f);
+				glRectf(0.0f, -0.0f, GAME_WIDTH, -2.0f); // Border blue
+				glPopMatrix();
+				break;
+			}
+
+		}
+		else {
+			Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+
+			ZonesDungeon[0].Draw(x, y);
+
+			// draw plawer
+			Player.Draw(Data.GetID(IMG_PLAYER));
+		}
 	}
-	
-
-	// draw plawer
-	Player.Draw(Data.GetID(IMG_PLAYER));
 
 	// HUD black background
 	if (DEBUG_MODE) std::cout << Player.health() << std::endl;
