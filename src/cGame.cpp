@@ -39,7 +39,7 @@ bool cGame::Init() {
 	 overworld = true;
 	 Player = cPlayer(&overworld,&transition);
 	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
-	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);  // TODO poner bien
+	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);
 	 Player.SetState(STATE_LOOKUP);
 
 	 // Zones initialization
@@ -97,7 +97,6 @@ bool cGame::Process() {
 
 		// to know the zone
 		int zone = calcZone(x, y);
-		std::cout << zone << std::endl;
 
 		// get border zones
 		float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
@@ -136,11 +135,8 @@ bool cGame::Process() {
 
 			Player.GetPosition(&x, &y);
 
-			// feo feillo pero para testear
-			ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
-			// check intersections enemies player
-			// TODO: do it for the 4 zones colliding
-			hit = Player.checkIntersections(ZonesDungeon[0]);
+			//ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+			//hit = Player.checkIntersections(ZonesDungeon[0]);
 			// game over
 			// if (!hit && Player.health == 0) gameover();
 		}
@@ -249,7 +245,7 @@ void cGame::Render() {
 	}
 
 	// HUD black background
-	if (DEBUG_MODE) std::cout << Player.health() << std::endl;
+	//if (DEBUG_MODE) std::cout << Player.health() << std::endl;
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glBegin(GL_POLYGON);
 		glVertex2i(0, GAME_HEIGHT);

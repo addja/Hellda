@@ -448,7 +448,6 @@ bool cPepe::checkCorrectMovementDungeon(float & x, float & y, int *map, int move
 			if (x - (float)floor(x) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
-				std::cout << tile2 << std::endl;
 				if (walkableDungeon(tile2)) {
 					x = newx2 - 1;
 					return true;
@@ -632,6 +631,5 @@ void cPepe::setOverworld(bool * world) {
 }
 
 void cPepe::changeOverworld() {
-	std::cout << *overworld << std::endl;
 	*overworld = ! *overworld;
 }

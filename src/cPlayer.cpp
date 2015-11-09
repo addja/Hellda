@@ -16,7 +16,6 @@ void cPlayer::Logic(int *map) {
 
 	float posx, posy;
 	GetPosition(&posx, &posy);
-
 	newx = floor(posx);
 	newy = ceil(posy);
 
@@ -86,8 +85,8 @@ void cPlayer::Logic(int *map) {
 				if (dungeonDownTransitions(tile)) {
 					std::cout << "DOWN TRANS " << tile << std::endl;
 					if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
-						changeOverworld();
 						SetPosition(116.0f, 79.0f);
+						changeOverworld();
 						return;
 					}
 					else {
