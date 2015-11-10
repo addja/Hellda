@@ -8,7 +8,7 @@
 #include <vector>
 
 // 1 -> on | 0 -> off
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define GAME_WIDTH	512
 #define GAME_HEIGHT 512

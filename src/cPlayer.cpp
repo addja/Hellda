@@ -82,22 +82,22 @@ void cPlayer::Logic(int *map) {
 				case STATE_LOOKDOWN:
 				case STATE_WALKDOWN:
 					dir = STATE_WALKUP;
-					movy = -STEP_LENGTH_LINK * 2;
+					movy = hit_diry * STEP_LENGTH_LINK * 2;
 					break;
 				case STATE_LOOKUP:
 				case STATE_WALKUP:
 					dir = STATE_WALKDOWN;
-					movy = +STEP_LENGTH_LINK * 2;
+					movy = hit_diry * STEP_LENGTH_LINK * 2;
 					break;
 				case STATE_LOOKLEFT:
 				case STATE_WALKLEFT:
 					dir = STATE_WALKRIGHT;
-					movx = STEP_LENGTH_LINK * 2;
+					movx = hit_dirx * STEP_LENGTH_LINK * 2;
 					break;
 				case STATE_LOOKRIGHT:
 				case STATE_WALKRIGHT:
 					dir = STATE_WALKLEFT;
-					movx = -STEP_LENGTH_LINK * 2;
+					movx = hit_dirx * STEP_LENGTH_LINK * 2;
 					break;
 			}
 
@@ -397,6 +397,10 @@ bool cPlayer::checkIntersections(cZone zone) {
 		if (!enemies[i].isDead()) {
 			(enemies[i]).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
+				if (posx < x) hit_dirx = 1 ;
+				else hit_dirx = -1;
+				if (posy < y) hit_diry = 1;
+				else hit_diry = -1;
 				if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
 				SetKnocked(true);
 				lives -= 0.5f;

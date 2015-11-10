@@ -35,4 +35,6 @@ private:
 	bool * transition;
 	float offset;
 	float state_delay;
+	int hit_dirx; // 1 -> left | -1 -> right
+	int hit_diry; // 1 -> up | -1 -> down
 };
