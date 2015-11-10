@@ -7,7 +7,7 @@ cPlayer::cPlayer(bool * overworld, bool * tr) {
 	transition = tr;
 	lives = LINK_LIVES;
 	SetKnocked(false);
-	state_delay = dir_delayx = -1;
+	state_delay = -1;
 }
 
 cPlayer::~cPlayer(){}
@@ -15,6 +15,7 @@ cPlayer::~cPlayer(){}
 void cPlayer::Logic(int *map) {
 	int tile, newx, newy, zone, state;
 	GetZone(&zone);
+	state = GetState();
 
 	float posx, posy;
 	GetPosition(&posx, &posy);
@@ -25,7 +26,6 @@ void cPlayer::Logic(int *map) {
 	GetKnocked(&knocked);
 
 	if (*transition) {
-		state = GetState();
 
 		switch (GetState()) {
 			case STATE_WALKLEFT:
@@ -70,43 +70,39 @@ void cPlayer::Logic(int *map) {
 	} else if (knocked) {
 		if (state_delay >= MAX_STATE_DELAY_LINK) StopState();
 		else {
-			std::vector<int> tiles;
-			state = GetState();
-			float newx = posx + 0.2f;
-			if ((state != STATE_LOOKLEFT || state != STATE_WALKLEFT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKLEFT)) tiles.push_back(0);
-			newx = posx - 0.2f;
-			if ((state != STATE_LOOKRIGHT || state != STATE_WALKRIGHT) && checkCorrectMovementOverworld(newx, posy, map, STATE_WALKRIGHT)) tiles.push_back(1);
-			float newy = posy - 0.2f;
-			if ((state != STATE_LOOKUP || state != STATE_WALKUP) && checkCorrectMovementOverworld(posx, newy, map, STATE_WALKUP)) tiles.push_back(2);
-			newy = posy + 0.2f;
-			if ((state != STATE_LOOKDOWN || state != STATE_WALKDOWN) && checkCorrectMovementOverworld(posx, newy, map, STATE_WALKDOWN)) tiles.push_back(3);
-
-			newx = posx + dir_delayx;
-			newy = posy + dir_delayy;
-			// Peta porque checkea la pos antes de moverse y eso esta mal
-			if (dir_delayx == -1 || !checkCorrectMovementOverworld(newx, newy, map, state)) {
-				int i = rand() % tiles.size();
-				switch (tiles[i]) {
-				case 0:
-					dir_delayx = 0.2f;
-					dir_delayy = 0.0f;
+			// knock back
+			int dir;
+			float movx, movy;
+			movx = movy = 0;
+			switch (state) {
+				case STATE_LOOKDOWN:
+				case STATE_WALKDOWN:
+					dir = STATE_WALKUP;
+					movy = -STEP_LENGTH_LINK * 2;
 					break;
-				case 1:
-					dir_delayx = -0.2f;
-					dir_delayy = 0.0f;
+				case STATE_LOOKUP:
+				case STATE_WALKUP:
+					dir = STATE_WALKDOWN;
+					movy = +STEP_LENGTH_LINK * 2;
 					break;
-				case 2:
-					dir_delayx = 0.0f;
-					dir_delayy = 0.2f;
+				case STATE_LOOKLEFT:
+				case STATE_WALKLEFT:
+					dir = STATE_WALKRIGHT;
+					movx = STEP_LENGTH_LINK * 2;
 					break;
-				case 3:
-					dir_delayx = 0.0f;
-					dir_delayy = -0.2f;
+				case STATE_LOOKRIGHT:
+				case STATE_WALKRIGHT:
+					dir = STATE_WALKLEFT;
+					movx = -STEP_LENGTH_LINK * 2;
 					break;
-				}
 			}
 
-			SetPosition(posx + dir_delayx, posy + dir_delayx);
+			// check if good movement, if not stay stopped
+			if (!checkCorrectMovementOverworld(posx + movx, posy + movy, map, dir)) {
+				movx = movy = 0;
+			}
+
+			SetPosition(posx + movx, posy + movy);
 			state_delay += 0.5f;
 		}
 	}
@@ -403,7 +399,6 @@ float cPlayer::health() {
 
 void cPlayer::StopState() {
 	state_delay = 0.0f;
-	dir_delayx = dir_delayy = -1;
 	SetKnocked(false);
 	Stop();
 }

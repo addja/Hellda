@@ -115,11 +115,13 @@ bool cGame::Process() {
 			}
 
 			// check intersections enemies player
-			for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
-				hit = Player.checkIntersections(ZonesOverworld[*it]);
-				if (!hit) {
-					//if (Player.health == 0) gameOver();
-					break;
+			if (!knocked) {
+				for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
+					hit = Player.checkIntersections(ZonesOverworld[*it]);
+					if (!hit) {
+						//if (Player.health == 0) gameOver();
+						break;
+					}
 				}
 			}
 		}
@@ -140,6 +142,7 @@ bool cGame::Process() {
 			Player.GetPosition(&x, &y);
 
 			//ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+			// remember to check intersections only if 
 			//hit = Player.checkIntersections(ZonesDungeon[0]);
 			// game over
 			// if (!hit && Player.health == 0) gameover();

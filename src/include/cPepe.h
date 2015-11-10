@@ -40,8 +40,8 @@ public:
 	void SetZone(int zone);
 	void GetZone(int *zone);
 
-	bool checkCorrectMovementOverworld(float & x, float & y, int *map, int movement);
-	bool checkCorrectMovementDungeon(float & x, float & y, int *map, int movement);
+	bool checkCorrectMovementOverworld(float x, float y, int *map, int movement);
+	bool checkCorrectMovementDungeon(float x, float y, int *map, int movement);
 	bool walkable(int tile);
 	bool walkableDungeon(int tile);
 	bool diagonallyWalkableUpRight(int tile);
