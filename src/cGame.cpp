@@ -648,16 +648,16 @@ void cGame::RenderHUD() {
 		glTexCoord2f(12.0f / 16.0f, 2.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.683f, GAME_HEIGHT*(0.895f + 0.06f));
 	glEnd();
 
-	// Bomb
+	// Sword
 	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_PLAYER));
 	glBegin(GL_QUADS);
-		glTexCoord2f(0.5f, 1.0f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*0.83f);
-		glTexCoord2f(0.5f + 0.25f, 1.0f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*0.83f);
-		glTexCoord2f(0.5f + 0.25f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
-		glTexCoord2f(0.5f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(2.0f / 5.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*0.83f);
+		glTexCoord2f(2.0f / 5.0f + 0.2f, 1.0f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*0.83f);
+		glTexCoord2f(2.0f / 5.0f + 0.2f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(2.0f / 5.0f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*(0.83f + 0.06f));
 	glEnd();
 
-	// Sword
+	// Bomb
 	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.75f, 0.5f);	glVertex2i(GAME_WIDTH*0.665f, GAME_HEIGHT*0.83f);
