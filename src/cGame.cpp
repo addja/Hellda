@@ -178,8 +178,9 @@ bool cGame::Process() {
 					ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
 					// remember to check intersections only if 
 					hit = Player.checkIntersections(ZonesDungeon[0]);
-					// game over
-					// if (!hit && Player.health == 0) gameover();
+					if (hit && Player.health() == 0) {
+						gameOver();
+					}
 				}
 			}
 		}
