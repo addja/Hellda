@@ -313,12 +313,17 @@ void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 	glEnable(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, tex_id);
+
+	bool knocked;
+	GetKnocked(&knocked);
+	if (knocked) glColor3f(0.4f, 0.1f, 0.1f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(xo, yo);	glVertex2i(screen_x, screen_y);
 	glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y);
 	glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y + (vy / TILE_SIZE)*h);
 	glTexCoord2f(xo, yf);	glVertex2i(screen_x, screen_y + (vy / TILE_SIZE)*h);
 	glEnd();
+	if (knocked) glColor3f(1.0f, 1.0f, 1.0f);
 
 	glDisable(GL_TEXTURE_2D);
 }
