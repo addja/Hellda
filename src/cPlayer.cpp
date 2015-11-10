@@ -102,8 +102,15 @@ void cPlayer::Logic(int *map) {
 			}
 
 			// check if good movement, if not stay stopped
-			if (!checkCorrectMovementOverworld(posx + movx, posy + movy, map, dir)) {
-				movx = movy = 0;
+			if (inOverworld()) {
+				if (!checkCorrectMovementOverworld(posx + movx, posy + movy, map, dir)) {
+					movx = movy = 0;
+				}
+			}
+			else {
+				if (!checkCorrectMovementDungeon(posx + movx, posy + movy, map, dir)) {
+					movx = movy = 0;
+				}
 			}
 
 			SetPosition(posx + movx, posy + movy);
