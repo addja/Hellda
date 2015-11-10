@@ -29,6 +29,8 @@ bool cGame::Init() {
 	 if(!res) return false;
 	 res = Data.LoadImage(IMG_DUNGEON, "dungeon1-tiles.png", GL_RGB);
 	 if (!res) return false;
+	 res = Data.LoadImage(IMG_DUNGEON_MINIMAP, "dungeon1-minimap.png", GL_RGBA);
+	 if (!res) return false;
 	 // load dungeon 1
 	 res = Dungeon.LoadLevel(1);
 	 if (!res) return false;
@@ -91,7 +93,7 @@ bool cGame::Process() {
 			else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Overworld.GetMap());
 			else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Overworld.GetMap());
 			else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Overworld.GetMap());
-			else if (keys[' '])				Player.Attack();
+			else if (keys['a'])				Player.Attack();
 			else Player.Stop();
 
 			// Game Logic
@@ -133,7 +135,7 @@ bool cGame::Process() {
 			else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
 			else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Dungeon.GetMap());
 			else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Dungeon.GetMap());
-			else if (keys[' '])				Player.Attack();
+			else if (keys['a'])				Player.Attack();
 			else Player.Stop();
 
 			// Game Logic
@@ -208,7 +210,6 @@ void cGame::Render() {
 				glPopMatrix();
 				break;
 			case STATE_WALKUP:
-				glClearColor(0.094f, 0.235f, 0.361f, 1); // Border blue
 				glPushMatrix();
 				glTranslatef(0.0f, GAME_HEIGHT - (HUD_TILES *GAME_HEIGHT / (SCENE_HEIGHT - 1)) - offset, 0.0f);
 				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
@@ -220,6 +221,8 @@ void cGame::Render() {
 				ZonesDungeon[0].Draw(x, y);
 				Player.Draw(Data.GetID(IMG_PLAYER));
 				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), TOP_BORDER);
+				glColor3f(0.094f, 0.235f, 0.361f);
+				glRectf(0.0f, GAME_HEIGHT - (HUD_TILES *GAME_HEIGHT / (SCENE_HEIGHT - 1)) + 1.0f, GAME_WIDTH, GAME_HEIGHT - (HUD_TILES *GAME_HEIGHT / (SCENE_HEIGHT - 1) + 2.0f)); // Border blue
 				glPopMatrix();
 				break;
 			case STATE_WALKDOWN:
@@ -235,7 +238,7 @@ void cGame::Render() {
 				Player.Draw(Data.GetID(IMG_PLAYER));
 				Dungeon.DrawBorder(Data.GetID(IMG_DUNGEON), BOTTOM_BORDER);
 				glColor3f(0.094f, 0.235f, 0.361f);
-				glRectf(0.0f, -0.0f, GAME_WIDTH, -2.0f); // Border blue
+				glRectf(0.0f, 0.0f, GAME_WIDTH, -2.0f); // Border blue
 				glPopMatrix();
 				break;
 			}
@@ -251,34 +254,220 @@ void cGame::Render() {
 		}
 	}
 
+	RenderHUD();
+
+	glutSwapBuffers();
+}
+
+void cGame::RenderHUD() {
 	// HUD black background
 	//if (DEBUG_MODE) std::cout << Player.health() << std::endl;
 	glColor3f(0.0f, 0.0f, 0.0f);
 	glBegin(GL_POLYGON);
 		glVertex2i(0, GAME_HEIGHT);
 		glVertex2i(GAME_WIDTH, GAME_HEIGHT);
-		glVertex2i(GAME_WIDTH, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)));
-		glVertex2i(0, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)));
+		glVertex2i(GAME_WIDTH, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)) - 1.5f);
+		glVertex2i(0, GAME_HEIGHT - 4 * (GAME_HEIGHT / (SCENE_HEIGHT - 1)) - 1.5f);
 	glEnd();
-	glColor4f(1, 1, 1, 1);
+	glColor4f(1, 1, 1, 1); // Cleaning the colour
+
+						   // HUD minimap
+	float x, y;
+	Player.GetPosition(&x, &y);
+	if (overworld) {
+		glColor3f(0.33f, 0.33f, 0.33f); // Grey colour
+		glRectf(0.025*GAME_WIDTH, 0.775*GAME_HEIGHT, 0.38*GAME_WIDTH, 0.96*GAME_HEIGHT); // Rectangle
+		glColor3f(0.364f, 0.59f, 0.045f); // Green colour
+		float pointx = x * (0.35*GAME_WIDTH - 0.025*GAME_WIDTH);
+		float pointy = y * (0.943*GAME_HEIGHT - 0.775*GAME_HEIGHT);
+		pointx /= OVERWORLD_MAP_WIDTH;
+		pointy /= OVERWORLD_MAP_HEIGHT;
+		pointx += 0.025*GAME_WIDTH;
+		pointy = 0.943*GAME_HEIGHT - pointy;
+		glRectf(pointx, pointy, pointx + MINIMAP_PLAYER_SIZE, pointy + MINIMAP_PLAYER_SIZE); // Green point
+		glColor4f(1, 1, 1, 1); // Cleaning the colour
+	}
+	else {
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+		float dx[7] = { 13.0f / 16.0f, 14.0f / 16.0f, 7.0f / 16.0f, 0.0f, 14.0f / 16.0f, 8.0f / 16.0f, 7.0f / 16.0f };
+		float dy[7] = { 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f };
+		for (int i = 0; i < 7; i++) {
+			glBegin(GL_QUADS);
+				glTexCoord2f(dx[i], dy[i]);	glVertex2i(GAME_WIDTH* (0.09f + 0.032f*i), GAME_HEIGHT*0.93f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i]);	glVertex2i(GAME_WIDTH* (0.09f + 0.06f + 0.032f*i), GAME_HEIGHT*0.93f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.09f + 0.06f + 0.032*i), GAME_HEIGHT*(0.93f + 0.06f));
+				glTexCoord2f(dx[i], dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.09f + 0.032f*i), GAME_HEIGHT*(0.93f + 0.06f));
+			glEnd();
+		}
+
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_DUNGEON_MINIMAP));
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.065, GAME_HEIGHT*0.775f);
+			glTexCoord2f(0.0f + 1.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.34, GAME_HEIGHT*0.775f);
+			glTexCoord2f(0.0f + 1.0f, 1.0f - 1.0f);	glVertex2i(GAME_WIDTH*0.34, GAME_HEIGHT*0.90);
+			glTexCoord2f(0.0f, 1.0f - 1.0f);	glVertex2i(GAME_WIDTH*0.065, GAME_HEIGHT*0.90);
+		glEnd();
+
+		glDisable(GL_TEXTURE_2D);
+
+		int zone;
+		Player.GetZone(&zone);
+
+		int zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+		int zoney = DUNGEON_MAP_HEIGHT - floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+
+		glColor3f(0.364f, 0.59f, 0.045f); // Green colour
+		float pointx = (zonex + x - 1.5f) * (0.34*GAME_WIDTH - 0.065*GAME_WIDTH);
+		float pointy = (zoney - y - 2.5f) * (0.90*GAME_HEIGHT - 0.775*GAME_HEIGHT);
+		pointx /= DUNGEON_MAP_WIDTH;
+		pointy /= DUNGEON_MAP_HEIGHT;
+		pointx += 0.065*GAME_WIDTH;
+		pointy += 0.775*GAME_HEIGHT;
+		glRectf(pointx, pointy, pointx + MINIMAP_PLAYER_SIZE / 2, pointy + MINIMAP_PLAYER_SIZE / 2); // Green point
+		glColor4f(1, 1, 1, 1); // Cleaning the colour
+	}
+
+	// HUD gold
+	glEnable(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.5f, 0.5f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*0.89f);
+		glTexCoord2f(0.5f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*0.89f);
+		glTexCoord2f(0.5f + 0.25f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*(0.89f + 0.0375f));
+		glTexCoord2f(0.5f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*(0.89f + 0.0375f));
+	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*0.895f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*0.895f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*(0.895f + 0.0375f));
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.895f + 0.0375f));
+	glEnd();
+
+	//int gold = Player.gold();
+	int gold = 15;
+	int ind = 0;
+	float nx[10] = { 0.0f, 1.0 / 16.0f, 2.0 / 16.0f, 3.0 / 16.0f, 4.0 / 16.0f, 5.0 / 16.0f, 6.0 / 16.0f, 7.0 / 16.0f, 8.0 / 16.0f, 9.0 / 16.0f };
+	float ny[10] = { 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f };
+	int num;
+	if (gold > 9 && gold < 100) {
+		num = gold / 10;
+		glBegin(GL_QUADS);
+			glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.89f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.89f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.89f + 0.06f));
+			glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.89f + 0.06f));
+		glEnd();
+		++ind;
+	}
+	num = gold % 10;
+	glBegin(GL_QUADS);
+		glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.89f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.89f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.89f + 0.06f));
+		glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.89f + 0.06f));
+	glEnd();
+
+
+	// HUD keys
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.75f, 1.0f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*0.84f);
+		glTexCoord2f(0.75f + 0.25f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*0.84f);
+		glTexCoord2f(0.75f + 0.25f, 1.0f - 0.5f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*(0.84f + 0.0375f));
+		glTexCoord2f(0.75f, 1.0f - 0.5f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*(0.84f + 0.0375f));
+	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*0.845f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*0.845f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*(0.845f + 0.0375f));
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.845f + 0.0375f));
+	glEnd();
+
+	//int keys = Player.keys();
+	int keys = 42;
+	ind = 0;
+	if (keys > 9 && keys < 100) {
+		num = keys / 10;
+		glBegin(GL_QUADS);
+			glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.84f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.84f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.84f + 0.06f));
+			glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.84f + 0.06f));
+		glEnd();
+		++ind;
+	}
+	num = keys % 10;
+	glBegin(GL_QUADS);
+		glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.84f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.84f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.84f + 0.06f));
+		glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.84f + 0.06f));
+	glEnd();
+
+	// HUD bombs
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.75f, 0.5f);	glVertex2i(GAME_WIDTH*0.395f, GAME_HEIGHT*0.79f);
+		glTexCoord2f(0.75f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.395f + 0.0375f), GAME_HEIGHT*0.79f);
+		glTexCoord2f(0.75f + 0.25f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH* (0.395f + 0.0375f), GAME_HEIGHT*(0.79f + 0.0375f));
+		glTexCoord2f(0.75f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH*0.395f, GAME_HEIGHT*(0.79f + 0.0375f));
+	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+	glBegin(GL_QUADS);
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*0.795f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*0.795f);
+		glTexCoord2f(1.0f / 16.0f + 0.0625f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH* (0.435f + 0.0375f), GAME_HEIGHT*(0.795f + 0.0375f));
+		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.795f + 0.0375f));
+	glEnd();
+
+	//int bombs = Player.bombs();
+	int bombs = 69;
+	ind = 0;
+	if (bombs > 9 && bombs < 100) {
+		num = bombs / 10;
+		glBegin(GL_QUADS);
+			glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.79f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.79f);
+			glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.79f + 0.06f));
+			glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.79f + 0.06f));
+		glEnd();
+		++ind;
+	}
+	num = bombs % 10;
+	glBegin(GL_QUADS);
+		glTexCoord2f(nx[num], ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*0.79f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num]);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*0.79f);
+		glTexCoord2f(nx[num] + 0.0625f, ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.06f + 0.032f*ind), GAME_HEIGHT*(0.79f + 0.06f));
+		glTexCoord2f(nx[num], ny[num] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.455f + 0.032f*ind), GAME_HEIGHT*(0.79f + 0.06f));
+	glEnd();
 
 	// HUD life text
-	glEnable(GL_TEXTURE_2D);
-	
+
 	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
 	float xo[6] = { 0.6875f, 0.3125, 0.125f, 0.9375f, 0.875f, 0.6875f };
-	float yo[6] = { 1.0f, 0.83333f, 0.83333f, 0.66666f, 0.66666f, 1.0f};
+	float yo[6] = { 1.0f, 0.83333f, 0.83333f, 0.66666f, 0.66666f, 1.0f };
 	for (int i = 0; i < 6; i++) {
 		glBegin(GL_QUADS);
-			glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*0.9f);
-			glTexCoord2f(xo[i] + 0.0625f, yo[i]);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.9f);
-			glTexCoord2f(xo[i] + 0.0625f, yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.0375f));
-			glTexCoord2f(xo[i], yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*(0.9f + 0.0375f));
+			glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.78f + 0.032f*i), GAME_HEIGHT*0.9f);
+			glTexCoord2f(xo[i] + 0.0625f, yo[i]);	glVertex2i(GAME_WIDTH* (0.78f + 0.06f + 0.032f*i), GAME_HEIGHT*0.9f);
+			glTexCoord2f(xo[i] + 0.0625f, yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.78f + 0.06f + 0.032*i), GAME_HEIGHT*(0.9f + 0.06f));
+			glTexCoord2f(xo[i], yo[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.78f + 0.032f*i), GAME_HEIGHT*(0.9f + 0.06f));
 		glEnd();
 	}
 
 	// HUD hearts
 	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+
 	float lives = Player.health();
 	if (lives >= 3) {
 		xo[2] = 0.0f;
@@ -318,15 +507,63 @@ void cGame::Render() {
 	}
 	for (int i = 0; i < LINK_LIVES; i++) {
 		glBegin(GL_QUADS);
-		glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*0.825f);
-		glTexCoord2f(xo[i] + 0.25f, yo[i]);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*0.825f);
-		glTexCoord2f(xo[i] + 0.25f, yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.75f + 0.0375f*i), GAME_HEIGHT*(0.825f + 0.0375f));
-		glTexCoord2f(xo[i], yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.7125f + 0.0375f*i), GAME_HEIGHT*(0.825f + 0.0375f));
+			glTexCoord2f(xo[i], yo[i]);	glVertex2i(GAME_WIDTH* (0.782f + 0.06f*i), GAME_HEIGHT*0.825f);
+			glTexCoord2f(xo[i] + 0.25f, yo[i]);	glVertex2i(GAME_WIDTH* (0.782f + 0.06f + 0.06f*i), GAME_HEIGHT*0.825f);
+			glTexCoord2f(xo[i] + 0.25f, yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.782f + 0.06f + 0.06f*i), GAME_HEIGHT*(0.825f + 0.06f));
+			glTexCoord2f(xo[i], yo[i] - 0.5f);	glVertex2i(GAME_WIDTH* (0.782f + 0.06f*i), GAME_HEIGHT*(0.825f + 0.06f));
 		glEnd();
 	}
 	glDisable(GL_TEXTURE_2D);
 
-	glutSwapBuffers();
+	// HUD weapon A & B
+
+	glColor3f(0.0988f, 0.1728f, 0.7284f);
+		glRectf(GAME_WIDTH*0.56f, GAME_HEIGHT*0.805f, GAME_WIDTH*0.63f, GAME_HEIGHT*0.915f);
+		glRectf(GAME_WIDTH*0.66f, GAME_HEIGHT*0.805f, GAME_WIDTH*0.73f, GAME_HEIGHT*0.915f);
+	glColor3f(0, 0, 0);
+		glRectf(GAME_WIDTH*0.566f, GAME_HEIGHT*0.81f, GAME_WIDTH*0.625f, GAME_HEIGHT*0.908f);
+		glRectf(GAME_WIDTH*0.666f, GAME_HEIGHT*0.81f, GAME_WIDTH*0.725f, GAME_HEIGHT*0.908f);
+	glColor4f(1, 1, 1, 1);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+	// A letter
+	glBegin(GL_QUADS);
+		glTexCoord2f(10.0f / 16.0f, 1.0f / 6.0f);	glVertex2i(GAME_WIDTH*0.583f, GAME_HEIGHT*0.895f);
+		glTexCoord2f(10.0f / 16.0f + 0.0625f, 1.0f / 6.0f);	glVertex2i(GAME_WIDTH* (0.583f + 0.06f), GAME_HEIGHT*0.895f);
+		glTexCoord2f(10.0f / 16.0f + 0.0625f, 1.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH* (0.583f + 0.06f), GAME_HEIGHT*(0.895f + 0.06f));
+		glTexCoord2f(10.0f / 16.0f, 1.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.583f, GAME_HEIGHT*(0.895f + 0.06f));
+	glEnd();
+
+	// S letter
+	glBegin(GL_QUADS);
+		glTexCoord2f(12.0f / 16.0f, 2.0f / 6.0f);	glVertex2i(GAME_WIDTH*0.683f, GAME_HEIGHT*0.895f);
+		glTexCoord2f(12.0f / 16.0f + 0.0625f, 2.0f / 6.0f);	glVertex2i(GAME_WIDTH* (0.683f + 0.06f), GAME_HEIGHT*0.895f);
+		glTexCoord2f(12.0f / 16.0f + 0.0625f, 2.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH* (0.683f + 0.06f), GAME_HEIGHT*(0.895f + 0.06f));
+		glTexCoord2f(12.0f / 16.0f, 2.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.683f, GAME_HEIGHT*(0.895f + 0.06f));
+	glEnd();
+
+	// Bomb
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_PLAYER));
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.5f, 1.0f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*0.83f);
+		glTexCoord2f(0.5f + 0.25f, 1.0f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*0.83f);
+		glTexCoord2f(0.5f + 0.25f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(0.5f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*(0.83f + 0.06f));
+	glEnd();
+
+	// Sword
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.75f, 0.5f);	glVertex2i(GAME_WIDTH*0.665f, GAME_HEIGHT*0.83f);
+		glTexCoord2f(0.75f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.665f + 0.06f), GAME_HEIGHT*0.83f);
+		glTexCoord2f(0.75f + 0.25f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH* (0.665f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(0.75f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH*0.665f, GAME_HEIGHT*(0.83f + 0.06f));
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
 }
 
 void cGame::initializeEnemiesOverworld() {

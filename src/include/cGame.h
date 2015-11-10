@@ -12,6 +12,7 @@
 #define OVERWORLD_ENEMIES_MAP_HEIGHT	OVERWORLD_MAP_HEIGHT/SCENE_HEIGHT
 #define DUNGEON_ENEMIES_MAP_WIDTH		DUNGEON_MAP_WIDTH/SCENE_WIDTH
 #define DUNGEON_ENEMIES_MAP_HEIGHT		DUNGEON_MAP_HEIGHT/SCENE_HEIGHT
+#define MINIMAP_PLAYER_SIZE				10
 
 class cGame {
 public:
@@ -32,6 +33,7 @@ public:
 
 	// Output
 	void Render();
+	void RenderHUD();
 
 	void initializeEnemiesOverworld();
 	void initializeEnemiesDungeons();

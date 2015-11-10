@@ -34,8 +34,9 @@ void cPlayer::Logic(int *map) {
 					SetZone(zone - 1);
 					SetPosition(SCENE_WIDTH - 2.0f, posy);
 				}
-				else if (offset == GAME_WIDTH) SetPosition(posx - 0.05f, posy);
-				else offset += GAME_WIDTH / 175;
+				else if (offset == GAME_WIDTH || posx > 0.0f) SetPosition(posx - 0.05f, posy);
+				else if (offset + GAME_WIDTH / TRANSITION_SPEED > GAME_WIDTH) offset = GAME_WIDTH;
+				else offset += GAME_WIDTH / TRANSITION_SPEED;
 				break;
 			case STATE_WALKRIGHT:
 				if (offset == -GAME_WIDTH && posx >= SCENE_WIDTH - 1 + 2.0f) {
@@ -43,8 +44,9 @@ void cPlayer::Logic(int *map) {
 					SetZone(zone + 1);
 					SetPosition(1.0f, posy);
 				}
-				else if (offset == -GAME_WIDTH) SetPosition(posx + 0.05f, posy);
-				else offset -= GAME_WIDTH / 175;
+				else if (offset == -GAME_WIDTH || posx < SCENE_WIDTH - 1) SetPosition(posx + 0.05f, posy);
+				else if (offset - GAME_WIDTH / TRANSITION_SPEED < -GAME_WIDTH) offset = -GAME_WIDTH;
+				else offset -= GAME_WIDTH / TRANSITION_SPEED;
 				break;
 			case STATE_WALKDOWN:
 				if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) && posy >= SCENE_HEIGHT + 2.0f) {
@@ -52,17 +54,19 @@ void cPlayer::Logic(int *map) {
 					SetZone(zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
 					SetPosition(posx, HUD_TILES + 1 + 2.0f);
 				}
-				else if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) SetPosition(posx, posy + 0.05f);
-				else offset += (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / 175;
+				else if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) || posy < SCENE_HEIGHT) SetPosition(posx, posy + 0.05f);
+				else if (offset + (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED > GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) offset = GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1));
+				else offset += (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED;
 				break;
 			case STATE_WALKUP:
-				if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) && posy <= -1.2f + HUD_TILES + 1) {
+				if (offset >= GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) && posy <= -1.2f + HUD_TILES + 1) {
 					*transition = false;
 					SetZone(zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
 					SetPosition(posx, SCENE_HEIGHT - 1.2f);
 				}
-				else if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) SetPosition(posx, posy - 0.05f);
-				else offset += (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / 175;
+				else if (offset >= GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) || posy > HUD_TILES + 1) SetPosition(posx, posy - 0.05f);
+				else if (offset + (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED > GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) offset = GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1));
+				else offset += (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED;
 				break;
 		}
 
@@ -383,12 +387,14 @@ bool cPlayer::checkIntersections(cZone zone) {
 	cRec player = cRec(x, y);
 	cRec enemy;
 	for (int i = 0; i < zone.numEnemies(); ++i) {
-		(enemies[i]).GetPosition(&posx, &posy);
-		if (player.intersects(cRec(posx, posy))) {
-			if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
-			SetKnocked(true);
-			lives -= 0.5f;
-			return false;
+		if (!enemies[i].isDead()) {
+			(enemies[i]).GetPosition(&posx, &posy);
+			if (player.intersects(cRec(posx, posy))) {
+				if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+				SetKnocked(true);
+				lives -= 0.5f;
+				return false;
+			}
 		}
 	}
 	return true;

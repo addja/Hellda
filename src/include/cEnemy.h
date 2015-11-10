@@ -31,6 +31,7 @@ public:
 	bool hitWithWeapon(float playerx, float playery, int state, float x, float y);
 	void die();
 	void rebirth();
+	bool isDead();
 
 private:
 	float original_x;

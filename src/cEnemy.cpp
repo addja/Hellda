@@ -223,3 +223,7 @@ void cEnemy::die() {
 void cEnemy::rebirth() {
 	dead = false;
 }
+
+bool cEnemy::isDead() {
+	return dead;
+}

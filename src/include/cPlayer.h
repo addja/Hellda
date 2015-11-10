@@ -7,6 +7,7 @@
 
 #define LINK_LIVES	3
 #define MAX_STATE_DELAY_LINK 4
+#define TRANSITION_SPEED 125
 
 class cPlayer: public cPepe {
 public:
