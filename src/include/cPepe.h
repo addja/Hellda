@@ -19,6 +19,8 @@
 #define ATTACK_DOWN			9
 #define ATTACK_LEFT			10
 #define ATTACK_RIGHT		11
+#define STATE_LOOKBOOM		12
+#define STATE_BOOM			13
 
 #define OFFSET_WEAPON		0.8f
 

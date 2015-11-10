@@ -42,6 +42,8 @@ public:
 	void initializeObjectsDungeons();
 	int calcZone(float x, float y);
 
+	void gameOver();
+
 private:
 	unsigned char keys[256];
 	cOverworld Overworld;
@@ -50,6 +52,8 @@ private:
 	cData Data;
 	cZone ZonesOverworld[OVERWORLD_ENEMIES_MAP_WIDTH * OVERWORLD_ENEMIES_MAP_HEIGHT];
 	cZone ZonesDungeon[DUNGEON_ENEMIES_MAP_WIDTH * DUNGEON_ENEMIES_MAP_HEIGHT];
+	bool gameover;
+	int gameover_delay;
 	bool overworld;
 	bool transition;
 	std::set<int> zones;

@@ -213,41 +213,41 @@ void cPlayer::Draw(int tex_id) {
 	GetPosition(&posx, &posy);
 
 	switch (GetState()) {
-		case STATE_LOOKLEFT:	xo = 0.25f;	yo = 0.25f;
-								break;
-		
-		case STATE_LOOKRIGHT:	xo = 0.75f;	yo = 0.25f;
+		case STATE_LOOKLEFT:	xo = 1.0f / 5.0f;	yo = 0.25f;
 								break;
 
-		case STATE_LOOKUP:		xo = 0.5f;	yo = 0.25f;
+		case STATE_LOOKRIGHT:	xo = 3.0f / 5.0f;	yo = 0.25f;
 								break;
-			
+
+		case STATE_LOOKUP:		xo = 2.0f / 5.0f;	yo = 0.25f;
+								break;
+
 		case STATE_LOOKDOWN:	xo = 0.0f;	yo = 0.25f;
 								break;
 
-		case STATE_WALKLEFT:	xo = 0.25f;	yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKLEFT:	xo = 1.0f / 5.0f;	yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case STATE_WALKRIGHT:	xo = 0.75f; yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKRIGHT:	xo = 3.0f / 5.0f; yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case STATE_WALKUP:		xo = 0.5f;	yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKUP:		xo = 2.0f / 5.0f;	yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
 		case STATE_WALKDOWN:	xo = 0.0f; yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case ATTACK_UP:			xo = 0.5f; yo = 0.75f;
+		case ATTACK_UP:			xo = 2.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKUP);
 								SetSeqNDelay(1, 0);
 								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, OFFSET_WEAPON);
 								break;
-		case ATTACK_LEFT:		xo = 0.25f; yo = 0.75f;
+		case ATTACK_LEFT:		xo = 1.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKLEFT);
 								SetSeqNDelay(1, 0);
 								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, -OFFSET_WEAPON, 0.0f);
 								break;
-		case ATTACK_RIGHT:		xo = 0.75f; yo = 0.75f;
+		case ATTACK_RIGHT:		xo = 3.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKRIGHT);
 								SetSeqNDelay(1, 0);
 								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, OFFSET_WEAPON, 0.0f);
@@ -255,10 +255,15 @@ void cPlayer::Draw(int tex_id) {
 		case ATTACK_DOWN:		xo = 0.0f; yo = 0.75f;
 								SetState(STATE_LOOKDOWN);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo+0.25f, xo+0.25f, yo,0.0f,-OFFSET_WEAPON);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, -OFFSET_WEAPON);
+								break;
+		case STATE_LOOKBOOM:	xo = 4.0f / 5.0f; yo = 0.25f;
+								break;
+		case STATE_BOOM:		xo = 4.0f / 5.0f; yo = 0.25f + (GetFrame()*0.25f);
+								NextFrame(4);
 								break;
 	}
-	xf = xo + 0.25f;
+	xf = xo + 0.2f;
 	yf = yo - 0.25f;
 	
 	DrawPlayer(tex_id, xo, yo, xf, yf);
