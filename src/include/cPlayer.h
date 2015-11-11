@@ -12,7 +12,7 @@
 class cPlayer: public cPepe {
 public:
 	cPlayer();
-	cPlayer(bool * overworld, bool * transition);
+	cPlayer(bool * overworld, bool * transition, bool * opening);
 	~cPlayer();
 
 	void Attack();
@@ -25,6 +25,7 @@ public:
 	void Transition();
 
 	void GetOffset(float * offset);
+	void SetOffset(float offset);
 
 	float health();
 	bool isDead();

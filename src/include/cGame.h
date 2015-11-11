@@ -55,6 +55,7 @@ private:
 	bool gameover;
 	int gameover_delay;
 	bool overworld;
+	bool opening;
 	bool transition;
 	std::set<int> zones;
 };

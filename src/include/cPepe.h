@@ -74,6 +74,7 @@ public:
 
 	bool inOverworld();
 	void setOverworld(bool *overworld);
+	void setOpening(bool *opening);
 	void changeOverworld();
 
 	void SetKnocked(bool knocked);
@@ -88,6 +89,7 @@ private:
 	int state;
 	float step_length;
 	bool * overworld;
+	bool * opening;
 	bool knocked;
 	int zone;
 

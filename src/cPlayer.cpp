@@ -2,12 +2,14 @@
 
 cPlayer::cPlayer() {}
 
-cPlayer::cPlayer(bool * overworld, bool * tr) {
+cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
 	setOverworld(overworld);
+	setOpening(opening);
 	transition = tr;
 	lives = LINK_LIVES;
 	SetKnocked(false);
 	state_delay = -1;
+	offset = 0.0f;
 }
 
 cPlayer::~cPlayer(){}
@@ -33,6 +35,7 @@ void cPlayer::Logic(int *map) {
 					*transition = false;
 					SetZone(zone - 1);
 					SetPosition(SCENE_WIDTH - 2.0f, posy);
+					offset = 0.0f;
 				}
 				else if (offset == GAME_WIDTH || posx > 0.0f) SetPosition(posx - 0.05f, posy);
 				else if (offset + GAME_WIDTH / TRANSITION_SPEED > GAME_WIDTH) offset = GAME_WIDTH;
@@ -43,6 +46,7 @@ void cPlayer::Logic(int *map) {
 					*transition = false;
 					SetZone(zone + 1);
 					SetPosition(1.0f, posy);
+					offset = 0.0f;
 				}
 				else if (offset == -GAME_WIDTH || posx < SCENE_WIDTH - 1) SetPosition(posx + 0.05f, posy);
 				else if (offset - GAME_WIDTH / TRANSITION_SPEED < -GAME_WIDTH) offset = -GAME_WIDTH;
@@ -53,6 +57,7 @@ void cPlayer::Logic(int *map) {
 					*transition = false;
 					SetZone(zone + (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
 					SetPosition(posx, HUD_TILES + 1 + 2.0f);
+					offset = 0.0f;
 				}
 				else if (offset == GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) || posy < SCENE_HEIGHT) SetPosition(posx, posy + 0.05f);
 				else if (offset + (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED > GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) offset = GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1));
@@ -63,6 +68,7 @@ void cPlayer::Logic(int *map) {
 					*transition = false;
 					SetZone(zone - (DUNGEON_MAP_WIDTH / ZONE_WIDTH));
 					SetPosition(posx, SCENE_HEIGHT - 1.2f);
+					offset = 0.0f;
 				}
 				else if (offset >= GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1)) || posy > HUD_TILES + 1) SetPosition(posx, posy - 0.05f);
 				else if (offset + (GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) / TRANSITION_SPEED > GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1))) offset = GAME_HEIGHT - (HUD_TILES*GAME_HEIGHT / (SCENE_HEIGHT - 1));
@@ -240,22 +246,22 @@ void cPlayer::Draw(int tex_id) {
 		case ATTACK_UP:			xo = 2.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKUP);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, OFFSET_WEAPON);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, 0.0f, OFFSET_WEAPON);
 								break;
 		case ATTACK_LEFT:		xo = 1.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKLEFT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, -OFFSET_WEAPON, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, -OFFSET_WEAPON, 0.0f);
 								break;
 		case ATTACK_RIGHT:		xo = 3.0f / 5.0f; yo = 0.75f;
 								SetState(STATE_LOOKRIGHT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, OFFSET_WEAPON, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, OFFSET_WEAPON, 0.0f);
 								break;
 		case ATTACK_DOWN:		xo = 0.0f; yo = 0.75f;
 								SetState(STATE_LOOKDOWN);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.25f, yo, 0.0f, -OFFSET_WEAPON);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, 0.0f, -OFFSET_WEAPON);
 								break;
 		case STATE_LOOKBOOM:	xo = 4.0f / 5.0f; yo = 0.25f;
 								break;
@@ -390,6 +396,10 @@ void cPlayer::Transition() {
 
 void cPlayer::GetOffset(float * off) {
 	*off = offset;
+}
+
+void cPlayer::SetOffset(float off) {
+	offset = off;
 }
 
 bool cPlayer::checkIntersections(cZone zone) {

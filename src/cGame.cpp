@@ -40,7 +40,8 @@ bool cGame::Init() {
 	 if(!res) return false;
 	 overworld = true;
 	 gameover = false;
-	 Player = cPlayer(&overworld,&transition);
+	 opening = true;
+	 Player = cPlayer(&overworld,&transition,&opening);
 	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
 	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);
 	 Player.SetState(STATE_LOOKUP);
@@ -356,6 +357,20 @@ void cGame::Render() {
 				Player.Draw(Data.GetID(IMG_PLAYER));
 			}
 		}
+	}
+
+	if (opening) {
+		float offset;
+		Player.GetOffset(&offset);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glRectf(0.0f, 0.0f, GAME_WIDTH / 2 - offset, GAME_HEIGHT);
+		glRectf(GAME_WIDTH / 2 + offset, 0.0f, GAME_WIDTH, GAME_HEIGHT);
+		glColor4f(1, 1, 1, 1);
+		if (offset + 1.0f >= GAME_WIDTH / 2) {
+			opening = false;
+			Player.SetOffset(0.0f);
+		}
+		else Player.SetOffset(offset + 10.0f);
 	}
 
 	RenderHUD();

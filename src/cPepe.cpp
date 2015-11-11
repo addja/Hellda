@@ -630,8 +630,13 @@ void cPepe::setOverworld(bool * world) {
 	overworld = world;
 }
 
+void cPepe::setOpening(bool *op) {
+	opening = op;
+}
+
 void cPepe::changeOverworld() {
 	*overworld = ! *overworld;
+	*opening = !*opening;
 }
 
 void cPepe::SetKnocked(bool kno) {
