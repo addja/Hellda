@@ -142,8 +142,9 @@ void cPlayer::Logic(int *map) {
 			case STATE_LOOKDOWN:
 			case STATE_WALKDOWN:
 				zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
-				zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2 - 1;
+				zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+				std::cout << newx << " " << newy << " " << tile << std::endl;
 				if (dungeonDownTransitions(tile)) {
 					std::cout << "DOWN TRANS " << tile << std::endl;
 					if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
