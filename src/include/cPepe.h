@@ -93,5 +93,5 @@ private:
 	bool knocked;
 	int zone;
 
-	int seq,delay;
+	int seq, delay;
 };

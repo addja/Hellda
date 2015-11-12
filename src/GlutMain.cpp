@@ -20,6 +20,10 @@ void AppKeyboardUp(unsigned char key, int x, int y) {
 	Game.ReadKeyboard(key,x,y,false);
 }
 
+void AppKeyboardDown(unsigned char key, int x, int y) {
+	Game.ReadKeyboard(key, x, y, false);
+}
+
 void AppSpecialKeys(int key, int x, int y) {
 	Game.ReadKeyboard(key,x,y,true);
 }
@@ -71,7 +75,7 @@ void main(int argc, char** argv) {
 	// Register callback functions
 	glutDisplayFunc(AppRender);			
 	glutKeyboardFunc(AppKeyboard);		
-	glutKeyboardUpFunc(AppKeyboardUp);	
+	glutKeyboardUpFunc(AppKeyboardUp);
 	glutSpecialFunc(AppSpecialKeys);	
 	glutSpecialUpFunc(AppSpecialKeysUp);
 	glutMouseFunc(AppMouse);

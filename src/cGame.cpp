@@ -18,6 +18,10 @@ bool cGame::Init() {
 	glAlphaFunc(GL_GREATER, 0.05f);
 	glEnable(GL_ALPHA_TEST);
 
+	// Music and sounds initialization
+	res = initializeAudio();
+	if (!res) return false;
+
 	// Scene initialization
 	 res = Data.LoadImage(IMG_OVERWORLD,"zelda-tiles-compressed.png",GL_RGB);
 	 if(!res) return false;
@@ -71,7 +75,10 @@ void cGame::Finalize() {}
 
 // Input
 void cGame::ReadKeyboard(unsigned char key, int x, int y, bool press) {
+	if (key == 'A') key = 'a';
+	if (key == 'S') key = 's';
 	keys[key] = press;
+	if ((key == 'a' && !press) || (keys['a'] && 'a' != key) ) Player.endSwipe();
 }
 
 void cGame::ReadMouse(int button, int state, int x, int y) {}
@@ -85,7 +92,9 @@ bool cGame::Process() {
 	Player.GetKnocked(&knocked);
 
 	// Process Input
-	if (keys[27]) res=false;
+	if (keys[27]) {
+		return false;
+	}
 
 	if (gameover) {
 		if (gameover_delay >= 200) {
@@ -121,7 +130,13 @@ bool cGame::Process() {
 				else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Overworld.GetMap());
 				else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Overworld.GetMap());
 				else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Overworld.GetMap());
-				else if (keys['a'])				Player.Attack();
+				else if (keys['a']) {
+					if (Player.swipeAgain()) {
+						Data.playSound(SOUND_SWORD);
+						Player.swipe();
+					}
+					Player.Attack();
+				}
 				else Player.Stop();
 
 				// Game Logic
@@ -167,7 +182,13 @@ bool cGame::Process() {
 				else if (keys[GLUT_KEY_DOWN])	Player.MoveDown(Dungeon.GetMap());
 				else if (keys[GLUT_KEY_LEFT])	Player.MoveLeft(Dungeon.GetMap());
 				else if (keys[GLUT_KEY_RIGHT])	Player.MoveRight(Dungeon.GetMap());
-				else if (keys['a'])				Player.Attack();
+				else if (keys['a']) {
+					if (Player.swipeAgain()) {
+						Data.playSound(SOUND_SWORD);
+						Player.swipe();
+					}
+					Player.Attack();
+				}
 				else Player.Stop();
 
 				// Game Logic
@@ -720,4 +741,11 @@ void cGame::gameOver() {
 	Player.SetState(STATE_LOOKDOWN);
 	gameover = true;
 	gameover_delay = 0;
+}
+
+bool cGame::initializeAudio() {
+	if (!Data.LoadSound(SOUND_SWORD, "../sounds/sword-sound.wav")) return false;
+	if(!Data.LoadMusic(MUSIC_OVERWORLD, "../sounds/Overworld.ogg")) return false;
+	Data.playMusic(MUSIC_OVERWORLD);
+	return true;
 }

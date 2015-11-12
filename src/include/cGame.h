@@ -40,6 +40,7 @@ public:
 
 	void initializeObjectsOverworld();
 	void initializeObjectsDungeons();
+	bool initializeAudio();
 	int calcZone(float x, float y);
 
 	void gameOver();

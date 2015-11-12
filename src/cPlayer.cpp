@@ -5,6 +5,7 @@ cPlayer::cPlayer() {}
 cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
 	setOverworld(overworld);
 	setOpening(opening);
+	sword_swipe = false;
 	transition = tr;
 	lives = LINK_LIVES;
 	SetKnocked(false);
@@ -15,6 +16,7 @@ cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
 cPlayer::~cPlayer(){}
 
 void cPlayer::Logic(int *map) {
+
 	int tile, newx, newy, zone, state;
 	GetZone(&zone);
 	state = GetState();
@@ -439,4 +441,16 @@ void cPlayer::StopState() {
 	state_delay = 0.0f;
 	SetKnocked(false);
 	Stop();
+}
+
+bool cPlayer::swipeAgain() {
+	return !sword_swipe;
+}
+
+void cPlayer::swipe() {
+	sword_swipe = true;
+}
+
+void cPlayer::endSwipe() {
+	sword_swipe = false;
 }
