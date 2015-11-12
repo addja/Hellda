@@ -28,14 +28,21 @@ public:
 	void SetOffset(float offset);
 
 	float health();
+	int GetGold();
+	int GetKeys();
+	int GetBombs();
 	bool isDead();
 	void StopState();
 
 	bool swipeAgain();
 	void swipe();
 	void endSwipe();
+
 private: 
 	float lives;
+	int gold;
+	int keys;
+	int bombs;
 	bool * transition;
 	float offset;
 	float state_delay;

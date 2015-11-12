@@ -58,7 +58,13 @@ bool cGame::Init() {
 	 Player.SetState(STATE_LOOKUP);
 
 	 // Zones initialization
-	 res = Data.LoadImage(IMG_ENEMIES, "octoroc.png", GL_RGBA);
+	 res = Data.LoadImage(IMG_OCTOROC, "octoroc.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_STALFOS, "stalfos.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_KEESE, "keese.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_BOSS, "boss.png", GL_RGBA);
 	 if (!res) return false;
 	 
 	 initializeEnemiesOverworld();
@@ -97,6 +103,7 @@ bool cGame::Process() {
 	float x, y;
 	bool knocked;
 	Player.GetKnocked(&knocked);
+	setZones();
 
 	// Process Input
 	if (keys[27]) {
@@ -141,7 +148,11 @@ bool cGame::Process() {
 
 	if (gameover) {
 		if (delay >= 200) {
-			if(keys[13]) Init();
+			if (keys[13]) {
+				Init();
+				setZones();
+				return res;
+			}
 		}
 		else if (delay == 155) Player.SetState(STATE_LOOKBOOM);
 		else if (delay == 180) Player.SetState(STATE_BOOM);
@@ -188,17 +199,6 @@ bool cGame::Process() {
 				if (overworld) {
 					Player.GetPosition(&x, &y);
 
-					// to know the zone
-					int zone = calcZone(x, y);
-
-					// get border zones
-					float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
-					float offsety = OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT / 2;
-					zones.clear();
-					zones.insert(calcZone(x + offsetx, y + offsety));
-					zones.insert(calcZone(x + offsetx, y - offsety));
-					zones.insert(calcZone(x - offsetx, y + offsety));
-					zones.insert(calcZone(x - offsetx, y - offsety));
 					for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
 						ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState());
 					}
@@ -207,7 +207,7 @@ bool cGame::Process() {
 					if (!knocked) {
 						for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
 							hit = Player.checkIntersections(ZonesOverworld[*it]);
-							if (hit && Player.health() == 0) {
+							if (hit && Player.health() <= 0) {
 								gameOver();
 								break;
 							}
@@ -240,10 +240,14 @@ bool cGame::Process() {
 				if (!overworld) {
 					Player.GetPosition(&x, &y);
 
-					ZonesDungeon[0].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+					// to know the zone
+					int zone;
+					Player.GetZone(&zone);
+
+					ZonesDungeon[zone].Logic(Dungeon.GetMap(), x, y, Player.GetState());
 					// remember to check intersections only if 
-					hit = Player.checkIntersections(ZonesDungeon[0]);
-					if (hit && Player.health() == 0) {
+					hit = Player.checkIntersections(ZonesDungeon[zone]);
+					if (hit && Player.health() <= 0) {
 						gameOver();
 					}
 				}
@@ -478,7 +482,7 @@ void cGame::Render() {
 			else {
 				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
 
-				ZonesDungeon[0].Draw(x, y);
+				ZonesDungeon[zone].Draw(x, y);
 
 				// draw plawer
 				Player.Draw(Data.GetID(IMG_PLAYER));
@@ -595,8 +599,7 @@ void cGame::RenderHUD() {
 		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.895f + 0.0375f));
 	glEnd();
 
-	//int gold = Player.gold();
-	int gold = 15;
+	int gold = Player.GetGold();
 	int ind = 0;
 	float nx[10] = { 0.0f, 1.0 / 16.0f, 2.0 / 16.0f, 3.0 / 16.0f, 4.0 / 16.0f, 5.0 / 16.0f, 6.0 / 16.0f, 7.0 / 16.0f, 8.0 / 16.0f, 9.0 / 16.0f };
 	float ny[10] = { 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f, 1.0f / 6.0f };
@@ -638,8 +641,7 @@ void cGame::RenderHUD() {
 		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.845f + 0.0375f));
 	glEnd();
 
-	//int keys = Player.keys();
-	int keys = 42;
+	int keys = Player.GetKeys();
 	ind = 0;
 	if (keys > 9 && keys < 100) {
 		num = keys / 10;
@@ -677,8 +679,7 @@ void cGame::RenderHUD() {
 		glTexCoord2f(1.0f / 16.0f, 3.0f / 6.0f - 0.16666f);	glVertex2i(GAME_WIDTH*0.435f, GAME_HEIGHT*(0.795f + 0.0375f));
 	glEnd();
 
-	//int bombs = Player.bombs();
-	int bombs = 69;
+	int bombs = Player.GetBombs();
 	ind = 0;
 	if (bombs > 9 && bombs < 100) {
 		num = bombs / 10;
@@ -818,14 +819,94 @@ void cGame::initializeEnemiesOverworld() {
 	ZonesOverworld[87].SetOverworld(true);
 	ZonesOverworld[87].SetData(&Data);
 	ZonesOverworld[87].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
-	//ZonesOverworld[0].addEnemy(118.0f, 70.0f, OCTOROCT, true, 103, &overworld);
+	ZonesOverworld[87].addEnemy(113.0f, 81.0f, OCTOROCT, true, 119, &overworld);
 }
 
 void cGame::initializeEnemiesDungeons() {
-	ZonesDungeon[0] = cZone();
-	ZonesDungeon[0].SetOverworld(false);
-	ZonesDungeon[0].SetData(&Data);
-	ZonesDungeon[0].addEnemy(8.5f, 9.5f, OCTOROCT, true, 32, &overworld);
+	for (int i = 0; i < 34; ++i) {
+		ZonesDungeon[i] = cZone();
+		ZonesDungeon[i].SetOverworld(false);
+		ZonesDungeon[i].SetData(&Data);
+		switch (i) {
+		case 1:
+			// Traps & Stone unlocks -> Basement
+			break;
+		case 2:
+			// Goriyas
+			break;
+		case 7:
+			// Basement with the Bow
+			break;
+		case 8:
+			ZonesDungeon[i].addEnemy(3.0f, 9.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 12.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 9.0f, STALFOS, false, i, &overworld);
+			break;
+		case 10:
+			// BOSS AREA
+			ZonesDungeon[i].addEnemy(11.0f, 10.0f, BOSS, false, i, &overworld);
+			break;
+		case 12:
+			// EASTMOST PENNINSLA IS THE SECRET.
+			break;
+		case 13:
+			// Gels & Stone unlocks left door
+			break;
+		case 14:
+			// Gels & Map
+			break;
+		case 15:
+			// Goriyas & Boomerang
+			break;
+		case 16:
+			// Key & Wall Masters
+			break;
+		case 19:
+			// Killing al enemies unlocks right door
+			ZonesDungeon[i].addEnemy(2.0f, 11.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(3.0f, 13.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 10.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 12.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 8.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, i, &overworld);
+			break;
+		case 20:
+			ZonesDungeon[i].addEnemy(5.0f, 10.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(6.0f, 12.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 11.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 8.0f, STALFOS, false, i, &overworld);
+			break;
+		case 21:
+			// Compass to triforce
+			ZonesDungeon[i].addEnemy(5.0f, 8.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 12.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 10.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 12.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 9.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 13.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(13.0f, 11.0f, KEESE, false, i, &overworld);
+			break;
+		case 26:
+			ZonesDungeon[i].addEnemy(5.0f, 9.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 12.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(6.0f, 10.0f, STALFOS, false, i, &overworld);
+			break;
+		case 31:
+			ZonesDungeon[i].addEnemy(3.1f, 9.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(2.1f, 11.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, i, &overworld);
+			break;
+		case 33:
+			ZonesDungeon[i].addEnemy(5.0f, 8.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 14.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 12.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(13.0f, 11.0f, STALFOS, false, i, &overworld);
+			break;
+		}
+	}
 }
 
 void cGame::initializeObjectsOverworld() {
@@ -847,6 +928,22 @@ void cGame::gameOver() {
 	Player.SetState(STATE_LOOKDOWN);
 	gameover = true;
 	delay = 0;
+}
+
+void cGame::setZones() {
+	float x, y;
+	Player.GetPosition(&x, &y);
+	// to know the zone
+	int zone = calcZone(x, y);
+
+	// get border zones
+	float offsetx = OVERWORLD_MAP_WIDTH / ZONE_WIDTH / 2;
+	float offsety = OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT / 2;
+	zones.clear();
+	zones.insert(calcZone(x + offsetx, y + offsety));
+	zones.insert(calcZone(x + offsetx, y - offsety));
+	zones.insert(calcZone(x - offsetx, y + offsety));
+	zones.insert(calcZone(x - offsetx, y - offsety));
 }
 
 bool cGame::initializeAudio() {

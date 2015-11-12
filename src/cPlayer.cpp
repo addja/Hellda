@@ -8,6 +8,9 @@ cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
 	sword_swipe = false;
 	transition = tr;
 	lives = LINK_LIVES;
+	gold = 0;
+	keys = 0;
+	bombs = 0;
 	SetKnocked(false);
 	state_delay = -1;
 	offset = 0.0f;
@@ -111,12 +114,12 @@ void cPlayer::Logic(int *map) {
 
 			// check if good movement, if not stay stopped
 			if (inOverworld()) {
-				if (!checkCorrectMovementOverworld(posx + movx, posy + movy, map, dir)) {
+				if (!checkCorrectMovementOverworld(posx + movx, posy + movy, map, dir, true)) {
 					movx = movy = 0;
 				}
 			}
 			else {
-				if (!checkCorrectMovementDungeon(posx + movx, posy + movy, map, dir)) {
+				if (!checkCorrectMovementDungeon(posx + movx, posy + movy, map, dir, true)) {
 					movx = movy = 0;
 				}
 			}
@@ -406,16 +409,67 @@ void cPlayer::SetOffset(float off) {
 }
 
 bool cPlayer::checkIntersections(cZone zone) {
-	cOctoroct * enemies= zone.GetEnemies();
 	float posx, posy, x, y;
 	GetPosition(&x, &y);
 	cRec player = cRec(x, y);
-	cRec enemy;
-	for (int i = 0; i < zone.numEnemies(); ++i) {
-		if (!enemies[i].isDead()) {
-			(enemies[i]).GetPosition(&posx, &posy);
+
+	for (int i = 0; i < zone.numOctorocs(); ++i) {
+		cOctoroct * octoroc = zone.GetOctoroc(i);
+		if (!(*octoroc).isDead()) {
+			(*octoroc).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
-				if (posx < x) hit_dirx = 1 ;
+				if (posx < x) hit_dirx = 1;
+				else hit_dirx = -1;
+				if (posy < y) hit_diry = 1;
+				else hit_diry = -1;
+				if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+				SetKnocked(true);
+				lives -= 0.5f;
+				return false;
+			}
+		}
+	}
+
+	for (int i = 0; i < zone.numKeeses(); ++i) {
+		cKeese * keese = zone.GetKeese(i);
+		if (!(*keese).isDead()) {
+			(*keese).GetPosition(&posx, &posy);
+			if (player.intersects(cRec(posx, posy))) {
+				if (posx < x) hit_dirx = 1;
+				else hit_dirx = -1;
+				if (posy < y) hit_diry = 1;
+				else hit_diry = -1;
+				if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+				SetKnocked(true);
+				lives -= 0.5f;
+				return false;
+			}
+		}
+	}
+
+	for (int i = 0; i < zone.numStalfos(); ++i) {
+		cStalfos * stalfos = zone.GetStalfos(i);
+		if (!(*stalfos).isDead()) {
+			(*stalfos).GetPosition(&posx, &posy);
+			if (player.intersects(cRec(posx, posy))) {
+				if (posx < x) hit_dirx = 1;
+				else hit_dirx = -1;
+				if (posy < y) hit_diry = 1;
+				else hit_diry = -1;
+				if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+				SetKnocked(true);
+				lives -= 0.5f;
+				return false;
+			}
+		}
+	}
+
+	cBoss * boss = zone.GetBoss();
+	if (zone.isBossArea()) {
+		if (!(*boss).isDead()) {
+			(*boss).GetPosition(&posx, &posy);
+			if (player.intersects(cRec(posx, posy))) {
+				if (posx < x) hit_dirx = 1;
 				else hit_dirx = -1;
 				if (posy < y) hit_diry = 1;
 				else hit_diry = -1;
@@ -435,6 +489,18 @@ bool cPlayer::isDead() {
 
 float cPlayer::health() {
 	return lives;
+}
+
+int cPlayer::GetGold() {
+	return gold;
+}
+
+int cPlayer::GetKeys() {
+	return keys;
+}
+
+int cPlayer::GetBombs() {
+	return bombs;
 }
 
 void cPlayer::StopState() {

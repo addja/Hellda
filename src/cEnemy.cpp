@@ -72,10 +72,10 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									nextx = x;
 									state_delay += step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP) && inZone(nextx, nexty)) MoveUp(map);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP, false) && inZone(nextx, nexty)) MoveUp(map);
 										else StopState();
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKUP)) MoveUp(map);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKUP, false)) MoveUp(map);
 										else StopState();
 									}
 									break;
@@ -83,10 +83,10 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									nextx = x;
 									state_delay += step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN) && inZone(nextx, nexty)) MoveDown(map);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN, false) && inZone(nextx, nexty)) MoveDown(map);
 										else StopState();
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKDOWN)) MoveDown(map);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKDOWN, false)) MoveDown(map);
 										else StopState();
 									}
 									break;
@@ -94,10 +94,10 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									nextx = x - step;
 									state_delay += step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT) && inZone(nextx, nexty)) MoveLeft(map);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT, false) && inZone(nextx, nexty)) MoveLeft(map);
 										else StopState();
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKLEFT)) MoveLeft(map);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKLEFT, false)) MoveLeft(map);
 										else StopState();
 									}
 									break;
@@ -105,10 +105,10 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									nextx = x + step;
 									state_delay += step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT) && inZone(nextx, nexty)) MoveRight(map);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT, false) && inZone(nextx, nexty)) MoveRight(map);
 										else StopState();
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKRIGHT)) MoveRight(map);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKRIGHT, false)) MoveRight(map);
 										else StopState();
 									}
 									break;
@@ -122,36 +122,36 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									nexty = y - step;
 									nextx = x;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP) && inZone(nextx, nexty)) tiles.push_back(1);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKUP, false) && inZone(nextx, nexty)) tiles.push_back(1);
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKUP)) tiles.push_back(1);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKUP, false)) tiles.push_back(1);
 									}
 
 									// one step v
 									nexty = y + step;
 									nextx = x;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN) && inZone(nextx, nexty)) tiles.push_back(2);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKDOWN, false) && inZone(nextx, nexty)) tiles.push_back(2);
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKDOWN)) tiles.push_back(2);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKDOWN, false)) tiles.push_back(2);
 									}
 
 									// one step <
 									nexty = y;
 									nextx = x - step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT) && inZone(nextx, nexty)) tiles.push_back(3);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKLEFT, false) && inZone(nextx, nexty)) tiles.push_back(3);
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKLEFT)) tiles.push_back(3);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKLEFT, false)) tiles.push_back(3);
 									}
 
 									// one step >
 									nexty = y;
 									nextx = x + step;
 									if (inOverworld()) {
-										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT) && inZone(nextx, nexty)) tiles.push_back(4);
+										if (checkCorrectMovementOverworld(nextx, nexty, map, STATE_WALKRIGHT, false) && inZone(nextx, nexty)) tiles.push_back(4);
 									} else {
-										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKRIGHT)) tiles.push_back(4);
+										if (checkCorrectMovementDungeon(nextx, nexty, map, STATE_WALKRIGHT, false)) tiles.push_back(4);
 									}
 
 									// take randomly one and update position

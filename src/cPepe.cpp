@@ -71,14 +71,14 @@ void cPepe::MoveUp(int *map) {
 	float yaux = y - step_length;
 
 	if (inOverworld()) {
-		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKUP)) y = yaux;
+		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKUP, true)) y = yaux;
 			if (state != STATE_WALKUP) {
 				state = STATE_WALKUP;
 				seq = 1;
 				delay = 0;
 			}
 	} else {
-		if (checkCorrectMovementDungeon(x, yaux, map, STATE_WALKUP)) y = yaux;
+		if (checkCorrectMovementDungeon(x, yaux, map, STATE_WALKUP, true)) y = yaux;
 			if (state != STATE_WALKUP) {
 				state = STATE_WALKUP;
 				seq = 1;
@@ -92,14 +92,14 @@ void cPepe::MoveDown(int *map) {
 	float yaux = y + step_length;
 
 	if (inOverworld()) {
-		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKDOWN)) y = yaux;
+		if (checkCorrectMovementOverworld(x, yaux, map, STATE_WALKDOWN, true)) y = yaux;
 			if (state != STATE_WALKDOWN) {
 				state = STATE_WALKDOWN;
 				seq = 1;
 				delay = 0;
 			}
 	} else {
-		if (checkCorrectMovementDungeon(x, yaux, map, STATE_WALKDOWN)) y = yaux;
+		if (checkCorrectMovementDungeon(x, yaux, map, STATE_WALKDOWN, true)) y = yaux;
 		if (state != STATE_WALKDOWN) {
 			state = STATE_WALKDOWN;
 			seq = 1;
@@ -112,14 +112,14 @@ void cPepe::MoveLeft(int *map) {
 	float xaux = x - step_length;
 
 	if (inOverworld()) {
-		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKLEFT)) x = xaux;
+		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKLEFT, true)) x = xaux;
 			if (state != STATE_WALKLEFT) {
 				state = STATE_WALKLEFT;
 				seq = 1;
 				delay = 0;
 			}
 	} else {
-		if (checkCorrectMovementDungeon(xaux, y, map, STATE_WALKLEFT)) x = xaux;
+		if (checkCorrectMovementDungeon(xaux, y, map, STATE_WALKLEFT, true)) x = xaux;
 			if (state != STATE_WALKLEFT) {
 				state = STATE_WALKLEFT;
 				seq = 1;
@@ -132,7 +132,7 @@ void cPepe::MoveRight(int *map) {
 	float xaux = x + step_length;
 
 	if (inOverworld()) {
-		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKRIGHT)) x = xaux;
+		if (checkCorrectMovementOverworld(xaux, y, map, STATE_WALKRIGHT, true)) x = xaux;
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
 			seq = 1;
@@ -140,7 +140,7 @@ void cPepe::MoveRight(int *map) {
 		}
 	}
 	else {
-		if (checkCorrectMovementDungeon(xaux, y, map, STATE_WALKRIGHT)) x = xaux;
+		if (checkCorrectMovementDungeon(xaux, y, map, STATE_WALKRIGHT, true)) x = xaux;
 		if (state != STATE_WALKRIGHT) {
 			state = STATE_WALKRIGHT;
 			seq = 1;
@@ -181,7 +181,7 @@ void cPepe::SetState(int s) {
 	state = s;
 }
 
-bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int movement) {
+bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int movement, bool player) {
 
 	int tile, tile2, newx, newy, newx2, newy2;
 
@@ -205,6 +205,7 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 		// upper left corner / 2
 		newx = floor(posx + 0.05f);
@@ -222,6 +223,7 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 		break;
 
@@ -242,6 +244,7 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 		// upper right corner / 2
 		newx = floor(posx + 0.95f);
@@ -259,6 +262,7 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 		break;
 
@@ -289,13 +293,14 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			else if (posx - floor(posx) >= 0.75) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx + 1];
-				if (walkable(tile)) {
+				if (walkable(tile) && !(overworldDoors(tile) && !player)) {
 					x = newx + 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 		// if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkable(tile2)) {
@@ -306,13 +311,14 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			else if (posx - (float)floor(posx) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(OVERWORLD_MAP_HEIGHT - newy2 - 1)*OVERWORLD_MAP_WIDTH + newx2 - 1];
-				if (walkable(tile2)) {
+				if (walkable(tile2) && !(overworldDoors(tile2) && !player)) {
 					x = newx2 - 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (overworldDoors(tile2) && !player) return false;
 
 		break;
 
@@ -343,13 +349,14 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			else if (posx - (float)floor(posx) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx + 1];
-				if (walkable(tile)) {
+				if (walkable(tile) && !(overworldDoors(tile) && !player)) {
 					x = newx + 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (overworldDoors(tile) && !player) return false;
 
 
 		// if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
@@ -361,13 +368,14 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 			else if (posx - (float)floor(posx) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(OVERWORLD_MAP_HEIGHT - newy2 - 1)*OVERWORLD_MAP_WIDTH + newx2 - 1];
-				if (walkable(tile2)) {
+				if (walkable(tile2) && !(overworldDoors(tile2) && !player)) {
 					x = newx2 - 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (overworldDoors(tile2) && !player) return false;
 
 		break;
 	}
@@ -375,7 +383,7 @@ bool cPepe::checkCorrectMovementOverworld(float posx, float posy, int *map, int 
 	return true;
 }
 
-bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int movement) {
+bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int movement, bool player) {
 	int tile, tile2, newx, newy, newx2, newy2;
 
 	// if (DEBUG_MODE) std::cout << "I'm at x: " << x << " y: " << y << std::endl;
@@ -393,6 +401,7 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) return false;
+		else if (dungeonDoors(tile) && !player) return false;
 
 		// upper left corner / 2
 		newx = floor(posx + 0.05f);
@@ -400,6 +409,7 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) return false;
+		else if (dungeonDoors(tile) && !player) return false;
 
 		break;
 
@@ -410,6 +420,7 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) return false;
+		else if (dungeonDoors(tile) && !player) return false;
 
 		// upper right corner / 2
 		newx = floor(posx + 0.95f);
@@ -417,6 +428,7 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) return false;
+		else if (dungeonDoors(tile) && !player) return false;
 
 		break;
 
@@ -435,20 +447,21 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 			if (posx - floor(posx) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx + 1];
-				if (walkableDungeon(tile)) {
+				if (walkableDungeon(tile) && !(overworldDoors(tile) && !player)) {
 					x = newx + 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (dungeonDoors(tile) && !player) return false;
 
 		//if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkableDungeon(tile2)) {
 			if (posx - (float)floor(posx) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
-				if (walkableDungeon(tile2)) {
+				if (walkableDungeon(tile2) && !(overworldDoors(tile2) && !player)) {
 					x = newx2 - 1;
 					return true;
 				}
@@ -456,6 +469,7 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 			return false;
 		}
 
+		else if (dungeonDoors(tile2) && !player) return false;
 		break;
 
 	case STATE_WALKDOWN:
@@ -473,13 +487,14 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 			if (posx - (float)floor(posx) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx + 1];
-				if (walkableDungeon(tile)) {
+				if (walkableDungeon(tile) && !(overworldDoors(tile) && !player)) {
 					x = newx + 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (dungeonDoors(tile) && !player) return false;
 
 
 		//if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
@@ -487,13 +502,14 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 			if (posx - (float)floor(posx) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
-				if (walkableDungeon(tile2)) {
+				if (walkableDungeon(tile2) && !(overworldDoors(tile2) && !player)) {
 					x = newx2 - 1;
 					return true;
 				}
 			}
 			return false;
 		}
+		else if (dungeonDoors(tile2) && !player) return false;
 
 		break;
 	}
@@ -564,6 +580,17 @@ bool cPepe::dungeonRightTransitions(int tile) {
 
 bool cPepe::dungeonLeftTransitions(int tile) {
 	return (tile == 89 || tile == 143 || tile == 196);
+}
+
+bool cPepe::overworldDoors(int tile) {
+	return (tile == 0 || tile == 6 || tile == 12 || tile == 18 || tile == 22 || tile == 24 || tile == 28 || tile == 30 ||
+			tile == 34 || tile == 131 || tile == 137 || tile == 143);
+}
+
+bool cPepe::dungeonDoors(int tile) {
+	return (tile == 34 || tile == 89 || tile == 143 || tile == 178 || tile == 196 || tile == 112 || tile == 113 ||
+			tile == 130 || tile == 131 || tile == 115 || tile == 100 || tile == 101 || tile == 118 || tile == 119 ||
+			tile == 64 || tile == 65);
 }
 
 void cPepe::SetSeqNDelay(int s, int d) {

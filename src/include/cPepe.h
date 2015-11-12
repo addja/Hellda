@@ -42,8 +42,8 @@ public:
 	void SetZone(int zone);
 	void GetZone(int *zone);
 
-	bool checkCorrectMovementOverworld(float x, float y, int *map, int movement);
-	bool checkCorrectMovementDungeon(float x, float y, int *map, int movement);
+	bool checkCorrectMovementOverworld(float x, float y, int *map, int movement, bool player);
+	bool checkCorrectMovementDungeon(float x, float y, int *map, int movement, bool player);
 	bool walkable(int tile);
 	bool walkableDungeon(int tile);
 	bool diagonallyWalkableUpRight(int tile);
@@ -55,6 +55,9 @@ public:
 	bool dungeonDownTransitions(int tile);
 	bool dungeonRightTransitions(int tile);
 	bool dungeonLeftTransitions(int tile);
+
+	bool overworldDoors(int tile);
+	bool dungeonDoors(int tile);
 
 	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery);
 

@@ -9,7 +9,15 @@
 #define MAX_STATE_DELAY	4.0f
 
 #define OCTOROCT		0
+#define STALFOS			1
+#define KEESE			2
+#define ZOLA			3
+#define	BOSS			4
 #define STEP_OCTOROCT	0.05f
+#define STEP_STALFOS	0.05f
+#define STEP_KEESE		0.05f
+#define STEP_ZOLA		0.05f
+#define STEP_BOSS		0.05f
 
 class cEnemy : public cPepe {
 public:

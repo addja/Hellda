@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>SFML_DYNAMIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -69,7 +69,7 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-audio-d.lib;sfml-system-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;winmm.lib;openal32.lib;sfml-audio-d.lib;sfml-system-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,7 +79,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>SFML/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>SFML\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)Hellda.exe</OutputFile>
@@ -89,14 +89,16 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;winmm.lib;openal32.lib;sfml-system.lib;sfml-audio.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>SFML/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>SFML\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cBoss.cpp" />
     <ClCompile Include="cData.cpp" />
     <ClCompile Include="cDungeon.cpp" />
     <ClCompile Include="cEnemy.cpp" />
     <ClCompile Include="cGame.cpp" />
+    <ClCompile Include="cKeese.cpp" />
     <ClCompile Include="cMusic.cpp" />
     <ClCompile Include="cOctoroct.cpp" />
     <ClCompile Include="cPepe.cpp" />
@@ -104,15 +106,18 @@
     <ClCompile Include="cOverworld.cpp" />
     <ClCompile Include="cRec.cpp" />
     <ClCompile Include="cSound.cpp" />
+    <ClCompile Include="cStalfos.cpp" />
     <ClCompile Include="cTexture.cpp" />
     <ClCompile Include="cZone.cpp" />
     <ClCompile Include="GLUTMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\cBoss.h" />
     <ClInclude Include="include\cData.h" />
     <ClInclude Include="include\cDungeon.h" />
     <ClInclude Include="include\cEnemy.h" />
     <ClInclude Include="include\cGame.h" />
+    <ClInclude Include="include\cKeese.h" />
     <ClInclude Include="include\cMusic.h" />
     <ClInclude Include="include\cOctoroct.h" />
     <ClInclude Include="include\corona.h" />
@@ -121,6 +126,7 @@
     <ClInclude Include="include\cOverworld.h" />
     <ClInclude Include="include\cRec.h" />
     <ClInclude Include="include\cSound.h" />
+    <ClInclude Include="include\cStalfos.h" />
     <ClInclude Include="include\cTexture.h" />
     <ClInclude Include="include\cZone.h" />
     <ClInclude Include="include\Globals.h" />

@@ -6,18 +6,21 @@
 #include "Globals.h"
 
 // Image array size
-#define NUM_IMG		6
+#define NUM_IMG					12
 
 // Image identifiers
 #define IMG_OVERWORLD			0
 #define IMG_PLAYER				1
-#define IMG_ENEMIES				2
+#define IMG_OCTOROC				2
 #define IMG_DUNGEON				3
 #define IMG_TEXT				4
 #define IMG_ITEMS				5
 #define IMG_DUNGEON_MINIMAP		6
 #define IMG_INTRO				7
 #define IMG_WATERFALL			8
+#define IMG_STALFOS				9
+#define IMG_KEESE				10
+#define IMG_BOSS				11
 
 // Sounds array size
 #define NUM_SOUNDS				1
