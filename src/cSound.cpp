@@ -10,8 +10,10 @@ bool cSound::load(const std::string & filename) {
 	sound.setBuffer(buffer);
 
 	return res;
+	return true;
 }
 
 void cSound::play() {
 	sound.play();
 }
+

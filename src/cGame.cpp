@@ -1,7 +1,10 @@
 #include "include/cGame.h"
 #include "include/Globals.h"
 
-cGame::cGame(void) {}
+cGame::cGame(void) {
+	intro = true;
+	delay = 0;
+}
 
 cGame::~cGame(void) {}
 
@@ -23,6 +26,10 @@ bool cGame::Init() {
 	if (!res) return false;
 
 	// Scene initialization
+	 res = Data.LoadImage(IMG_INTRO, "intro.png", GL_RGB);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_WATERFALL, "waterfall.png", GL_RGBA);
+	 if (!res) return false;
 	 res = Data.LoadImage(IMG_OVERWORLD,"zelda-tiles-compressed.png",GL_RGB);
 	 if(!res) return false;
 	 res = Data.LoadImage(IMG_TEXT, "text-tiles.png", GL_RGBA);
@@ -96,13 +103,49 @@ bool cGame::Process() {
 		return false;
 	}
 
+	if (intro) {
+		if (keys[13]) intro = false;
+
+		if (delay > 60) {
+			kx = 0.0f;
+			ky = 0.5f;
+			delay = 0;
+		}
+		else if (delay > 50) {
+			kx = 0.5f;
+			ky = 0.5f;
+		}
+		else if (delay > 40) {
+			kx = 0.0f;
+			ky = 1.0f;
+		}
+		else if (delay > 30) {
+			kx = 0.5f;
+			ky = 1.0f;
+		}
+		else if (delay > 20) {
+			kx = 0.0f;
+			ky = 1.0f;
+		}
+		else if (delay > 10) {
+			kx = 0.5f;
+			ky = 0.5f;
+		}
+		else {
+			kx = 0.0f;
+			ky = 0.5f;
+		}
+		++delay;
+		return res;
+	}
+
 	if (gameover) {
-		if (gameover_delay >= 200) {
+		if (delay >= 200) {
 			if(keys[13]) Init();
 		}
-		else if (gameover_delay == 155) Player.SetState(STATE_LOOKBOOM);
-		else if (gameover_delay == 180) Player.SetState(STATE_BOOM);
-		else if (gameover_delay > 25 && gameover_delay < 125 && gameover_delay % 5 == 0) {
+		else if (delay == 155) Player.SetState(STATE_LOOKBOOM);
+		else if (delay == 180) Player.SetState(STATE_BOOM);
+		else if (delay > 25 && delay < 125 && delay % 5 == 0) {
 			int state = Player.GetState();
 			switch (state) {
 				case STATE_LOOKLEFT:
@@ -113,7 +156,7 @@ bool cGame::Process() {
 					break;
 				case STATE_LOOKRIGHT:
 					Player.SetState(STATE_LOOKDOWN);
-					if (gameover_delay > 110) gameover_delay = 125;
+					if (delay > 110) delay = 125;
 					break;
 				case STATE_LOOKDOWN:
 					Player.SetState(STATE_LOOKLEFT);
@@ -220,15 +263,78 @@ void cGame::Render() {
 	float x, y;
 	Player.GetPosition(&x, &y);
 
-	if (gameover) {
-		if (gameover_delay > 25 && gameover_delay < 125) glColor3f(0.847f, 0.157f, 0.0f);
-		else if (gameover_delay < 130) glColor3f(0.647f, 0.124f, 0.0f);
-		else if (gameover_delay < 145) glColor3f(0.447f, 0.107f, 0.0f);
-		else if (gameover_delay < 150) glColor3f(0.247f, 0.087f, 0.0f);
-		else if (gameover_delay < 155) glColor3f(0.147f, 0.047f, 0.0f);
-		else if (gameover_delay >= 155) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	if (intro) {
+		// BACKGROUND
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_INTRO));
+		glBegin(GL_QUADS);
+			glTexCoord2f(kx, ky);	glVertex2i(0.0f, 0.0f);
+			glTexCoord2f(kx + 0.5f, ky);	glVertex2i(GAME_WIDTH, 0.0f);
+			glTexCoord2f(kx + 0.5f, ky - 0.5f);	glVertex2i(GAME_WIDTH, GAME_HEIGHT);
+			glTexCoord2f(kx, ky - 0.5f);	glVertex2i(0.0f, GAME_HEIGHT);
+		glEnd();
 
-		if (gameover_delay < 155) {
+		// WATERFALL
+		float vx = GAME_WIDTH/SCENE_WIDTH;
+		float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
+		float rx = 2.0f / 16.0f;
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_WATERFALL));
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);	glVertex2i(5*vx, 0.0f);
+			glTexCoord2f(0.0f + 2.0f / 16.0f, 1.0f);	glVertex2i(7*vx , 0.0f);
+			glTexCoord2f(0.0f + 2.0f / 16.0f, 0.0f);	glVertex2i(7*vx, 4*vx);
+			glTexCoord2f(0.0f, 0.0f);	glVertex2i(5*vx, 4*vx);
+		glEnd();
+
+		float ot = (delay / 5) % 6;	
+		glBegin(GL_QUADS);
+			glTexCoord2f(2.0f / 16.0f + ot*rx, 1.0f);	glVertex2i(5 * vx, 0.0f);
+			glTexCoord2f(4.0f / 16.0f + ot*rx, 1.0f);	glVertex2i(7 * vx, 0.0f);
+			glTexCoord2f(4.0f / 16.0f + ot*rx, 0.0f);	glVertex2i(7 * vx, 4 * vx);
+			glTexCoord2f(2.0f / 16.0f + ot*rx, 0.0f);	glVertex2i(5 * vx, 4 * vx);
+		glEnd();
+
+		float ot2 = (delay / 5) % 4;
+		glBegin(GL_QUADS);
+			glTexCoord2f(14.0f / 16.0f, 0.25f + ot2*0.25f);	glVertex2i(5 * vx, 3 * vx);
+			glTexCoord2f(1.0f, 0.25f + ot2*0.25f);	glVertex2i(7 * vx, 3 * vx);
+			glTexCoord2f(1.0f, 0.0f + ot2*0.25f);	glVertex2i(7 * vx, 4 * vx);
+			glTexCoord2f(14.0f / 16.0f, 0.0f + ot2*0.25f);	glVertex2i(5 * vx, 4 * vx);
+		glEnd();
+
+		// PUSH ENTER KEY
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+		float px[14] = { 9.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 1.0f / 16.0f, 13.0f / 16.0f, 14.0f / 16.0f, 7.0f / 16.0f, 13.0f / 16.0f,
+			14.0f / 16.0f, 11.0f / 16.0f, 13.0f / 16.0, 4.0f / 16.0f, 14.0f / 16.0f, 2.0f / 16.0f };
+		float py[14] = { 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f,
+			2.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 3.0f / 6.0f };
+		for (int i = 0; i < 14; i++) {
+			glBegin(GL_QUADS);
+				glTexCoord2f(px[i], py[i]);	glVertex2i(GAME_WIDTH* (0.27f + 0.032f*i), GAME_HEIGHT*0.3f);
+				glTexCoord2f(px[i] + 0.0625f, py[i]);	glVertex2i(GAME_WIDTH* (0.27f + 0.065f + 0.032f*i), GAME_HEIGHT*0.3f);
+				glTexCoord2f(px[i] + 0.0625f, py[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.27f + 0.065f + 0.032f*i), GAME_HEIGHT*(0.3f + 0.065f));
+				glTexCoord2f(px[i], py[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.27f + 0.032f*i), GAME_HEIGHT*(0.3f + 0.065f));
+			glEnd();
+		}
+
+		glDisable(GL_TEXTURE_2D);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+		glutSwapBuffers();
+
+		return;
+	}
+
+	if (gameover) {
+		if (delay > 25 && delay < 125) glColor3f(0.847f, 0.157f, 0.0f);
+		else if (delay < 130) glColor3f(0.647f, 0.124f, 0.0f);
+		else if (delay < 145) glColor3f(0.447f, 0.107f, 0.0f);
+		else if (delay < 150) glColor3f(0.247f, 0.087f, 0.0f);
+		else if (delay < 155) glColor3f(0.147f, 0.047f, 0.0f);
+		else if (delay >= 155) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+		if (delay < 155) {
 
 			if (overworld) {
 				Overworld.Draw(Data.GetID(IMG_OVERWORLD), x, y);
@@ -243,12 +349,12 @@ void cGame::Render() {
 				Player.Draw(Data.GetID(IMG_PLAYER));
 			}
 
-			++gameover_delay;
+			++delay;
 		}
-		else if (gameover_delay < 200) {
+		else if (delay < 200) {
 			glColor4f(1, 1, 1, 1);
 			Player.Draw(Data.GetID(IMG_PLAYER));
-			++gameover_delay;
+			++delay;
 		}
 		else {
 			glEnable(GL_TEXTURE_2D);
@@ -267,14 +373,14 @@ void cGame::Render() {
 				glEnd();
 			}
 
-			// PRESS ENTER KEY TO RETRY
-			float px[24] = { 9.0f / 16.0f, 11.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 12.0f / 16.0f, 13.0f / 16.0f, 14.0f / 16.0f, 7.0f / 16.0f, 13.0f / 16.0f,
+			// PUSH ENTER KEY TO RETRY
+			float px[23] = { 9.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 1.0f / 16.0f, 13.0f / 16.0f, 14.0f / 16.0f, 7.0f / 16.0f, 13.0f / 16.0f,
 				14.0f / 16.0f, 11.0f / 16.0f, 13.0f / 16.0, 4.0f / 16.0f, 14.0f / 16.0f, 2.0f / 16.0f, 13.0f / 16.0f, 13.0f / 16.0f, 8.0f / 16.0f,
 				13.0f / 16.0f, 11.0f / 16.0f, 14.0f / 16.0f, 13.0f / 16.0f, 11.0f / 16.0f, 2.0f / 16.0f };
-			float py[24] = { 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f,
+			float py[23] = { 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f,
 				2.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 3.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f,
 				1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f };
-			for (int i = 0; i < 24; i++) {
+			for (int i = 0; i < 23; i++) {
 				glBegin(GL_QUADS);
 				glTexCoord2f(px[i], py[i]);	glVertex2i(GAME_WIDTH* (0.15f + 0.03f*i), GAME_HEIGHT*0.35f);
 				glTexCoord2f(px[i] + 0.0625f, py[i]);	glVertex2i(GAME_WIDTH* (0.15f + 0.06f + 0.03f*i), GAME_HEIGHT*0.35f);
@@ -740,7 +846,7 @@ void cGame::gameOver() {
 	Player.SetKnocked(false);
 	Player.SetState(STATE_LOOKDOWN);
 	gameover = true;
-	gameover_delay = 0;
+	delay = 0;
 }
 
 bool cGame::initializeAudio() {

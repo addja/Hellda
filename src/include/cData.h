@@ -16,6 +16,8 @@
 #define IMG_TEXT				4
 #define IMG_ITEMS				5
 #define IMG_DUNGEON_MINIMAP		6
+#define IMG_INTRO				7
+#define IMG_WATERFALL			8
 
 // Sounds array size
 #define NUM_SOUNDS				1

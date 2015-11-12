@@ -54,9 +54,11 @@ private:
 	cZone ZonesOverworld[OVERWORLD_ENEMIES_MAP_WIDTH * OVERWORLD_ENEMIES_MAP_HEIGHT];
 	cZone ZonesDungeon[DUNGEON_ENEMIES_MAP_WIDTH * DUNGEON_ENEMIES_MAP_HEIGHT];
 	bool gameover;
-	int gameover_delay;
+	int delay;
 	bool overworld;
 	bool opening;
 	bool transition;
+	bool intro;
+	float kx, ky;
 	std::set<int> zones;
 };
