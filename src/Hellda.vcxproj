@@ -100,6 +100,7 @@
     <ClCompile Include="cGame.cpp" />
     <ClCompile Include="cKeese.cpp" />
     <ClCompile Include="cMusic.cpp" />
+    <ClCompile Include="cObject.cpp" />
     <ClCompile Include="cOctoroct.cpp" />
     <ClCompile Include="cPepe.cpp" />
     <ClCompile Include="cPlayer.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="include\cGame.h" />
     <ClInclude Include="include\cKeese.h" />
     <ClInclude Include="include\cMusic.h" />
+    <ClInclude Include="include\cObject.h" />
     <ClInclude Include="include\cOctoroct.h" />
     <ClInclude Include="include\corona.h" />
     <ClInclude Include="include\cPepe.h" />

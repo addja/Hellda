@@ -2,16 +2,20 @@
 
 cPlayer::cPlayer() {}
 
-cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
+cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening, bool * w, cData * dat) {
 	setOverworld(overworld);
 	setOpening(opening);
+	data = dat;
 	sword_swipe = false;
 	transition = tr;
 	lives = LINK_LIVES;
 	gold = 0;
-	keys = 0;
+	SetKeys(0);
 	bombs = 0;
 	SetKnocked(false);
+	compass = false;
+	minimap = false;
+	win = w;
 	endShoot();
 	state_delay = -1;
 	offset = 0.0f;
@@ -181,7 +185,6 @@ void cPlayer::Logic(int *map) {
 				zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
 				zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-				//std::cout << tile << " " << newx << " " << newy << std::endl;
 				if (dungeonLeftTransitions(tile)) {
 					std::cout << "LEFT TRANS " << tile << " " << newx << " " << newy << std::endl;
 					Transition();
@@ -302,60 +305,64 @@ void cPlayer::Draw(int tex_id) {
 	GetPosition(&posx, &posy);
 
 	switch (GetState()) {
-		case STATE_LOOKLEFT:	xo = 1.0f / 5.0f;	yo = 0.25f;
+		case STATE_LOOKLEFT:	xo = 1.0f / 6.0f;	yo = 0.25f;
 								break;
 
-		case STATE_LOOKRIGHT:	xo = 3.0f / 5.0f;	yo = 0.25f;
+		case STATE_LOOKRIGHT:	xo = 3.0f / 6.0f;	yo = 0.25f;
 								break;
 
-		case STATE_LOOKUP:		xo = 2.0f / 5.0f;	yo = 0.25f;
+		case STATE_LOOKUP:		xo = 2.0f / 6.0f;	yo = 0.25f;
 								break;
 
 		case STATE_LOOKDOWN:	xo = 0.0f;	yo = 0.25f;
 								break;
 
-		case STATE_WALKLEFT:	xo = 1.0f / 5.0f;	yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKLEFT:	xo = 1.0f / 6.0f;	yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case STATE_WALKRIGHT:	xo = 3.0f / 5.0f; yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKRIGHT:	xo = 3.0f / 6.0f; yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case STATE_WALKUP:		xo = 2.0f / 5.0f;	yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_WALKUP:		xo = 2.0f / 6.0f;	yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
 		case STATE_WALKDOWN:	xo = 0.0f; yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(2);
 								break;
-		case ATTACK_UP:			xo = 2.0f / 5.0f; yo = 0.75f;
+		case ATTACK_UP:			xo = 2.0f / 6.0f; yo = 0.75f;
 								SetState(STATE_LOOKUP);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, 0.0f, OFFSET_WEAPON);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, 0.0f, OFFSET_WEAPON);
 								break;
-		case ATTACK_LEFT:		xo = 1.0f / 5.0f; yo = 0.75f;
+		case ATTACK_LEFT:		xo = 1.0f / 6.0f; yo = 0.75f;
 								SetState(STATE_LOOKLEFT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, -OFFSET_WEAPON, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, -OFFSET_WEAPON, 0.0f);
 								break;
-		case ATTACK_RIGHT:		xo = 3.0f / 5.0f; yo = 0.75f;
+		case ATTACK_RIGHT:		xo = 3.0f / 6.0f; yo = 0.75f;
 								SetState(STATE_LOOKRIGHT);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, OFFSET_WEAPON, 0.0f);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, OFFSET_WEAPON, 0.0f);
 								break;
 		case ATTACK_DOWN:		xo = 0.0f; yo = 0.75f;
 								SetState(STATE_LOOKDOWN);
 								SetSeqNDelay(1, 0);
-								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, 0.0f, -OFFSET_WEAPON);
+								DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, 0.0f, -OFFSET_WEAPON);
 								break;
-		case STATE_LOOKBOOM:	xo = 4.0f / 5.0f; yo = 0.25f;
+		case STATE_LOOKBOOM:	xo = 4.0f / 6.0f; yo = 0.25f;
 								break;
-		case STATE_BOOM:		xo = 4.0f / 5.0f; yo = 0.25f + (GetFrame()*0.25f);
+		case STATE_BOOM:		xo = 4.0f / 6.0f; yo = 0.25f + (GetFrame()*0.25f);
 								NextFrame(4);
 								break;
+		case STATE_WIN:			xo = 5.0f / 6.0f; yo = 0.25f + (GetFrame()*0.25f);								
+								NextFrame(2);
+								break;
 	}
-	xf = xo + 0.2f;
+	xf = xo + 1.0f / 6.0f;
 	yf = yo - 0.25f;
 	
 	DrawPlayer(tex_id, xo, yo, xf, yf);
+	if (GetState() == STATE_WIN) DrawWeapon(tex_id, xo, 0.75f + (GetFrame()*0.25f), xo + 1.0f / 6.0f, 0.5f + (GetFrame()*0.25f), 0.0f, OFFSET_WEAPON);
 }
 
 void cPlayer::Attack() {
@@ -445,19 +452,19 @@ void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 		switch (getBulletDir()) {
 			case 0:		
 				xo = 0.0f; yo = 0.75f;
-				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, posx - x, y - posy);
 				break;
 			case 1:			
-				xo = 2.0f / 5.0f; yo = 0.75f;
-				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				xo = 2.0f / 6.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, posx - x, y - posy);
 				break;
 			case 2:		
-				xo = 1.0f / 5.0f; yo = 0.75f;
-				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				xo = 1.0f / 6.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, posx - x, y - posy);
 				break;
 			case 3:		
-				xo = 3.0f / 5.0f; yo = 0.75f;
-				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				xo = 3.0f / 6.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 1.0f / 6.0f, yo, posx - x, y - posy);
 				break;
 		}
 		glColor3f(1,1,1);
@@ -516,13 +523,61 @@ void cPlayer::SetOffset(float off) {
 	offset = off;
 }
 
-bool cPlayer::checkIntersections(cZone zone) {
+bool cPlayer::checkIntersections(cZone * zone) {
 	float posx, posy, x, y;
 	GetPosition(&x, &y);
 	cRec player = cRec(x, y);
 
-	for (int i = 0; i < zone.numOctorocs(); ++i) {
-		cOctoroct * octoroc = zone.GetOctoroc(i);
+	for (int i = 0; i < (*zone).numObjects(); ++i) {
+		cObject * obj = (*zone).GetObj(i);
+		if (!(*obj).isDead() && (*obj).isShown()) {
+			(*obj).GetPosition(&posx, &posy);
+			if (player.intersects(cRec(posx, posy))) {
+				if (DEBUG_MODE) std::cout << "player is rich!!!!" << std::endl;
+
+				int k = GetKeys();
+				switch ((*obj).GetType()) {
+				case KEY:		SetKeys(k + 1);
+					(*data).playSound(SOUND_KEY);
+					break;
+				case GOLD:		++gold;
+					(*data).playSound(SOUND_COIN);
+					break;
+				case CRYSTAL:	gold += 5;
+					(*data).playSound(SOUND_COIN);
+					break;
+				case BOMB:		++bombs;
+					break;
+				case MAP:		minimap = true;
+					(*data).playSound(SOUND_ITEM);
+					break;
+				case COMPASS:	compass = true;
+					(*data).playSound(SOUND_ITEM);
+					break;
+				case HEART:		if (lives + 1 > 3.0f) lives = 3.0f;
+								else lives += 1.0f;
+								(*data).playSound(SOUND_ITEM);
+								break;
+				case TRIFORCE:  // WIIN WIIN
+								(*data).playSound(SOUND_ITEM);
+								SetState(STATE_WIN);
+								*win = true;
+								break;
+				case SWORD:		break;
+				case BOW:		break;
+				case BOOMERANG:	boomerang = true;
+								break;
+				case SHIELD:	break;
+				case CANDLE:	break;
+				}
+				(*obj).die();
+				return false;
+			}
+		}
+	}
+
+	for (int i = 0; i < (*zone).numOctorocs(); ++i) {
+		cOctoroct * octoroc = (*zone).GetOctoroc(i);
 		if (!(*octoroc).isDead()) {
 			(*octoroc).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
@@ -538,8 +593,8 @@ bool cPlayer::checkIntersections(cZone zone) {
 		}
 	}
 
-	for (int i = 0; i < zone.numOctorocs(); ++i) {
-		cOctoroct * octoroc = zone.GetOctoroc(i);
+	for (int i = 0; i < (*zone).numOctorocs(); ++i) {
+		cOctoroct * octoroc = (*zone).GetOctoroc(i);
 		if (!(*octoroc).isDead()) {
 			if ((*octoroc).hasShoot()) {
 				(*octoroc).getBulletPos(posx, posy);
@@ -558,8 +613,8 @@ bool cPlayer::checkIntersections(cZone zone) {
 		}
 	}
 
-	for (int i = 0; i < zone.numKeeses(); ++i) {
-		cKeese * keese = zone.GetKeese(i);
+	for (int i = 0; i < (*zone).numKeeses(); ++i) {
+		cKeese * keese = (*zone).GetKeese(i);
 		if (!(*keese).isDead()) {
 			(*keese).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
@@ -575,8 +630,8 @@ bool cPlayer::checkIntersections(cZone zone) {
 		}
 	}
 
-	for (int i = 0; i < zone.numStalfos(); ++i) {
-		cStalfos * stalfos = zone.GetStalfos(i);
+	for (int i = 0; i < (*zone).numStalfos(); ++i) {
+		cStalfos * stalfos = (*zone).GetStalfos(i);
 		if (!(*stalfos).isDead()) {
 			(*stalfos).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
@@ -592,8 +647,8 @@ bool cPlayer::checkIntersections(cZone zone) {
 		}
 	}
 
-	cBoss * boss = zone.GetBoss();
-	if (zone.isBossArea()) {
+	cBoss * boss = (*zone).GetBoss();
+	if ((*zone).isBossArea()) {
 		if (!(*boss).isDead()) {
 			(*boss).GetPosition(&posx, &posy);
 			if (player.intersects(cRec(posx, posy))) {
@@ -622,11 +677,24 @@ bool cPlayer::checkIntersections(cZone zone) {
 			}
 		}
 	}
+
 	return true;
 }
 
 bool cPlayer::isDead() {
 	return lives == 0;
+}
+
+bool cPlayer::hasMinimap() {
+	return minimap;
+}
+
+bool cPlayer::hasCompass() {
+	return compass;
+}
+
+bool cPlayer::hasBoomerang() {
+	return boomerang;
 }
 
 float cPlayer::health() {
@@ -635,10 +703,6 @@ float cPlayer::health() {
 
 int cPlayer::GetGold() {
 	return gold;
-}
-
-int cPlayer::GetKeys() {
-	return keys;
 }
 
 int cPlayer::GetBombs() {

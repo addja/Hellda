@@ -6,7 +6,8 @@
 #include "cData.h"
 #include <vector>
 
-#define MAX_STATE_DELAY	4.0f
+#define MAX_STATE_DELAY			4.0f
+#define MAX_STATE_DELAY_BOSS	2.0f
 
 #define OCTOROCT		0
 #define STALFOS			1
@@ -17,12 +18,12 @@
 #define STEP_STALFOS	0.05f
 #define STEP_KEESE		0.05f
 #define STEP_ZOLA		0.05f
-#define STEP_BOSS		0.05f
+#define STEP_BOSS		0.005f
 
 class cEnemy : public cPepe {
 public:
 	cEnemy();
-	cEnemy(float x, float y, float step, bool thrower, int zone, bool * overworld);
+	cEnemy(float x, float y, float step, bool thrower, bool dropper, int zone, bool * overworld);
 	~cEnemy();
 
 	void Reset();
@@ -40,6 +41,14 @@ public:
 	void die();
 	void rebirth();
 	bool isDead();
+	bool isDropper();
+	bool isThrower();
+	void SetDropper(bool dropper);
+	int GetHealth();
+	void SetHealth(int lifes);
+	
+	void SetStateDelay(float delay);
+	float GetStateDelay();
 
 private:
 	float original_x;
@@ -48,4 +57,6 @@ private:
 	int throw_count;
 	float state_delay;
 	bool dead;
+	bool dropper;
+	int health;
 };

@@ -61,6 +61,7 @@ private:
 	bool opening;
 	bool transition;
 	bool intro;
+	bool win;
 	float kx, ky;
 	std::set<int> zones;
 };

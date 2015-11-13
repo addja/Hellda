@@ -34,7 +34,9 @@ bool cGame::Init() {
 	 if(!res) return false;
 	 res = Data.LoadImage(IMG_TEXT, "text-tiles.png", GL_RGBA);
 	 if (!res) return false;
-	 res = Data.LoadImage(IMG_ITEMS, "items-tiles.png", GL_RGBA);
+	 res = Data.LoadImage(IMG_ITEMS_HUD, "items-hud-tiles.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_OBJECTS, "objects-tiles.png", GL_RGBA);
 	 if (!res) return false;
 	 res = Overworld.Load();
 	 if(!res) return false;
@@ -52,7 +54,7 @@ bool cGame::Init() {
 	 overworld = true;
 	 gameover = false;
 	 opening = true;
-	 Player = cPlayer(&overworld,&transition,&opening);
+	 Player = cPlayer(&overworld,&transition,&opening,&win,&Data);
 	 Player.SetWidthHeight(TILE_SIZE,TILE_SIZE);
 	 Player.SetPosition(INITIAL_POS_LINKX,INITIAL_POS_LINKY);
 	 Player.SetState(STATE_LOOKUP);
@@ -66,11 +68,17 @@ bool cGame::Init() {
 	 if (!res) return false;
 	 res = Data.LoadImage(IMG_BOSS, "boss.png", GL_RGBA);
 	 if (!res) return false;
+	 res = Data.LoadImage(IMG_AFRO, "afro.png", GL_RGBA);
+	 if (!res) return false;
+	 res = Data.LoadImage(IMG_BLONDE, "blonde.png", GL_RGBA);
+	 if (!res) return false;
 	 
 	 initializeEnemiesOverworld();
 	 initializeEnemiesDungeons();
 	 initializeObjectsOverworld();
 	 initializeObjectsDungeons();
+
+	 delay = 0.0f;
 
 	return res;
 }
@@ -111,7 +119,10 @@ bool cGame::Process() {
 	}
 
 	if (intro) {
-		if (keys[13]) intro = false;
+		if (keys[13]) {
+			intro = false;
+			delay = 0.0f;
+		}
 
 		if (delay > 60) {
 			kx = 0.0f;
@@ -147,16 +158,20 @@ bool cGame::Process() {
 	}
 
 	if (gameover) {
-		if (delay >= 200) {
+		if (delay >= 150) {
+			if (delay == 1500) {
+				Data.stopMusic(MUSIC_GAMEOVER);
+				Data.playMusic(MUSIC_LOVE);
+			}
 			if (keys[13]) {
 				Init();
 				setZones();
 				return res;
 			}
 		}
-		else if (delay == 155) Player.SetState(STATE_LOOKBOOM);
-		else if (delay == 180) Player.SetState(STATE_BOOM);
-		else if (delay > 25 && delay < 125 && delay % 5 == 0) {
+		else if (delay == 105) Player.SetState(STATE_LOOKBOOM);
+		else if (delay == 130) Player.SetState(STATE_BOOM);
+		else if (delay > 25 && delay < 100 && delay % 5 == 0) {
 			int state = Player.GetState();
 			switch (state) {
 				case STATE_LOOKLEFT:
@@ -167,14 +182,27 @@ bool cGame::Process() {
 					break;
 				case STATE_LOOKRIGHT:
 					Player.SetState(STATE_LOOKDOWN);
-					if (delay > 110) delay = 125;
+					if (delay > 98) delay = 105;
 					break;
 				case STATE_LOOKDOWN:
 					Player.SetState(STATE_LOOKLEFT);
 					break;
 			}
 		}
-	} else {
+	}
+	else if (win) {
+		if (delay < 10.0f) {
+			Data.stopMusic(MUSIC_DUNGEON);
+			Data.playMusic(MUSIC_WIN);
+		}
+		if (delay >= 100) {
+			if (delay == 300) {
+				Data.stopMusic(MUSIC_WIN);
+				Data.playMusic(MUSIC_LOVE);
+			}
+		}
+	}
+	else {
 		if (overworld) {
 			if (knocked) {
 				Player.Logic(Overworld.GetMap());
@@ -212,13 +240,18 @@ bool cGame::Process() {
 					// check intersections enemies player
 					if (!knocked) {
 						for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
-							hit = Player.checkIntersections(ZonesOverworld[*it]);
+							hit = Player.checkIntersections(&ZonesOverworld[*it]);
+							if (!hit) Data.playSound(SOUND_HIT);
 							if (hit && Player.health() <= 0) {
 								gameOver();
 								break;
 							}
 						}
 					}
+				}
+				else {
+					Data.stopMusic(MUSIC_OVERWORLD);
+					Data.playMusic(MUSIC_DUNGEON);
 				}
 			}
 		}
@@ -259,10 +292,15 @@ bool cGame::Process() {
 						Player.endShoot();
 					}
 					// remember to check intersections only if 
-					hit = Player.checkIntersections(ZonesDungeon[zone]);
+					hit = Player.checkIntersections(&ZonesDungeon[zone]);
+					if (!hit) Data.playSound(SOUND_HIT);
 					if (hit && Player.health() <= 0) {
 						gameOver();
 					}
+				}
+				else {
+					Data.stopMusic(MUSIC_DUNGEON);
+					Data.playMusic(MUSIC_OVERWORLD);
 				}
 			}
 		}
@@ -344,14 +382,14 @@ void cGame::Render() {
 	}
 
 	if (gameover) {
-		if (delay > 25 && delay < 125) glColor3f(0.847f, 0.157f, 0.0f);
-		else if (delay < 130) glColor3f(0.647f, 0.124f, 0.0f);
-		else if (delay < 145) glColor3f(0.447f, 0.107f, 0.0f);
-		else if (delay < 150) glColor3f(0.247f, 0.087f, 0.0f);
-		else if (delay < 155) glColor3f(0.147f, 0.047f, 0.0f);
-		else if (delay >= 155) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		if (delay > 25 && delay < 70) glColor3f(0.847f, 0.157f, 0.0f);
+		else if (delay < 75) glColor3f(0.647f, 0.124f, 0.0f);
+		else if (delay < 80) glColor3f(0.447f, 0.107f, 0.0f);
+		else if (delay < 85) glColor3f(0.247f, 0.087f, 0.0f);
+		else if (delay < 95) glColor3f(0.147f, 0.047f, 0.0f);
+		else if (delay >= 115) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-		if (delay < 155) {
+		if (delay < 105) {
 
 			if (overworld) {
 				Overworld.Draw(Data.GetID(IMG_OVERWORLD), x, y);
@@ -365,18 +403,60 @@ void cGame::Render() {
 				glColor4f(1, 1, 1, 1);
 				Player.Draw(Data.GetID(IMG_PLAYER));
 			}
-
-			++delay;
 		}
-		else if (delay < 200) {
+		else if (delay < 150) {
 			glColor4f(1, 1, 1, 1);
 			Player.Draw(Data.GetID(IMG_PLAYER));
-			++delay;
 		}
-		else {
+		else if (delay < 1500) {
 			glEnable(GL_TEXTURE_2D);
 
 			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+			// GAME OVER
+			float dx[9] = { 0.0f, 10.0f / 16.0f, 6.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 8.0f / 16.0f, 15.0f / 16.0f, 14.0f / 16.0f, 11.0f / 16.0f };
+			float dy[9] = { 2.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f };
+			for (int i = 0; i < 9; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(dx[i], dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.05f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.1f + 0.05f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.1f + 0.05f*i), GAME_HEIGHT*(0.42f + 0.1f));
+				glTexCoord2f(dx[i], dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.05f*i), GAME_HEIGHT*(0.42f + 0.1f));
+				glEnd();
+			}
+
+			// PUSH ENTER KEY TO RETRY
+			float px[23] = { 9.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 1.0f / 16.0f, 13.0f / 16.0f, 14.0f / 16.0f, 7.0f / 16.0f, 13.0f / 16.0f,
+				14.0f / 16.0f, 11.0f / 16.0f, 13.0f / 16.0, 4.0f / 16.0f, 14.0f / 16.0f, 2.0f / 16.0f, 13.0f / 16.0f, 13.0f / 16.0f, 8.0f / 16.0f,
+				13.0f / 16.0f, 11.0f / 16.0f, 14.0f / 16.0f, 13.0f / 16.0f, 11.0f / 16.0f, 2.0f / 16.0f };
+			float py[23] = { 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f,
+				2.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 1.0f / 6.0f, 3.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f, 2.0f / 6.0f,
+				1.0f / 6.0f, 2.0f / 6.0f, 2.0f / 6.0f, 3.0f / 6.0f };
+			for (int i = 0; i < 23; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(px[i], py[i]);	glVertex2i(GAME_WIDTH* (0.15f + 0.03f*i), GAME_HEIGHT*0.35f);
+				glTexCoord2f(px[i] + 0.0625f, py[i]);	glVertex2i(GAME_WIDTH* (0.15f + 0.05f + 0.03f*i), GAME_HEIGHT*0.35f);
+				glTexCoord2f(px[i] + 0.0625f, py[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.15f + 0.05f + 0.03f*i), GAME_HEIGHT*(0.35f + 0.05f));
+				glTexCoord2f(px[i], py[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.15f + 0.03f*i), GAME_HEIGHT*(0.35f + 0.05f));
+				glEnd();
+			}
+
+			glDisable(GL_TEXTURE_2D);
+		}
+		else {
+			glPushMatrix();
+			if (delay < GAME_HEIGHT + 1500) glTranslatef(0.0f, delay - 1500, 0.0f);
+			else if (delay < GAME_HEIGHT + 1500 + 100) glTranslatef(0.0f, GAME_HEIGHT, 0.0f);
+			else if (delay < GAME_HEIGHT + GAME_HEIGHT + 1500 + 100) glTranslatef(0.0f, delay - 1500 - 100, 0.0f);
+			else if (delay < GAME_HEIGHT + GAME_HEIGHT + 1500 + 100 + 100) glTranslatef(0.0f, 2*GAME_HEIGHT, 0.0f);
+			else if (delay < GAME_HEIGHT/2 + GAME_HEIGHT + GAME_HEIGHT + 1500 + 100 + 100) glTranslatef(0.0f, delay - 1500 - 100 - 100, 0.0f);
+			else delay = 200;
+			glEnable(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+			float vx = 1.0f / 16.0f;
+			float vy = 1.0f / 6.0f;
 
 			// GAME OVER
 			float dx[9] = { 0.0f, 10.0f / 16.0f, 6.0f / 16.0f, 14.0f / 16.0f, 12.0f / 16.0f, 8.0f / 16.0f, 15.0f / 16.0f, 14.0f / 16.0f, 11.0f / 16.0f };
@@ -406,8 +486,186 @@ void cGame::Render() {
 				glEnd();
 			}
 
+
+			// GUILLERMO OJEDA NODA
+			float gx[20] = {0.0f, 14*vx, 2*vx, 5*vx, 5*vx, 14*vx, 11*vx, 6*vx, 8*vx, 12*vx, 8*vx, 3*vx, 14*vx, 13*vx, 10*vx, 12*vx, 7*vx, 8*vx, 13*vx, 10*vx };
+			float gy[20] = {2*vy, 2*vy, 2*vy, 2*vy, 2*vy, vy, 2*vy, 2*vy, 2*vy, 3*vy, 2*vy, 2*vy, vy, vy, vy, 3*vy, 2*vy, 2*vy, vy, vy };
+			for (int i = 0; i < 20; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(gx[i], gy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(gx[i] + 0.0625f, gy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(gx[i] + 0.0625f, gy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(gx[i], gy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glEnd();
+			}
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_AFRO));
+
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f), -GAME_HEIGHT + GAME_HEIGHT*0.2f);
+			glTexCoord2f(1.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -GAME_HEIGHT + GAME_HEIGHT*0.2f);
+			glTexCoord2f(1.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -GAME_HEIGHT + GAME_HEIGHT*(0.2f + 0.2f));
+			glTexCoord2f(0.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f), -GAME_HEIGHT + GAME_HEIGHT*(0.2f + 0.2f));
+			glEnd();
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+			glColor3f(1, 1, 1);
+			// DANIEL OTERO AVALLE
+			float ox[19] = { 13 * vx, 10 * vx, 7 * vx, 2 * vx, 14 * vx, 5 * vx, 12 * vx, 8 * vx, 13 * vx, 14 * vx, 11 * vx, 8 * vx, 12 * vx, 10 * vx, 15 * vx, 10 * vx, 5 * vx, 5 * vx, 14 * vx };
+			float oy[19] = { vy, vy, 2 * vy, 2 * vy, vy, 2 * vy, 3 * vy, 2 * vy, 2 * vy, vy, 2 * vy, 2 * vy, 3 * vy, vy, 2 * vy, vy, 2 * vy, 2 * vy, vy };
+			for (int i = 0; i < 19; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glEnd();
+			}
+			glColor4f(1, 1, 1, 1);
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_BLONDE));
+
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f), -2 * GAME_HEIGHT + GAME_HEIGHT*0.15f);
+			glTexCoord2f(1.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -2 * GAME_HEIGHT + GAME_HEIGHT*0.15f);
+			glTexCoord2f(1.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.15f + 0.2f));
+			glTexCoord2f(0.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.15f + 0.2f));
+			glEnd();
+
+			glDisable(GL_TEXTURE_2D);
+
+
+			glDisable(GL_TEXTURE_2D);
+			glPopMatrix();
+		}
+		++delay;
+	}
+	else if (win) {
+		if (delay > 65 && delay < 70) glColor3f(0.847f, 0.847f, 0.847f);
+		else if (delay < 75) glColor3f(0.647f, 0.647f, 0.647f);
+		else if (delay < 80) glColor3f(0.447f, 0.447f, 0.447f);
+		else if (delay < 85) glColor3f(0.247f, 0.247f, 0.247f);
+		else if (delay < 95) glColor3f(0.147f, 0.147f, 0.147f);
+		else if (delay >= 100) glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+		if (delay < 100) {
+
+			if (overworld) {
+				Overworld.Draw(Data.GetID(IMG_OVERWORLD), x, y);
+				glColor4f(1, 1, 1, 1);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+			}
+			else {
+				int zone;
+				Player.GetZone(&zone);
+				Dungeon.Draw(Data.GetID(IMG_DUNGEON), zone);
+				glColor4f(1, 1, 1, 1);
+				Player.Draw(Data.GetID(IMG_PLAYER));
+			}
+		}
+		else if (delay < 150) {
+			glColor4f(1, 1, 1, 1);
+			Player.Draw(Data.GetID(IMG_PLAYER));
+		}
+		else if (delay < 300) {
+			glEnable(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+			float vx = 1.0f / 16.0f;
+			float vy = 1.0f / 6.0f;
+
+			// YOU WIN!
+			float dx[8] = { 2 * vx, 8 * vx, 14 * vx, 12 * vx, 0.0f, 2 * vx, 7 * vx, 5 * vx };
+			float dy[8] = { 3 * vy, 2 * vy, 2 * vy, 3 * vy, 3 * vy, 2 * vy, 2 * vy, 3 * vy };
+			for (int i = 0; i < 8; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(dx[i], dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.06f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.12f + 0.06f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.12f + 0.06f*i), GAME_HEIGHT*(0.42f + 0.12f));
+				glTexCoord2f(dx[i], dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.06f*i), GAME_HEIGHT*(0.42f + 0.12f));
+				glEnd();
+			}
+
 			glDisable(GL_TEXTURE_2D);
 		}
+		else {
+			glPushMatrix();
+			if (delay < GAME_HEIGHT + 300) glTranslatef(0.0f, delay - 300, 0.0f);
+			else if (delay < GAME_HEIGHT + 300 + 100) glTranslatef(0.0f, GAME_HEIGHT, 0.0f);
+			else if (delay < GAME_HEIGHT + GAME_HEIGHT + 300 + 100) glTranslatef(0.0f, delay - 300 - 100, 0.0f);
+			else if (delay < GAME_HEIGHT + GAME_HEIGHT + 300 + 100 + 100) glTranslatef(0.0f, 2 * GAME_HEIGHT, 0.0f);
+			else if (delay < GAME_HEIGHT / 2 + GAME_HEIGHT + GAME_HEIGHT + 300 + 100 + 100) glTranslatef(0.0f, delay - 300 - 100 - 100, 0.0f);
+			else delay = 150;
+			glEnable(GL_TEXTURE_2D);
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+
+			float vx = 1.0f / 16.0f;
+			float vy = 1.0f / 6.0f;
+
+			// YOU WIN!
+			float dx[8] = { 2 * vx, 8 * vx, 14 * vx, 12 * vx, 0.0f, 2 * vx, 7 * vx, 5 * vx };
+			float dy[8] = { 3 * vy, 2 * vy, 2 * vy, 3 * vy, 3 * vy, 2 * vy, 2 * vy, 3 * vy };
+			for (int i = 0; i < 8; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(dx[i], dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.06f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i]);	glVertex2i(GAME_WIDTH* (0.29f + 0.12f + 0.06f*i), GAME_HEIGHT*0.42f);
+				glTexCoord2f(dx[i] + 0.0625f, dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.12f + 0.06f*i), GAME_HEIGHT*(0.42f + 0.12f));
+				glTexCoord2f(dx[i], dy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.29f + 0.06f*i), GAME_HEIGHT*(0.42f + 0.12f));
+				glEnd();
+			}
+
+			// GUILLERMO OJEDA NODA
+			float gx[20] = { 0.0f, 14 * vx, 2 * vx, 5 * vx, 5 * vx, 14 * vx, 11 * vx, 6 * vx, 8 * vx, 12 * vx, 8 * vx, 3 * vx, 14 * vx, 13 * vx, 10 * vx, 12 * vx, 7 * vx, 8 * vx, 13 * vx, 10 * vx };
+			float gy[20] = { 2 * vy, 2 * vy, 2 * vy, 2 * vy, 2 * vy, vy, 2 * vy, 2 * vy, 2 * vy, 3 * vy, 2 * vy, 2 * vy, vy, vy, vy, 3 * vy, 2 * vy, 2 * vy, vy, vy };
+			for (int i = 0; i < 20; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(gx[i], gy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(gx[i] + 0.0625f, gy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(gx[i] + 0.0625f, gy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(gx[i], gy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glEnd();
+			}
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_AFRO));
+
+				glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f), -GAME_HEIGHT + GAME_HEIGHT*0.2f);
+				glTexCoord2f(1.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -GAME_HEIGHT + GAME_HEIGHT*0.2f);
+				glTexCoord2f(1.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -GAME_HEIGHT + GAME_HEIGHT*(0.2f + 0.2f));
+				glTexCoord2f(0.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f), -GAME_HEIGHT + GAME_HEIGHT*(0.2f + 0.2f));
+				glEnd();
+
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
+			glColor3f(1, 1, 1);
+
+			// DANIEL OTERO AVALLE
+			float ox[19] = { 13 * vx, 10 * vx, 7 * vx, 2 * vx, 14 * vx, 5 * vx, 12 * vx, 8 * vx, 13 * vx, 14 * vx, 11 * vx, 8 * vx, 12 * vx, 10 * vx, 15 * vx, 10 * vx, 5 * vx, 5 * vx, 14 * vx };
+			float oy[19] = { vy, vy, 2 * vy, 2 * vy, vy, 2 * vy, 3 * vy, 2 * vy, 2 * vy, vy, 2 * vy, 2 * vy, 3 * vy, vy, 2 * vy, vy, 2 * vy, 2 * vy, vy };
+			for (int i = 0; i < 19; i++) {
+				glBegin(GL_QUADS);
+				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glEnd();
+			}
+
+			glColor4f(1, 1, 1, 1);
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_BLONDE));
+
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f), -2 * GAME_HEIGHT + GAME_HEIGHT*0.15f);
+			glTexCoord2f(1.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -2 * GAME_HEIGHT + GAME_HEIGHT*0.15f);
+			glTexCoord2f(1.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.2f), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.15f + 0.2f));
+			glTexCoord2f(0.0f, 0.0f);	glVertex2i(GAME_WIDTH* (0.4f), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.15f + 0.2f));
+			glEnd();
+
+			glDisable(GL_TEXTURE_2D);
+			glPopMatrix();
+		}
+		++delay;
 	}
 	else {
 		if (overworld) {
@@ -566,13 +824,17 @@ void cGame::RenderHUD() {
 			glEnd();
 		}
 
-		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_DUNGEON_MINIMAP));
-		glBegin(GL_QUADS);
+		if (Player.hasMinimap()) {
+			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_DUNGEON_MINIMAP));
+			glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.065, GAME_HEIGHT*0.775f);
 			glTexCoord2f(0.0f + 1.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.34, GAME_HEIGHT*0.775f);
 			glTexCoord2f(0.0f + 1.0f, 1.0f - 1.0f);	glVertex2i(GAME_WIDTH*0.34, GAME_HEIGHT*0.90);
 			glTexCoord2f(0.0f, 1.0f - 1.0f);	glVertex2i(GAME_WIDTH*0.065, GAME_HEIGHT*0.90);
-		glEnd();
+			glEnd();
+		}
+
+		glDisable(GL_TEXTURE_2D);
 
 		glDisable(GL_TEXTURE_2D);
 
@@ -590,13 +852,31 @@ void cGame::RenderHUD() {
 		pointx += 0.065*GAME_WIDTH;
 		pointy += 0.775*GAME_HEIGHT;
 		glRectf(pointx, pointy, pointx + MINIMAP_PLAYER_SIZE / 2, pointy + MINIMAP_PLAYER_SIZE / 2); // Green point
-		glColor4f(1, 1, 1, 1); // Cleaning the colour
+		glColor4f(1, 1, 1, 1);
+
+		// Compass
+		if (Player.hasCompass()) {
+			zone = 11; // Triforce location
+			zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+			zoney = DUNGEON_MAP_HEIGHT - floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+			pointx = (zonex + 8.0f - 1.5f) * (0.34*GAME_WIDTH - 0.065*GAME_WIDTH);
+			pointy = (zoney - 11.0f - 2.5f) * (0.90*GAME_HEIGHT - 0.775*GAME_HEIGHT);
+			pointx /= DUNGEON_MAP_WIDTH;
+			pointy /= DUNGEON_MAP_HEIGHT;
+			pointx += 0.065*GAME_WIDTH;
+			pointy += 0.775*GAME_HEIGHT;
+			if (delay % 40 < 20) glColor3f(0.8359f, 0.1641f, 0.0f);
+			else glColor3f(0.055f, 0.212f, 0.431f);
+			glRectf(pointx, pointy, pointx + MINIMAP_PLAYER_SIZE / 2, pointy + MINIMAP_PLAYER_SIZE / 2); // Red point
+		}
+
+		glColor4f(1, 1, 1, 1);
 	}
 
 	// HUD gold
 	glEnable(GL_TEXTURE_2D);
 
-	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS_HUD));
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.5f, 0.5f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*0.89f);
 		glTexCoord2f(0.5f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*0.89f);
@@ -638,7 +918,7 @@ void cGame::RenderHUD() {
 
 	// HUD keys
 
-	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS_HUD));
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.75f, 1.0f);	glVertex2i(GAME_WIDTH*0.4f, GAME_HEIGHT*0.84f);
 		glTexCoord2f(0.75f + 0.25f, 1.0f);	glVertex2i(GAME_WIDTH* (0.4f + 0.0375f), GAME_HEIGHT*0.84f);
@@ -676,7 +956,7 @@ void cGame::RenderHUD() {
 
 	// HUD bombs
 
-	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS_HUD));
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.75f, 0.5f);	glVertex2i(GAME_WIDTH*0.395f, GAME_HEIGHT*0.79f);
 		glTexCoord2f(0.75f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.395f + 0.0375f), GAME_HEIGHT*0.79f);
@@ -727,7 +1007,7 @@ void cGame::RenderHUD() {
 	}
 
 	// HUD hearts
-	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
+	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS_HUD));
 
 	float lives = Player.health();
 	if (lives >= 3) {
@@ -808,20 +1088,22 @@ void cGame::RenderHUD() {
 	// Sword
 	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_PLAYER));
 	glBegin(GL_QUADS);
-		glTexCoord2f(2.0f / 5.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*0.83f);
-		glTexCoord2f(2.0f / 5.0f + 0.2f, 1.0f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*0.83f);
-		glTexCoord2f(2.0f / 5.0f + 0.2f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
-		glTexCoord2f(2.0f / 5.0f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(2.0f / 6.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*0.83f);
+		glTexCoord2f(2.0f / 6.0f + 1.0f / 6.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*0.83f);
+		glTexCoord2f(2.0f / 6.0f + 1.0f / 6.0f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH* (0.5725f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
+		glTexCoord2f(2.0f / 6.0f, 1.0f - 0.25f);	glVertex2i(GAME_WIDTH*0.5725f, GAME_HEIGHT*(0.83f + 0.06f));
 	glEnd();
 
 	// Bomb
-	glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_ITEMS));
-	glBegin(GL_QUADS);
-		glTexCoord2f(0.75f, 0.5f);	glVertex2i(GAME_WIDTH*0.665f, GAME_HEIGHT*0.83f);
-		glTexCoord2f(0.75f + 0.25f, 0.5f);	glVertex2i(GAME_WIDTH* (0.665f + 0.06f), GAME_HEIGHT*0.83f);
-		glTexCoord2f(0.75f + 0.25f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH* (0.665f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
-		glTexCoord2f(0.75f, 0.5f - 0.5f);	glVertex2i(GAME_WIDTH*0.665f, GAME_HEIGHT*(0.83f + 0.06f));
-	glEnd();
+	if (Player.hasBoomerang()) {
+		glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_OBJECTS));
+		glBegin(GL_QUADS);
+			glTexCoord2f(1.0f / 7.0f, 1.0f);	glVertex2i(GAME_WIDTH*0.670f, GAME_HEIGHT*0.83f);
+			glTexCoord2f(1.0f / 7.0f + 1.0f / 7.0f, 1.0f);	glVertex2i(GAME_WIDTH* (0.67f + 0.06f), GAME_HEIGHT*0.83f);
+			glTexCoord2f(1.0f / 7.0f + 1.0f / 7.0f, 1.0f - 0.5f);	glVertex2i(GAME_WIDTH* (0.67f + 0.06f), GAME_HEIGHT*(0.83f + 0.06f));
+			glTexCoord2f(1.0f / 7.0f, 1.0f - 0.5f);	glVertex2i(GAME_WIDTH*0.67f, GAME_HEIGHT*(0.83f + 0.06f));
+		glEnd();
+	}
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -831,8 +1113,7 @@ void cGame::initializeEnemiesOverworld() {
 	ZonesOverworld[87] = cZone();
 	ZonesOverworld[87].SetOverworld(true);
 	ZonesOverworld[87].SetData(&Data);
-	ZonesOverworld[87].addEnemy(118.0f, 81.0f, OCTOROCT, true, 119, &overworld);
-	ZonesOverworld[87].addEnemy(113.0f, 81.0f, OCTOROCT, true, 119, &overworld);
+	ZonesOverworld[87].addEnemy(118.0f, 81.0f, OCTOROCT, true, 87, true, &overworld);
 }
 
 void cGame::initializeEnemiesDungeons() {
@@ -851,13 +1132,13 @@ void cGame::initializeEnemiesDungeons() {
 			// Basement with the Bow
 			break;
 		case 8:
-			ZonesDungeon[i].addEnemy(3.0f, 9.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 12.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(12.0f, 9.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(3.0f, 9.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 12.0f, STALFOS, false, true, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 9.0f, STALFOS, false, false, i, &overworld);
 			break;
 		case 10:
 			// BOSS AREA
-			ZonesDungeon[i].addEnemy(11.0f, 10.0f, BOSS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(11.0f, 11.0f, BOSS, true, false, i, &overworld);
 			break;
 		case 12:
 			// EASTMOST PENNINSLA IS THE SECRET.
@@ -876,47 +1157,47 @@ void cGame::initializeEnemiesDungeons() {
 			break;
 		case 19:
 			// Killing al enemies unlocks right door
-			ZonesDungeon[i].addEnemy(2.0f, 11.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(3.0f, 13.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(5.0f, 10.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(5.0f, 12.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 8.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(2.0f, 11.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(3.0f, 13.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 10.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 12.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 8.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, false, i, &overworld);
 			break;
 		case 20:
-			ZonesDungeon[i].addEnemy(5.0f, 10.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(6.0f, 12.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 11.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 8.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 10.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(6.0f, 12.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 11.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 8.0f, STALFOS, false, false, i, &overworld);
 			break;
 		case 21:
 			// Compass to triforce
-			ZonesDungeon[i].addEnemy(5.0f, 8.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 10.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 12.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 10.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 12.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(12.0f, 9.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(12.0f, 13.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(13.0f, 11.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 8.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 12.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 10.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 12.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 9.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(12.0f, 13.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(13.0f, 11.0f, KEESE, false, false, i, &overworld);
 			break;
 		case 26:
-			ZonesDungeon[i].addEnemy(5.0f, 9.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(5.0f, 12.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(6.0f, 10.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 9.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 12.0f, STALFOS, false, true, i, &overworld);
+			ZonesDungeon[i].addEnemy(6.0f, 10.0f, STALFOS, false, false, i, &overworld);
 			break;
 		case 31:
-			ZonesDungeon[i].addEnemy(3.1f, 9.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(2.1f, 11.0f, KEESE, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(3.1f, 9.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(2.1f, 11.0f, KEESE, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(10.0f, 14.0f, KEESE, false, false, i, &overworld);
 			break;
 		case 33:
-			ZonesDungeon[i].addEnemy(5.0f, 8.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(5.0f, 14.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(8.0f, 12.0f, STALFOS, false, i, &overworld);
-			ZonesDungeon[i].addEnemy(13.0f, 11.0f, STALFOS, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 8.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(5.0f, 14.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 10.0f, STALFOS, false, false, i, &overworld);
+			ZonesDungeon[i].addEnemy(8.0f, 12.0f, STALFOS, false, true, i, &overworld);
+			ZonesDungeon[i].addEnemy(13.0f, 11.0f, STALFOS, false, false, i, &overworld);
 			break;
 		}
 	}
@@ -927,7 +1208,66 @@ void cGame::initializeObjectsOverworld() {
 }
 
 void cGame::initializeObjectsDungeons() {
-
+	for (int i = 0; i < 34; ++i) {
+		switch (i) {
+		case 1:
+			// Traps & Stone unlocks -> Basement
+			break;
+		case 2:
+			// Goriyas & killing one drops KEY in 8.0, 9.0
+			ZonesDungeon[i].addObject(8.0f, 9.0f, KEY, false, i, &overworld);
+			break;
+		case 7:
+			// Basement with the Bow
+			break;
+		case 8:
+			ZonesDungeon[i].addObject(13.0f, 11.0f, KEY, true, i, &overworld);
+			break;
+		case 10:
+			// BOSS AREA
+			break;
+		case 11:
+			// TRIFORCE AREA
+			ZonesDungeon[i].addObject(8.0f, 11.0f, TRIFORCE, true, i, &overworld);
+			break;
+		case 12:
+			// EASTMOST PENNINSLA IS THE SECRET.
+			break;
+		case 13:
+			// Gels & Stone unlocks left door
+			break;
+		case 14:
+			// Gels & Map
+			ZonesDungeon[i].addObject(12.0f, 11.0f, MAP, true, i, &overworld);
+			break;
+		case 15:
+			// Goriyas & Boomerang
+			ZonesDungeon[i].addObject(8.0f, 9.0f, BOOMERANG, true, i, &overworld);
+			break;
+		case 16:
+			// Key & Wall Masters & one of them drops
+			ZonesDungeon[i].addObject(10.0f, 14.0f, KEY, true, i, &overworld);
+			break;
+		case 19:
+			// Killing al enemies unlocks right door
+			break;
+		case 20:
+			ZonesDungeon[i].addObject(8.0f, 9.0f, KEY, false, i, &overworld);
+			break;
+		case 21:
+			// Compass to triforce
+			ZonesDungeon[i].addObject(12.0f, 11.0f, COMPASS, true, i, &overworld);
+			break;
+		case 26:
+			break;
+		case 31:
+			ZonesDungeon[i].addObject(10.0f, 14.0f, KEY, false, i, &overworld);
+			break;
+		case 33:
+			ZonesDungeon[i].addObject(13.0f, 13.0f, KEY, false, i, &overworld);
+			break;
+		}
+	}
 }
 
 int cGame::calcZone(float x, float y) {
@@ -941,6 +1281,9 @@ void cGame::gameOver() {
 	Player.SetState(STATE_LOOKDOWN);
 	gameover = true;
 	delay = 0;
+	if (overworld) Data.stopMusic(MUSIC_OVERWORLD);
+	else Data.stopMusic(MUSIC_DUNGEON);
+	Data.playMusic(MUSIC_GAMEOVER);
 }
 
 void cGame::setZones() {
@@ -961,7 +1304,17 @@ void cGame::setZones() {
 
 bool cGame::initializeAudio() {
 	if (!Data.LoadSound(SOUND_SWORD, "../sounds/sword-sound.wav")) return false;
-	if(!Data.LoadMusic(MUSIC_OVERWORLD, "../sounds/Overworld.ogg")) return false;
+	if (!Data.LoadSound(SOUND_ITEM, "../sounds/item-sound.wav")) return false;
+	if (!Data.LoadSound(SOUND_KEY, "../sounds/key-sound.wav")) return false;
+	if (!Data.LoadSound(SOUND_HIT, "../sounds/hit-sound.wav")) return false;
+	if (!Data.LoadSound(SOUND_COIN, "../sounds/coin-sound.wav")) return false;
+	if (!Data.LoadSound(SOUND_DOOR, "../sounds/door-sound.wav")) return false;
+	if (!Data.LoadSound(SOUND_WIN, "../sounds/win-sound.wav")) return false;
+	if (!Data.LoadMusic(MUSIC_OVERWORLD, "../sounds/Overworld.ogg")) return false;
+	if (!Data.LoadMusic(MUSIC_DUNGEON, "../sounds/dungeon-music.ogg")) return false;
+	if (!Data.LoadMusic(MUSIC_GAMEOVER, "../sounds/gameover-music.ogg")) return false;
+	if (!Data.LoadMusic(MUSIC_WIN, "../sounds/win-music.ogg")) return false;
+	if (!Data.LoadMusic(MUSIC_LOVE, "../sounds/what-is-love-music.ogg")) return false;
 	Data.playMusic(MUSIC_OVERWORLD);
 	return true;
 }

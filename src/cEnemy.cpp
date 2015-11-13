@@ -2,7 +2,7 @@
 
 cEnemy::cEnemy() {}
 
-cEnemy::cEnemy(float posx, float posy, float step, bool th, int z, bool * overworld) {
+cEnemy::cEnemy(float posx, float posy, float step, bool th, bool drop, int z, bool * overworld) {
 	original_x = posx;
 	original_y = posy;
 	SetPosition(posx, posy);
@@ -11,6 +11,7 @@ cEnemy::cEnemy(float posx, float posy, float step, bool th, int z, bool * overwo
 	SetStepLength(step);
 	setOverworld(overworld);
 	dead = false;
+	SetDropper(drop);
 } 
 
 cEnemy::~cEnemy() {}
@@ -113,7 +114,7 @@ bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									}
 									break;
 			default:
-									state_delay = step;
+									state_delay = 0.0f;
 									// take all walkable near tiles
 									std::vector<int> tiles;
 									tiles.push_back(0);
@@ -156,6 +157,7 @@ bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 
 									// take randomly one and update position
 									int i = rand() % tiles.size();
+									std::cout << tiles[i] << std::endl;
 
 									// Discomment this shit to make them dance!
 									switch (tiles[i]) {
@@ -165,6 +167,7 @@ bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 										case 3: MoveLeft(map); break;
 										case 4: MoveRight(map); break;
 									}
+
 									break;
 		}
 	}
@@ -200,13 +203,13 @@ bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 }
 
 bool cEnemy::inZone(float tx, float ty) {
-	int zone;
-	GetZone(&zone);
-	int zonex = (zone % ZONE_WIDTH) * ZONE_WIDTH;
-	int zoney = floor(zone / ZONE_WIDTH) * ZONE_HEIGHT;
-	
-	if (tx <= zonex + 1 || tx >= zonex + ZONE_WIDTH - 1 || ty <= zoney + 1 || ty >= zoney + ZONE_HEIGHT - 1) return false;
-	return true;
+	float x, y;
+	GetPosition(&x, &y);
+	int zonex = floor(x / (OVERWORLD_MAP_WIDTH / ZONE_WIDTH));
+	int zoney = floor(y / (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT));
+	int zzonex = floor(tx / (OVERWORLD_MAP_WIDTH / ZONE_WIDTH));
+	int zzoney = floor(ty / (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT));
+	return zonex + (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT) * zoney == zzonex + (OVERWORLD_MAP_HEIGHT / ZONE_HEIGHT) * zzoney;
 }
 
 void cEnemy::StopState() {
@@ -254,8 +257,38 @@ void cEnemy::die() {
 
 void cEnemy::rebirth() {
 	dead = false;
+	state_delay = 0.0f;
 }
 
 bool cEnemy::isDead() {
 	return dead;
+}
+
+bool cEnemy::isDropper() {
+	return dropper;
+}
+
+bool cEnemy::isThrower() {
+	return thrower;
+}
+
+void cEnemy::SetDropper(bool drop) {
+	dropper = drop;
+}
+
+int cEnemy::GetHealth() {
+	return health;
+}
+
+void cEnemy::SetHealth(int lifes) {
+	health = lifes;
+	if (lifes == 0) die();
+}
+
+void cEnemy::SetStateDelay(float delay) {
+	state_delay = delay;
+}
+
+float cEnemy::GetStateDelay() {
+	return state_delay;
 }

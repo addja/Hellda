@@ -401,7 +401,13 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		newy = ceil(posy - 0.05f);
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE)  std::cout << "L 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-		if (!walkableDungeon(tile)) return false;
+		if (!walkableDungeon(tile)) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+			}
+			return false;
+		}
 		else if (dungeonDoors(tile) && !player) return false;
 
 		// upper left corner / 2
@@ -409,7 +415,13 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		newy = ceil(posy - 0.5f);
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "L 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-		if (!walkableDungeon(tile)) return false;
+		if (!walkableDungeon(tile)) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+			}
+			return false;
+		}
 		else if (dungeonDoors(tile) && !player) return false;
 
 		break;
@@ -420,7 +432,13 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		newy = ceil(posy - 0.05f);
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "R 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
-		if (!walkableDungeon(tile)) return false;
+		if (!walkableDungeon(tile)) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+			}
+			return false;
+		}
 		else if (dungeonDoors(tile) && !player) return false;
 
 		// upper right corner / 2
@@ -428,7 +446,13 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		newy = ceil(posy - 0.5f);
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "R 2: " << tile << " x: " << newx << " y: " << newy << std::endl;
-		if (!walkableDungeon(tile)) return false;
+		if (!walkableDungeon(tile)) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+			}
+			return false;
+		}
 		else if (dungeonDoors(tile) && !player) return false;
 
 		break;
@@ -445,10 +469,15 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "U 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) {
-			if (posx - floor(posx) >= 0.75f) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+				return false;
+			}
+			else if (posx - floor(posx) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx + 1];
-				if (walkableDungeon(tile) && !(overworldDoors(tile) && !player)) {
+				if (walkableDungeon(tile) && !(dungeonDoors(tile) && !player)) {
 					x = newx + 1;
 					return true;
 				}
@@ -459,17 +488,21 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 
 		//if (DEBUG_MODE) std::cout << "U 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkableDungeon(tile2)) {
-			if (posx - (float)floor(posx) <= 0.25f) {
+			if (lockDoorsDungeon(tile2) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2);
+				return false;
+			}
+			else if (posx - (float)floor(posx) <= 0.25f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
-				if (walkableDungeon(tile2) && !(overworldDoors(tile2) && !player)) {
+				if (walkableDungeon(tile2) && !(dungeonDoors(tile2) && !player)) {
 					x = newx2 - 1;
 					return true;
 				}
 			}
 			return false;
 		}
-
 		else if (dungeonDoors(tile2) && !player) return false;
 		break;
 
@@ -485,7 +518,12 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 		tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
 		//if (DEBUG_MODE) std::cout << "D 1: " << tile << " x: " << newx << " y: " << newy << std::endl;
 		if (!walkableDungeon(tile)) {
-			if (posx - (float)floor(posx) >= 0.75f) {
+			if (lockDoorsDungeon(tile) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx);
+				return false;
+			}
+			else if (posx - (float)floor(posx) >= 0.75f) {
 				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx + 1];
 				if (walkableDungeon(tile) && !(overworldDoors(tile) && !player)) {
@@ -500,14 +538,20 @@ bool cPepe::checkCorrectMovementDungeon(float posx, float posy, int *map, int mo
 
 		//if (DEBUG_MODE) std::cout << "D 2: " << tile2 << " x: " << newx2 << " y: " << newy2 << std::endl;
 		if (!walkableDungeon(tile2)) {
-			if (posx - (float)floor(posx) <= 0.25f) {
-				// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
-				tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
-				if (walkableDungeon(tile2) && !(overworldDoors(tile2) && !player)) {
-					x = newx2 - 1;
-					return true;
-				}
+			if (lockDoorsDungeon(tile2) && player && keys > 0) {
+				--keys;
+				swapDoors(map, (DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2);
+				return false;
 			}
+			else
+				if (posx - (float)floor(posx) <= 0.25f) {
+					// be careful to not go out of map!!!! (but beacuse of map form bounds it will never happen)
+					tile2 = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy2) - 1)*DUNGEON_MAP_WIDTH + zonex + newx2 - 1];
+					if (walkableDungeon(tile2) && !(overworldDoors(tile2) && !player)) {
+						x = newx2 - 1;
+						return true;
+					}
+				}
 			return false;
 		}
 		else if (dungeonDoors(tile2) && !player) return false;
@@ -524,33 +568,32 @@ bool cPepe::walkable(int tile) {
 		tile == 83 || tile == 87 || tile == 88 || tile == 89 || tile == 93 || tile == 94 || tile == 95 ||
 		tile == 99 || tile == 100 || tile == 101 || tile == 105 || tile == 106 || tile == 107 || tile == 111 ||
 		tile == 112 || tile == 113 || tile == 117 || tile == 118 || tile == 119 || tile == 123 || tile == 124 ||
-		tile == 125 || tile == 126 || tile == 127 || tile == 131 || tile == 132 || tile == 133 || tile == 137 || 
+		tile == 125 || tile == 126 || tile == 127 || tile == 131 || tile == 132 || tile == 133 || tile == 137 ||
 		tile == 138 || tile == 139 || tile == 140 || tile == 141 || tile == 143 || tile == 22 || tile == 28 ||
 		tile == 34);
 }
 
 bool cPepe::walkableDungeon(int tile) {
-	return ( (tile >= 38 && tile <= 49) || tile == 56 || tile == 67 || tile == 74 || tile == 85 || tile == 92 ||
-		tile == 103 || tile == 110 || tile == 121 || tile == 128 || tile == 139 || tile == 146 || (tile >= 151 && 
-		tile <= 157) || tile == 34 || tile == 89 || tile == 64 || tile == 75 || tile == 77 || tile == 179 ||
-		tile == 65 || tile == 100 || tile == 101 || tile == 118 || tile == 119 || testingDungeon(tile));
+	return ((tile >= 38 && tile <= 49) || tile == 56 || tile == 67 || tile == 74 || tile == 85 || tile == 92 ||
+		tile == 103 || tile == 110 || tile == 121 || tile == 128 || tile == 139 || tile == 146 || (tile >= 151 &&
+			tile <= 157) || tile == 34 || tile == 89 || tile == 64 || tile == 75 || tile == 77 || tile == 179 ||
+		tile == 65 || tile == 100 || tile == 101 || tile == 118 || tile == 119);
 }
 
-bool cPepe::testingDungeon(int tile) {
-	return (tile == 112 || tile == 113 || tile == 130 || tile == 131 || tile == 115 || tile == 143 || tile == 178 ||
-		tile == 196);
+bool cPepe::lockDoorsDungeon(int tile) {
+	return (tile == 112 || tile == 113 || tile == 130 || tile == 131 || tile == 115 || tile == 143);
 }
 
 // TODO: Tiles del arbol
 
 bool cPepe::diagonallyWalkableUpRight(int tile) {
 	return (tile == 54 || tile == 60 || tile == 66 || tile == 127 || tile == 133 || tile == 139 || tile == 108 ||
-			tile == 114 || tile == 120);
+		tile == 114 || tile == 120);
 }
 
 bool cPepe::diagonallyWalkableUpLeft(int tile) {
 	return (tile == 56 || tile == 62 || tile == 68 || tile == 126 || tile == 132 || tile == 138 || tile == 110 ||
-			tile == 116 || tile == 122);
+		tile == 116 || tile == 122);
 }
 
 bool cPepe::diagonallyWalkableDownRight(int tile) {
@@ -568,30 +611,30 @@ bool cPepe::overworldTransitions(int tile) {
 }
 
 bool cPepe::dungeonUpTransitions(int tile) {
-	return (tile == 100 || tile == 101 ||  tile == 112 || tile == 113);
+	return (tile == 100 || tile == 101);
 }
 
 bool cPepe::dungeonDownTransitions(int tile) {
-	return (tile == 118 || tile == 119 || tile == 130 || tile == 131);
+	return (tile == 118 || tile == 119);
 }
 
 bool cPepe::dungeonRightTransitions(int tile) {
-	return (tile == 34 || tile == 178 || tile == 115);
+	return (tile == 34);
 }
 
 bool cPepe::dungeonLeftTransitions(int tile) {
-	return (tile == 89 || tile == 143 || tile == 196);
+	return (tile == 89);
 }
 
 bool cPepe::overworldDoors(int tile) {
 	return (tile == 0 || tile == 6 || tile == 12 || tile == 18 || tile == 22 || tile == 24 || tile == 28 || tile == 30 ||
-			tile == 34 || tile == 131 || tile == 137 || tile == 143);
+		tile == 34 || tile == 131 || tile == 137 || tile == 143);
 }
 
 bool cPepe::dungeonDoors(int tile) {
 	return (tile == 34 || tile == 89 || tile == 143 || tile == 178 || tile == 196 || tile == 112 || tile == 113 ||
-			tile == 130 || tile == 131 || tile == 115 || tile == 100 || tile == 101 || tile == 118 || tile == 119 ||
-			tile == 64 || tile == 65);
+		tile == 130 || tile == 131 || tile == 115 || tile == 100 || tile == 101 || tile == 118 || tile == 119 ||
+		tile == 64 || tile == 65);
 }
 
 void cPepe::SetSeqNDelay(int s, int d) {
@@ -673,6 +716,42 @@ void cPepe::SetKnocked(bool kno) {
 
 void cPepe::GetKnocked(bool * kno) {
 	*kno = knocked;
+}
+
+void cPepe::SetKeys(int k) {
+	keys = k;
+}
+
+int cPepe::GetKeys() {
+	return keys;
+}
+
+void cPepe::swapDoors(int* map, int pos) {
+	int tile = map[pos];
+	switch (tile) {
+	case 112:
+		map[pos] = 100;
+		map[pos + 1] = 101;
+		break;
+	case 113:
+		map[pos] = 101;
+		map[pos - 1] = 100;
+		break;
+	case 130:
+		map[pos] = 118;
+		map[pos + 1] = 119;
+		break;
+	case 131:
+		map[pos] = 119;
+		map[pos - 1] = 118;
+		break;
+	case 115:
+		map[pos] = 34;
+		break;
+	case 143:
+		map[pos] = 89;
+		break;
+	}
 }
 
 bool cPepe::hasShoot() {

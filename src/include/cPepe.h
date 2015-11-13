@@ -21,6 +21,7 @@
 #define ATTACK_RIGHT		11
 #define STATE_LOOKBOOM		12
 #define STATE_BOOM			13
+#define STATE_WIN			14
 
 #define OFFSET_WEAPON		0.8f
 
@@ -55,6 +56,7 @@ public:
 	bool dungeonDownTransitions(int tile);
 	bool dungeonRightTransitions(int tile);
 	bool dungeonLeftTransitions(int tile);
+	bool lockDoorsDungeon(int tile);
 
 	bool overworldDoors(int tile);
 	bool dungeonDoors(int tile);
@@ -84,6 +86,11 @@ public:
 	void SetKnocked(bool knocked);
 	void GetKnocked(bool * knocked);
 
+	void SetKeys(int keys);
+	int GetKeys();
+
+	void swapDoors(int* map, int pos);
+
 	bool hasShoot();
 	void Shoot();
 	void endShoot();
@@ -107,6 +114,7 @@ private:
 	bool * opening;
 	bool knocked;
 	int zone;
+	int keys;
 
 	int seq, delay;
 

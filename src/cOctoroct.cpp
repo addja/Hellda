@@ -2,15 +2,17 @@
 
 cOctoroct::cOctoroct() {}
 
-cOctoroct::cOctoroct(float posx, float posy, float step, bool th, int z, bool * overworld) {
+cOctoroct::cOctoroct(float posx, float posy, float step, bool th, bool drop, int z, bool * overworld) {
 	SetOriginalPosition(posx, posy);
 	SetPosition(posx, posy);
 	SetThrower(th);
 	SetZone(z);
 	SetStepLength(step);
 	setOverworld(overworld);
+	SetDropper(drop);
 	endShoot();
 	rebirth();
+	SetHealth(1);
 }
 
 

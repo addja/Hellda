@@ -2,14 +2,16 @@
 
 cStalfos::cStalfos() {}
 
-cStalfos::cStalfos(float posx, float posy, float step, bool th, int z, bool * overworld) {
+cStalfos::cStalfos(float posx, float posy, float step, bool th, bool drop, int z, bool * overworld) {
 	SetOriginalPosition(posx, posy);
 	SetPosition(posx, posy);
 	SetThrower(th);
 	SetZone(z);
 	SetStepLength(step);
 	setOverworld(overworld);
+	SetDropper(drop);
 	rebirth();
+	SetHealth(2);
 }
 
 

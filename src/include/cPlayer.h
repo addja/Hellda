@@ -12,7 +12,7 @@
 class cPlayer: public cPepe {
 public:
 	cPlayer();
-	cPlayer(bool * overworld, bool * transition, bool * opening);
+	cPlayer(bool * overworld, bool * transition, bool * opening, bool * win, cData * dat);
 	~cPlayer();
 
 	void Attack();
@@ -20,7 +20,7 @@ public:
 	void Draw(int tex_id);
 	void DrawPlayer(int tex_id, float xo, float yo, float xf, float yf);
 	void DrawWeapon(int tex_id, float xo, float yo, float xf, float yf, float posx, float posy);
-	bool checkIntersections(cZone zone);
+	bool checkIntersections(cZone * zone);
 
 	void Transition();
 
@@ -29,8 +29,10 @@ public:
 
 	float health();
 	int GetGold();
-	int GetKeys();
 	int GetBombs();
+	bool hasMinimap();
+	bool hasCompass();
+	bool hasBoomerang();
 	bool isDead();
 	void StopState();
 
@@ -43,7 +45,6 @@ public:
 private: 
 	float lives;
 	int gold;
-	int keys;
 	int bombs;
 	bool * transition;
 	float offset;
@@ -51,5 +52,9 @@ private:
 	int hit_dirx; // 1 -> left | -1 -> right
 	int hit_diry; // 1 -> up | -1 -> down
 	bool sword_swipe;
-	
+	bool minimap;
+	bool compass;
+	bool boomerang;
+	bool * win;
+	cData * data;
 };
