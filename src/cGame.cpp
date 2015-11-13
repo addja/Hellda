@@ -510,19 +510,19 @@ void cGame::Render() {
 
 			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_TEXT));
 
-			glColor3f(1, 1, 1);
+			
 			// DANIEL OTERO AVALLE
 			float ox[19] = { 13 * vx, 10 * vx, 7 * vx, 2 * vx, 14 * vx, 5 * vx, 12 * vx, 8 * vx, 13 * vx, 14 * vx, 11 * vx, 8 * vx, 12 * vx, 10 * vx, 15 * vx, 10 * vx, 5 * vx, 5 * vx, 14 * vx };
 			float oy[19] = { vy, vy, 2 * vy, 2 * vy, vy, 2 * vy, 3 * vy, 2 * vy, 2 * vy, vy, 2 * vy, 2 * vy, 3 * vy, vy, 2 * vy, vy, 2 * vy, 2 * vy, vy };
 			for (int i = 0; i < 19; i++) {
 				glBegin(GL_QUADS);
-				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
-				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
-				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
-				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
 				glEnd();
 			}
-			glColor4f(1, 1, 1, 1);
+			
 			glBindTexture(GL_TEXTURE_2D, Data.GetID(IMG_BLONDE));
 
 			glBegin(GL_QUADS);
@@ -645,10 +645,10 @@ void cGame::Render() {
 			float oy[19] = { vy, vy, 2 * vy, 2 * vy, vy, 2 * vy, 3 * vy, 2 * vy, 2 * vy, vy, 2 * vy, 2 * vy, 3 * vy, vy, 2 * vy, vy, 2 * vy, 2 * vy, vy };
 			for (int i = 0; i < 19; i++) {
 				glBegin(GL_QUADS);
-				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
-				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
-				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
-				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (1.0f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i]);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*0.42f);
+				glTexCoord2f(ox[i] + 0.0625f, oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.07f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
+				glTexCoord2f(ox[i], oy[i] - 0.16666f);	glVertex2i(GAME_WIDTH* (0.1f + 0.04f*i), -2 * GAME_HEIGHT + GAME_HEIGHT*(0.42f + 0.07f));
 				glEnd();
 			}
 
