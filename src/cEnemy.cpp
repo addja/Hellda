@@ -167,9 +167,36 @@ bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									}
 									break;
 		}
-
-		return false;
 	}
+	if (thrower) {
+		GetPosition(&x, &y);
+		if (!hasShoot()) {
+			Shoot();
+			switch (GetState()) {
+			case STATE_WALKDOWN: setBulletDir(0); setBulletPos(x, y + 1); break;
+			case STATE_WALKUP: setBulletDir(1); setBulletPos(x, y - 1); break;
+			case STATE_WALKLEFT: setBulletDir(2); setBulletPos(x - 1, y); break;
+			case STATE_WALKRIGHT: setBulletDir(3); setBulletPos(x + 1, y); break;
+			}
+			setBulletLife(60);
+		}
+		else {
+			int i = getBulletLife();
+			std::cout << i << std::endl;
+			setBulletLife(i - 1);
+			if (i - 1 < 1) endShoot();
+			else {
+				getBulletPos(x, y);
+				switch (getBulletDir()) {
+				case 0: setBulletPos(x, y + 1.5 * STEP_OCTOROCT); break;
+				case 1: setBulletPos(x, y - 1.5 * STEP_OCTOROCT); break;
+				case 2: setBulletPos(x -  1.5 * STEP_OCTOROCT, y); break;
+				case 3: setBulletPos(x + 1.5 * STEP_OCTOROCT, y); break;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 bool cEnemy::inZone(float tx, float ty) {

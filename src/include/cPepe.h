@@ -60,6 +60,7 @@ public:
 	bool dungeonDoors(int tile);
 
 	void DrawEntity(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery);
+	void DrawBullet(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery, float bx, float by);
 
 	void MoveUp(int *map);
 	void MoveDown(int *map);

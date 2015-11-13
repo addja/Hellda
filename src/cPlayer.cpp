@@ -538,6 +538,26 @@ bool cPlayer::checkIntersections(cZone zone) {
 		}
 	}
 
+	for (int i = 0; i < zone.numOctorocs(); ++i) {
+		cOctoroct * octoroc = zone.GetOctoroc(i);
+		if (!(*octoroc).isDead()) {
+			if ((*octoroc).hasShoot()) {
+				(*octoroc).getBulletPos(posx, posy);
+				if (player.intersects(cRec(posx, posy))) {
+					(*octoroc).endShoot();
+					if (posx < x) hit_dirx = 1;
+					else hit_dirx = -1;
+					if (posy < y) hit_diry = 1;
+					else hit_diry = -1;
+					if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+					SetKnocked(true);
+					lives -= 0.5f;
+					return false;
+				}
+			}
+		}
+	}
+
 	for (int i = 0; i < zone.numKeeses(); ++i) {
 		cKeese * keese = zone.GetKeese(i);
 		if (!(*keese).isDead()) {
@@ -585,6 +605,20 @@ bool cPlayer::checkIntersections(cZone zone) {
 				SetKnocked(true);
 				lives -= 0.5f;
 				return false;
+			}
+			if ((*boss).hasShoot()) {
+				(*boss).getBulletPos(posx, posy);
+				if (player.intersects(cRec(posx, posy))) {
+					(*boss).endShoot();
+					if (posx < x) hit_dirx = 1;
+					else hit_dirx = -1;
+					if (posy < y) hit_diry = 1;
+					else hit_diry = -1;
+					if (DEBUG_MODE) std::cout << "player hit!!!!" << std::endl;
+					SetKnocked(true);
+					lives -= 0.5f;
+					return false;
+				}
 			}
 		}
 	}

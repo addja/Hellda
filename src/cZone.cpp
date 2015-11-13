@@ -38,7 +38,7 @@ void cZone::Draw(float playerx, float playery)  {
 		(*(ke_enemies[i])).Draw((*Data).GetID(IMG_KEESE), playerx, playery);
 	}
 
-	if (boss_area) (*boss).Draw((*Data).GetID(IMG_BOSS), playerx, playery);
+	if (boss_area) (*boss).Draw((*Data).GetID(IMG_BOSS), (*Data).GetID(IMG_OCTOROC), playerx, playery);
 }
 
 void cZone::Logic(int *map, float x, float y, int state, bool bullet, float bx, float by, bool & hit) {

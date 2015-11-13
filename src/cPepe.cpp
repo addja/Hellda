@@ -712,3 +712,52 @@ int cPepe::getBulletLife() {
 void cPepe::setBulletLife(int i) {
 	bulletLife = i;
 }
+
+void cPepe::DrawBullet(int tex_id, float xo, float yo, float xf, float yf, float playerx, float playery, float bx, float by) {
+	float screen_x, screen_y;
+
+	float vx = GAME_WIDTH / SCENE_WIDTH;
+	float vy = GAME_HEIGHT / (SCENE_HEIGHT - 1);
+
+	if (inOverworld()) {
+		screen_x = GAME_WIDTH / 2 + SCENE_Xo;
+		screen_y = (((SCENE_HEIGHT - HUD_TILES) / 2) - 1)*vy + SCENE_Yo;
+
+		if (playerx < SCENE_WIDTH / 2) screen_x = playerx*vx;
+		else if (playerx > OVERWORLD_MAP_WIDTH - (SCENE_WIDTH / 2)) screen_x = GAME_WIDTH - (OVERWORLD_MAP_WIDTH - playerx)*vx;
+		if (playery <= (SCENE_HEIGHT - HUD_TILES) / 2) screen_y += ((SCENE_HEIGHT - HUD_TILES) / 2 - playery)*vy;
+		else if (playery >= OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2) screen_y -= (playery - (OVERWORLD_MAP_HEIGHT - (SCENE_HEIGHT - HUD_TILES) / 2))*vy;
+
+		float offsetx = bx - playerx;
+		float offsety = playery - by;
+
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, tex_id);
+		glBegin(GL_QUADS);
+		glTexCoord2f(xo, yo);	glVertex2i(screen_x + vx*offsetx, screen_y + vy*offsety);
+		glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx, screen_y + vy*offsety);
+		glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w + vx*offsetx, screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+		glTexCoord2f(xo, yf);	glVertex2i(screen_x + vx*offsetx, screen_y + (vy / TILE_SIZE)*h + vy*offsety);
+		glEnd();
+
+		glDisable(GL_TEXTURE_2D);
+	}
+	else {
+		// Draw Entity in Dungeon
+		screen_x = bx*vx;
+		screen_y = (SCENE_HEIGHT - by)*vy;
+
+		glEnable(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, tex_id);
+		glBegin(GL_QUADS);
+		glTexCoord2f(xo, yo);	glVertex2i(screen_x, screen_y);
+		glTexCoord2f(xf, yo);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y);
+		glTexCoord2f(xf, yf);	glVertex2i(screen_x + (vx / TILE_SIZE)*w, screen_y + (vy / TILE_SIZE)*h);
+		glTexCoord2f(xo, yf);	glVertex2i(screen_x, screen_y + (vy / TILE_SIZE)*h);
+		glEnd();
+
+		glDisable(GL_TEXTURE_2D);
+	}
+}

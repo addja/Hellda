@@ -9,6 +9,7 @@ cOctoroct::cOctoroct(float posx, float posy, float step, bool th, int z, bool * 
 	SetZone(z);
 	SetStepLength(step);
 	setOverworld(overworld);
+	endShoot();
 	rebirth();
 }
 
@@ -51,6 +52,15 @@ void cOctoroct::Draw(int tex_id, float playerx, float playery) {
 	yf = yo - 0.5f;
 
 	DrawEntity(tex_id, xo, yo, xf, yf, playerx, playery);
+
+	if (hasShoot()) {
+		float bx, by;
+		getBulletPos(bx, by);
+		xo = 8.0f / 9.0f;	yo = 0.5f + (GetFrame()*0.5f);
+		xf = xo + 1.0f / 9.0f;
+		yf = yo - 0.5f;
+		DrawBullet(tex_id, xo, yo, xf, yf, playerx, playery, bx, by);
+	}
 }
 
 void cOctoroct::Attack() {
