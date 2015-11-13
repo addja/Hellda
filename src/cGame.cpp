@@ -187,9 +187,10 @@ bool cGame::Process() {
 				else if (keys['a']) {
 					if (Player.swipeAgain()) {
 						Data.playSound(SOUND_SWORD);
+						Player.Attack(); // this is because we want to have the magic sword shoot, we are not bad coders
 						Player.swipe();
 					}
-					Player.Attack();
+					else Player.Attack();
 				}
 				else Player.Stop();
 
@@ -198,9 +199,14 @@ bool cGame::Process() {
 
 				if (overworld) {
 					Player.GetPosition(&x, &y);
-
+					float bx, by;
+					bool control = false;
+					Player.getBulletPos(bx, by);
 					for (std::set<int>::iterator it = zones.begin(); it != zones.end(); ++it) {
-						ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState());
+						ZonesOverworld[*it].Logic(Overworld.GetMap(), x, y, Player.GetState(), Player.hasShoot(),bx,by,control);
+						if (control) {
+							Player.endShoot();
+						}
 					}
 
 					// check intersections enemies player
@@ -228,9 +234,10 @@ bool cGame::Process() {
 				else if (keys['a']) {
 					if (Player.swipeAgain()) {
 						Data.playSound(SOUND_SWORD);
+						Player.Attack(); // this is because we want to have the magic sword shoot, we are not bad coders
 						Player.swipe();
 					}
-					Player.Attack();
+					else Player.Attack();
 				}
 				else Player.Stop();
 
@@ -243,8 +250,14 @@ bool cGame::Process() {
 					// to know the zone
 					int zone;
 					Player.GetZone(&zone);
+					float bx, by;
+					Player.getBulletPos(bx, by);
+					bool control = false;
 
-					ZonesDungeon[zone].Logic(Dungeon.GetMap(), x, y, Player.GetState());
+					ZonesDungeon[zone].Logic(Dungeon.GetMap(), x, y, Player.GetState(), Player.hasShoot(), bx, by, control);
+					if (control) {
+						Player.endShoot();
+					}
 					// remember to check intersections only if 
 					hit = Player.checkIntersections(ZonesDungeon[zone]);
 					if (hit && Player.health() <= 0) {

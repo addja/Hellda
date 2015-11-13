@@ -83,6 +83,17 @@ public:
 	void SetKnocked(bool knocked);
 	void GetKnocked(bool * knocked);
 
+	bool hasShoot();
+	void Shoot();
+	void endShoot();
+	void getBulletPos(float & bulletx, float & bullety);
+	void setBulletPos(float bulletx, float bullety);
+
+	void setBulletDir(int i);
+	int getBulletDir();
+	int getBulletLife();
+	void setBulletLife(int i);
+
 	// To remove later
 	bool testingDungeon(int tile);
 	
@@ -97,4 +108,9 @@ private:
 	int zone;
 
 	int seq, delay;
+
+	int bulletLife;
+	bool bullet;
+	float bulletx, bullety;
+	int bulletDir;	// 0 -> down | 1 -> up | 2 -> left | 3 -> right
 };

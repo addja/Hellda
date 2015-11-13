@@ -28,7 +28,7 @@ public:
 	void Reset();
 	void Draw(int tex_id, float playerx, float playery);
 	void Attack();
-	void Logic(int *map, float x, float y, int state);
+	bool Logic(int *map, float x, float y, int state);
 	bool inZone(float x, float y);
 	void StopState();
 	bool notInScreen(float playerx, float playery);

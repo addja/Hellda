@@ -9,6 +9,7 @@ cPepe::cPepe(void) {
 	seq=0;
 	delay=0;
 	step_length = STEP_LENGTH_LINK;
+	bullet = false;
 }
 
 cPepe::~cPepe(void){}
@@ -672,4 +673,42 @@ void cPepe::SetKnocked(bool kno) {
 
 void cPepe::GetKnocked(bool * kno) {
 	*kno = knocked;
+}
+
+bool cPepe::hasShoot() {
+	return bullet;
+}
+void cPepe::Shoot() {
+	bullet = true;
+}
+
+void cPepe::endShoot() {
+	bullet = false;
+	bulletLife = 0;
+}
+
+void cPepe::getBulletPos(float & bx, float & by) {
+	bx = bulletx;
+	by = bullety;
+}
+
+void cPepe::setBulletPos(float bx, float by) {
+	bulletx = bx;
+	bullety = by;
+}
+
+void cPepe::setBulletDir(int i) {
+	bulletDir = i;
+}
+
+int cPepe::getBulletDir() {
+	return bulletDir;
+}
+
+int cPepe::getBulletLife() {
+	return bulletLife;
+}
+
+void cPepe::setBulletLife(int i) {
+	bulletLife = i;
 }

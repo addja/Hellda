@@ -38,6 +38,8 @@ public:
 	void swipe();
 	void endSwipe();
 
+	void throwSword();
+
 private: 
 	float lives;
 	int gold;
@@ -49,4 +51,5 @@ private:
 	int hit_dirx; // 1 -> left | -1 -> right
 	int hit_diry; // 1 -> up | -1 -> down
 	bool sword_swipe;
+	
 };

@@ -51,16 +51,16 @@ void cEnemy::Attack() {
 
 }
 
-void cEnemy::Logic(int *map, float playerx, float playery, int state) {
+bool cEnemy::Logic(int *map, float playerx, float playery, int state) {
 	
-	if (dead) return;
+	if (dead) return false;
 
 	float x, y, nextx, nexty;
 	GetPosition(&x, &y);
 
 	if (hitWithWeapon(playerx, playery, state, x, y)) {
 		dead = true;
-		return;
+		return true;
 	}
 
 	if (state_delay > MAX_STATE_DELAY) StopState();
@@ -167,6 +167,8 @@ void cEnemy::Logic(int *map, float playerx, float playery, int state) {
 									}
 									break;
 		}
+
+		return false;
 	}
 }
 
@@ -210,6 +212,9 @@ bool cEnemy::hitWithWeapon(float playerx, float playery, int state, float x, flo
 			break;
 		case ATTACK_RIGHT:
 			if (enemy.intersects(cRec(playerx + OFFSET_WEAPON, playery))) return true;
+			break;
+		case 5:
+			if (enemy.intersects(cRec(playerx, playery))) return true;
 			break;
 	}
 

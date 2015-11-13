@@ -12,6 +12,7 @@ cPlayer::cPlayer(bool * overworld, bool * tr, bool * opening) {
 	keys = 0;
 	bombs = 0;
 	SetKnocked(false);
+	endShoot();
 	state_delay = -1;
 	offset = 0.0f;
 }
@@ -149,7 +150,6 @@ void cPlayer::Logic(int *map) {
 				zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
 				zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
 				tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
-				std::cout << newx << " " << newy << " " << tile << std::endl;
 				if (dungeonDownTransitions(tile)) {
 					std::cout << "DOWN TRANS " << tile << std::endl;
 					if ((zonex + newx == 39.0f || zonex + newx == 40.0f) && zoney - (ZONE_HEIGHT - newy) == 64.0f) {
@@ -214,6 +214,83 @@ void cPlayer::Logic(int *map) {
 				}
 				break;
 			}
+	}
+
+	if (hasShoot()) {
+		// check if intersection or out of bound
+		int i = getBulletLife();
+		if (i < 1) {
+			endShoot();
+		}
+		else {
+			setBulletLife(i-1);
+			float posx, posy;
+			getBulletPos(posx, posy);
+			int zonex, zoney;
+
+			switch (getBulletDir()) {
+				case 0:
+					newx = floor(posx + 1);
+					newy = ceil(posy - 0.05f);
+					if (inOverworld()) {
+						tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
+						if (!walkable(tile)) endShoot();
+					}
+					else {
+						zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+						zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+						tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+						if (!walkableDungeon(tile)) endShoot();
+					}
+					setBulletPos(posx, posy + 1.5f*STEP_LENGTH_LINK);
+					break;
+				case 1:
+					newx = floor(posx);
+					newy = ceil(posy - 0.5f);
+					if (inOverworld()) {
+						tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
+						if (!walkable(tile)) endShoot();
+					}
+					else {
+						zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH + 1;
+						zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+						tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+						if (!walkableDungeon(tile)) endShoot();
+					}
+					setBulletPos(posx, posy - 1.5f*STEP_LENGTH_LINK);
+					break;
+				case 2:
+					newx = floor(posx + 0.05f);
+					newy = ceil(posy - 0.05f);
+					if (inOverworld()) {
+						tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
+						if (!walkable(tile)) endShoot();
+					}
+					else {
+						zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+						zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+						tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+						if (!walkableDungeon(tile)) endShoot();
+					}
+					setBulletPos(posx - 1.5f*STEP_LENGTH_LINK, posy);
+					break;
+				case 3:
+					newx = floor(posx + 0.95f);
+					newy = ceil(posy - 0.05f);
+					if (inOverworld()) {
+						tile = map[(OVERWORLD_MAP_HEIGHT - newy - 1)*OVERWORLD_MAP_WIDTH + newx];
+						if (!walkable(tile)) endShoot();
+					}
+					else {
+						zonex = (zone % (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_WIDTH;
+						zoney = floor(zone / (DUNGEON_MAP_WIDTH / ZONE_WIDTH)) * ZONE_HEIGHT + ZONE_HEIGHT / 2;
+						tile = map[(DUNGEON_MAP_HEIGHT - zoney + (ZONE_HEIGHT - newy) - 1)*DUNGEON_MAP_WIDTH + zonex + newx];
+						if (!walkableDungeon(tile)) endShoot();
+					}
+					setBulletPos(posx + 1.5f*STEP_LENGTH_LINK, posy);
+					break;
+			}
+		}
 	}
 }
 
@@ -283,6 +360,7 @@ void cPlayer::Draw(int tex_id) {
 
 void cPlayer::Attack() {
 
+
 	if (GetState() == STATE_WALKDOWN || GetState() == STATE_LOOKDOWN) {
 		SetState(ATTACK_DOWN);
 		SetSeqNDelay(1, 0);
@@ -298,6 +376,10 @@ void cPlayer::Attack() {
 	else if (GetState() == STATE_WALKRIGHT || GetState() == STATE_LOOKRIGHT) {
 		SetState(ATTACK_RIGHT);
 		SetSeqNDelay(1, 0);
+	}
+
+	if (lives == LINK_LIVES && !sword_swipe) {
+		throwSword();
 	}
 }
 
@@ -354,6 +436,32 @@ void cPlayer::DrawPlayer(int tex_id, float xo, float yo, float xf, float yf) {
 	if (knocked) glColor3f(1.0f, 1.0f, 1.0f);
 
 	glDisable(GL_TEXTURE_2D);
+
+	if (hasShoot()) {
+
+		float posx, posy;
+		getBulletPos(posx, posy);
+		glColor3f(0.6, 1, 0.2);
+		switch (getBulletDir()) {
+			case 0:		
+				xo = 0.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				break;
+			case 1:			
+				xo = 2.0f / 5.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				break;
+			case 2:		
+				xo = 1.0f / 5.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				break;
+			case 3:		
+				xo = 3.0f / 5.0f; yo = 0.75f;
+				DrawWeapon(tex_id, xo, yo + 0.25f, xo + 0.2f, yo, posx - x, y - posy);
+				break;
+		}
+		glColor3f(1,1,1);
+	}
 }
 
 // Draws an object that follows the associated Pepe with a given offset
@@ -519,4 +627,35 @@ void cPlayer::swipe() {
 
 void cPlayer::endSwipe() {
 	sword_swipe = false;
+}
+
+void cPlayer::throwSword() {
+	float x, y;
+	GetPosition(&x, &y);
+	Shoot();
+	setBulletLife(60);
+	std::cout << "shoot produced in " << x << " - " << y << " ";
+	switch (GetState()) {
+		case ATTACK_DOWN:
+			std::cout << "down direction" << std::endl;
+			setBulletPos(x, y + OFFSET_WEAPON);
+			setBulletDir(0);
+			break;
+		case ATTACK_UP:
+			std::cout << "up direction" << std::endl;
+			setBulletPos(x, y - OFFSET_WEAPON);
+			setBulletDir(1);
+
+			break;
+		case ATTACK_LEFT:
+			std::cout << "left direction" << std::endl;
+			setBulletPos(x - OFFSET_WEAPON, y);
+			setBulletDir(2);
+			break;
+		case ATTACK_RIGHT:
+			std::cout << "right direction" << std::endl;
+			setBulletPos(x + OFFSET_WEAPON, y);
+			setBulletDir(3);
+			break;
+	}
 }

@@ -41,11 +41,32 @@ void cZone::Draw(float playerx, float playery)  {
 	if (boss_area) (*boss).Draw((*Data).GetID(IMG_BOSS), playerx, playery);
 }
 
-void cZone::Logic(int *map, float x, float y, int state) {
+void cZone::Logic(int *map, float x, float y, int state, bool bullet, float bx, float by, bool & hit) {
 	for (int i = 0; i < oc_current; i++) (*(oc_enemies[i])).Logic(map, x, y, state);
 	for (int i = 0; i < st_current; i++) (*(st_enemies[i])).Logic(map, x, y, state);
 	for (int i = 0; i < ke_current; i++) (*(ke_enemies[i])).Logic(map, x, y, state);
 	if (boss_area) (*boss).Logic(map, x, y, state);
+	if (bullet) {
+		for (int i = 0; i < oc_current; i++) {
+			if ((*(oc_enemies[i])).Logic(map, bx, by, 5)) {  // state exclusive for the thrown weapon
+				hit = true;
+				return;
+			}
+		}
+		for (int i = 0; i < st_current; i++) {
+			if ( (*(st_enemies[i])).Logic(map, bx, by, 5)) {
+				hit = true;
+				return;
+			}
+		}
+		for (int i = 0; i < ke_current; i++) {
+			if ( (*(ke_enemies[i])).Logic(map, bx, by, 5) ) {
+				hit = true;
+				return;
+			}
+		}
+		if (boss_area) hit = (*boss).Logic(map, bx, by, 5);
+	}
 }
 
 void cZone::addEnemy(float x, float y, int type, bool thrower, int z, bool * overworld) {
